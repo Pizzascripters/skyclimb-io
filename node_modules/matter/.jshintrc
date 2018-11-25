@@ -1,0 +1,5 @@
+{
+  "laxbreak":  true,
+  "laxcomma":  true,
+  "expr": true
+}

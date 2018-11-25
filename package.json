@@ -1,0 +1,22 @@
+{
+  "name": "skyclimb.io",
+  "description": "A platform shooter where the map is an island mountain and the tide rises and falls.",
+  "version": "1.0.0",
+  "main": "node.js",
+  "keywords": [
+    "platform",
+    "shooter",
+    "web",
+    "mountain"
+  ],
+  "scripts": {
+    "start": "nodemon node.js"
+  },
+  "author": "Pizzascripters",
+  "dependencies": {
+    "express": "^4.16.4",
+    "matter": "^0.2.0",
+    "matter-js": "^0.14.2",
+    "ws": "^5.2.2"
+  }
+}
