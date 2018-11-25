@@ -55,12 +55,10 @@ wss.on('connection', function(ws, req){ // User initial connection
 
   World.addBody(world, player.body);
 
-  player.body.collisionFilter.group = 1; // Players shouldn't collide with each other
-
   // Programmed cell suicide
   player.apoptosis = function(){
     player.deleted = true;
-    Composite.remove(world, player.body)
+    Composite.remove(world, player.body);
   }
 
   // On user message
@@ -85,10 +83,7 @@ wss.on('connection', function(ws, req){ // User initial connection
 setInterval(function(){ // Send all players the player data
   for(var i in players){
     var p = players[i];
-    if(!p.deleted){
-      p.client.playerData(players);
-      p.client.mapData(map);
-    }
+    if(!p.deleted) p.client.playerData(players);
   }
 }, 1000 / 60);
 
