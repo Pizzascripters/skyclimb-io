@@ -85,7 +85,10 @@ wss.on('connection', function(ws, req){ // User initial connection
 setInterval(function(){ // Send all players the player data
   for(var i in players){
     var p = players[i];
-    if(!p.deleted) p.client.playerData(players);
+    if(!p.deleted){
+      p.client.playerData(players);
+      p.client.mapData(map);
+    }
   }
 }, 1000 / 60);
 

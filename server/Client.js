@@ -29,10 +29,7 @@ module.exports = function(ws, id){
   }
 
   this.mapData = function(map){ // Send map data
-    if(ws.readyState === ws.CLOSED || ws.readyState === ws.CLOSING) {
-        players[id].apoptosis();
-        return 1;
-    }
+    if(ws.readyState === ws.CLOSED || ws.readyState === ws.CLOSING) return 1;
 
     // 1 byte header
     var header = Buffer.from( new Uint8Array([1]) );
