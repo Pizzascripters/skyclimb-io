@@ -47,14 +47,13 @@ var world;
 wss.on('connection', function(ws, req){ // User initial connection
 
   // Create client and player
-  var playerBody = Bodies.circle(1000, 100, 50);
   var client = new Client(ws, clients.length);
-  var player = new Player(client, playerBody);
+  var player = new Player(Matter, client);
   clients.push(client);
   players.push(player);
   console.log("New client, id: %d", clients.length - 1);
 
-  World.addBody(world, playerBody);
+  World.addBody(world, player.body);
 
   player.body.collisionFilter.group = 1; // Players shouldn't collide with each other
 
@@ -79,13 +78,14 @@ wss.on('connection', function(ws, req){ // User initial connection
         break;
     }
   });
+
+  client.mapData(map); // Send map data
 });
 
 setInterval(function(){ // Send all players the player data
   for(var i in players){
     var p = players[i];
     if(!p.deleted) p.client.playerData(players);
-    if(!p.deleted) p.client.mapData(map);
   }
 }, 1000 / 60);
 

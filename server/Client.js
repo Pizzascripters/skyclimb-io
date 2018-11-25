@@ -1,4 +1,3 @@
-const Matter = require('./matter');
 const intToBytes = require('./intToBytes');
 
 module.exports = function(ws, id){
@@ -39,8 +38,9 @@ module.exports = function(ws, id){
     var header = Buffer.from( new Uint8Array([1]) );
     var packet = [];
 
-    // 1 byte header
+    // Add the body to the packet
     function addBody(body) {
+      packet.push( Buffer.from( intToBytes(body.vertices.length) ) );
       for(var i in body.vertices){
         packet.push( Buffer.from( intToBytes(body.vertices[i].x) ) );
         packet.push( Buffer.from( intToBytes(body.vertices[i].y) ) );

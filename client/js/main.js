@@ -129,15 +129,22 @@ function pong(packet){
 // Called when client recieves map data
 function setMap(data){
   map = [];
-  for(var i = 1; i < data.length; i += VERTICES_PER_BODY * VERTEX_SIZE){
+
+  var i = 1;
+  while(i < data.length){
+    var numVertices = bytesToInt( new Uint8Array([data[i], data[i+1], data[i+2], data[i+3]]) );
+    i += 4;
+
     var body = {};
     body.vertices = [];
-    for(var n = 0; n < VERTICES_PER_BODY * VERTEX_SIZE; n += VERTEX_SIZE) {
+    for(var n = 0; n < numVertices * VERTEX_SIZE; n += VERTEX_SIZE) {
       body.vertices[n/VERTEX_SIZE] = {};
       body.vertices[n/VERTEX_SIZE].x = bytesToInt( new Uint8Array([data[i+n], data[i+n+1], data[i+n+2], data[i+n+3]]) );
       body.vertices[n/VERTEX_SIZE].y = bytesToInt( new Uint8Array([data[i+n+4], data[i+n+5], data[i+n+6], data[i+n+7]]) );
     }
     map.push(body);
+
+    i += numVertices * VERTEX_SIZE
   }
 }
 

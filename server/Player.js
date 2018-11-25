@@ -1,6 +1,6 @@
-module.exports = function(client, body){
+module.exports = function(Matter, client){
   this.id = client.id;
-  this.body = body;
+  this.body = Matter.Bodies.circle(1000, 100, 50);
   this.client = client;
   client.player = this;
 
