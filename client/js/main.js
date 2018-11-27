@@ -11,6 +11,7 @@ var keyboard = {
   jump: false
 }
 var cam = {x:0, y:0}; // Position of the camera
+var images = {};
 
 window.addEventListener("load", init);
 window.addEventListener("resize", fullscreen);
@@ -32,7 +33,7 @@ function init(e){
   ws.onclose = socketClose;
 
   fullscreen();
-  update(0);
+  loadImages(() => {update(0)});
 
   setInterval(sendKeyboard, 1000 / 60);
 }
@@ -180,6 +181,24 @@ function setPlayers(data){
       cam.y = player.y;
     }
   }
+}
+
+function loadImages(callback) {
+  var count = 0;
+  var onload = () => {
+    count++;
+    if(count === 2) callback();
+  }
+
+  images.eyes = loadImage("eyes.png", onload);
+  images.pistol = loadImage("pistol.png", onload);
+}
+
+function loadImage(src, callback) {
+  var img = new Image();
+  img.src = "img/" + src;
+  img.onload = callback;
+  return img;
 }
 
 // Converts a 4 byte uint8array to an integer

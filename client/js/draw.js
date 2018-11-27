@@ -34,29 +34,26 @@ function draw(delta){
     var p = players[i];
     drawObject(p, PLAYER_OUTLINE);
 
-    // Draw hand
     var player_radius = Math.sqrt(Math.pow(p.vertices[0].x - players[i].x, 2) + Math.pow(p.vertices[0].y - players[i].y, 2));
     var hand_angle = 2 * Math.PI * p.hand / 256;
     var xCoord = p.x - cam.x + cvs.width / 2
     var yCoord = p.y - cam.y + cvs.height / 2
 
-    ctx.beginPath();
-    ctx.arc(
-      xCoord + 0.3 * player_radius * Math.cos(hand_angle),
-      yCoord - 0.3 * player_radius * Math.sin(hand_angle),
-      player_radius / 5, 0, 2 * Math.PI
-    );
-    ctx.stroke();
-    ctx.fill();
+    ctx.drawImage(images.eyes, xCoord - player_radius, yCoord - player_radius, player_radius * 2, player_radius * 2); // Draw eyes
 
-    ctx.beginPath();
-    ctx.arc(
-      xCoord + 1.3 * player_radius * Math.cos(hand_angle),
-      yCoord - 1.3 * player_radius * Math.sin(hand_angle),
-      player_radius / 5, 0, 2 * Math.PI
-    );
-    ctx.stroke();
-    ctx.fill();
+    // Draw weapon
+    ctx.save();
+    ctx.translate(cvs.width / 2, cvs.height / 2);
+    console.log(hand_angle)
+    if(hand_angle < Math.PI / 2 || hand_angle > 3 * Math.PI / 2) {
+      ctx.rotate(-hand_angle - 0.15);
+      ctx.drawImage(images.pistol, player_radius, 0, 50, 50);
+    } else {
+      ctx.rotate(-3.14 - hand_angle);
+      ctx.scale(-1, 1);
+      ctx.drawImage(images.pistol, player_radius, 42, 50, -50);
+    }
+    ctx.restore();
   }
 }
 
