@@ -12,6 +12,7 @@ module.exports = function(Matter, client){
     right: false,
     jump: false
   }
+  this.hand = 0;
 
   this.deleted = false;
 }

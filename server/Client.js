@@ -26,6 +26,8 @@ module.exports = function(ws, id){
     if(packet[0]) this.player.keyboard.left = true;
     if(packet[1]) this.player.keyboard.right = true;
     if(packet[2]) this.player.keyboard.jump = true;
+
+    this.player.hand = packet[3];
   }
 
   this.mapData = function(map){ // Send map data
@@ -64,19 +66,18 @@ module.exports = function(ws, id){
     var packet = [];
 
     // Adds a player to the packet
-    function addPlayer(body) {
-      for(var i in body.vertices){
-        packet.push( Buffer.from( intToBytes(body.vertices[i].x) ) );
-        packet.push( Buffer.from( intToBytes(body.vertices[i].y) ) );
+    function addPlayer(p) {
+      for(var i in p.body.vertices){
+        packet.push( Buffer.from( intToBytes(p.body.vertices[i].x) ) );
+        packet.push( Buffer.from( intToBytes(p.body.vertices[i].y) ) );
       }
+      packet.push( Buffer.from( intToBytes(p.hand) ) );
     }
 
-    // Add yourself to the player packet
-    addPlayer(players[id].body);
-    // Add all the other players
+    addPlayer(players[id]); // Add yourself to the player packet
     for(var i in players){
-      if(players[i].deleted || i === id) continue;
-      addPlayer(players[i].body);
+      if(players[i].deleted || i === String(id)) continue;
+      addPlayer(players[i]); // Add all the other players
     }
 
     packet = Buffer.concat( packet );

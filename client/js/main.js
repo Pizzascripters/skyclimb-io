@@ -1,6 +1,7 @@
 var cvs, ctx;         // Canvas and context
 var ws;               // Websocket
 var prevTime = 0;     // Time of last frame
+var hand = 0;         // Angle of the hand
 var pingStart;        // The time we sent out the ping
 var players = [];
 var map = [];
@@ -13,6 +14,7 @@ var cam = {x:0, y:0}; // Position of the camera
 
 window.addEventListener("load", init);
 window.addEventListener("resize", fullscreen);
+window.addEventListener("mousemove", mousemove);
 window.addEventListener("keydown", keydown);
 window.addEventListener("keyup", keyup);
 
@@ -68,6 +70,11 @@ function keyup(e){
   }
 }
 
+function mousemove(e) {
+  hand = Math.floor(256 * Math.atan2(cvs.height / 2 - e.clientY, e.clientX - cvs.width / 2) / (2*Math.PI));
+  if(hand < 0) hand += 256;
+}
+
 // Runs constantly, only param is time since last frame
 function update(time){
   var delta = time - prevTime;  // Time since last frame
@@ -108,11 +115,12 @@ function ping(){
 
 // Sends keyboard input to server
 function sendKeyboard(){
-  var packet = new Uint8Array(4);
+  var packet = new Uint8Array(5);
   packet[0] = 1;
   packet[1] = keyboard.left;
   packet[2] = keyboard.right;
   packet[3] = keyboard.jump;
+  packet[4] = hand;
   ws.send(packet);
 }
 
@@ -151,7 +159,7 @@ function setMap(data){
 // Called when client recieves player information
 function setPlayers(data){
   players = [];
-  for(var i = 1; i < data.length; i += VERTICES_PER_PLAYER * VERTEX_SIZE){
+  for(var i = 1; i < data.length; i += PLAYER_BYTES){
     var player = {};
     player.vertices = [];
     player.x = player.y = 0;  // For finding the avergae vertex position
@@ -162,6 +170,9 @@ function setPlayers(data){
     }
     player.x /= player.vertices.length; // Find the average
     player.y /= player.vertices.length;
+
+    player.hand = bytesToInt( new Uint8Array([data[i+n], data[i+n+1], data[i+n+2], data[i+n+3]]) );
+
     players.push(player);
 
     if(i === 1) {
