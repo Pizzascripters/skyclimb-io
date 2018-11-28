@@ -43,8 +43,7 @@ function draw(delta){
 
     // Draw weapon
     ctx.save();
-    ctx.translate(cvs.width / 2, cvs.height / 2);
-    console.log(hand_angle)
+    ctx.translate(xCoord, yCoord);
     if(hand_angle < Math.PI / 2 || hand_angle > 3 * Math.PI / 2) {
       ctx.rotate(-hand_angle - 0.15);
       ctx.drawImage(images.pistol, player_radius, 0, 50, 50);
