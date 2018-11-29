@@ -1,73 +1,72 @@
-var clients = []; // The socket and some methods for communicating with the client
-var players = []; // Holds the player body and a virtual keyboard
-var bullets = []; // Holds all of the bullet objects
-var world;
+// Load Modules
+const express = require('express');
+const http = require('http');
+const path = require('path');
+const WebSocket = require('ws');
 
-{ // Load Modules
-  var express = require('express');
-  var http = require('http');
-  var path = require('path');
-  var WebSocket = require('ws');
+const Matter = require('./server/Matter');
+const Client = require('./server/Client');
+const Player = require('./server/Player');
+const Bullet = require('./server/Bullet');
+const physics = require('./server/physics');
+const map = require('./server/map')(Matter);
 
-  var Matter = require('./server/matter');
-  var Client = require('./server/Client');
-  var Player = require('./server/Player');
-  var Bullet = require('./server/Bullet');
-  var physics = require('./server/physics');
-  var map = require('./server/map')(Matter);
+var Game = {
+  clients: [],
+  players: [],
+  bullets: [],
+  map: map
 }
 
-{ // Create express app
-  var app = express();
-  var server = http.createServer(app);
-  var wss = new WebSocket.Server({ "server" : server });
-}
+var clients = Game.clients, // The socket and some methods for communicating with the client
+    players = Game.players, // Holds the player body and a virtual keyboard
+    bullets = Game.bullets; // Holds all of the bullet objects
 
-{ // Configure matter.js
-  // Module Aliases
-  var Engine = Matter.Engine,
-      World = Matter.World,
-      Bodies = Matter.Bodies,
-      Composite = Matter.Composite,
-      Events = Matter.Events;
+// Create express app
+var app = express();
+var server = http.createServer(app);
+var wss = new WebSocket.Server({ "server" : server });
 
-  // Create the world
-  var engine = Engine.create();
-  world = engine.world;
-  World.add(world, []);
-  Engine.run(engine);
+// Configure matter js
+// Module Aliases
+var Engine = Matter.Engine,
+    World = Matter.World,
+    Bodies = Matter.Bodies,
+    Composite = Matter.Composite,
+    Events = Matter.Events;
 
-  for(var i in map) World.addBody(world, map[i]); // Add map bodies to matter js world
-}
+// Create the engine and world
+var engine = Engine.create();
+    world = Game.world = engine.world;
+Engine.run(engine);
+World.add(world, []);
 
-{ // Allow users to access files in the client folder
-  app.get('/', function(req, res){
-    res.sendFile(__dirname + '/client/index.html');
-  });
-  app.use('/', express.static(__dirname + '/client'));
-}
+for(var i in map)
+  World.addBody(world, map[i]); // Add map bodies to matter js world
 
-wss.on('connection', function(ws, req){ // User initial connection
+// Allow users to access files in the client folder
+app.get('/', (req, res) => {
+  res.sendFile(__dirname + '/client/index.html');
+});
+app.use('/', express.static(__dirname + '/client'));
+
+// User initial connection
+wss.on('connection', (ws, req) => {
 
   // Create client and player
-  var client = new Client(ws, clients.length);
-  var player = new Player(Matter, client);
+  let clientId = clients.length;
+  let client = new Client(ws, clientId);
+  let player = new Player(client);
   clients.push(client);
   players.push(player);
-  console.log("New client, id: %d", clients.length - 1);
+  console.log("New client, id: %d", clientId);
 
   World.addBody(world, player.body);
 
-  // Programmed cell suicide
-  player.apoptosis = function(){
-    player.deleted = true;
-    Composite.remove(world, player.body);
-  }
-
   // On user message
-  ws.on('message', function(packet){
-    var data = new Uint8Array(packet);
-    switch(data[0]){
+  ws.on('message', (packet) => {
+    let data = new Uint8Array(packet);
+    switch( data[0] ){
       case 0: // Ping
         client.pong();
         break;
@@ -83,15 +82,18 @@ wss.on('connection', function(ws, req){ // User initial connection
   client.mapData(map); // Send map data
 });
 
-setInterval(function(){ // Send all players the player data
+setInterval(() => { // Send all players the player data
   for(var i in players){
-    var p = players[i];
-    if(!p.deleted) p.client.playerData(players, bullets);
+    let p = players[i];
+    if(!p.deleted)
+      p.client.playerData(Game);
   }
 }, 1000 / 60);
 
-Events.on(engine, 'tick', (e) => {physics(e, Matter, world, map, players, bullets)});
+Events.on(engine, 'tick', (e) => {
+  physics(Game);
+});
 
-server.listen(process.env.PORT || 9090, function(){ // Listen on the server
+server.listen(process.env.PORT || 9090, () => { // Listen on the server
   console.log('Listening on %d', server.address().port);
 });

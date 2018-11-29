@@ -3,7 +3,7 @@
 module.exports = function(n){
   n += 2147483648;
 
-  var bytes = new Uint8Array(4);
+  let bytes = new Uint8Array(4);
   bytes[0] = Math.floor(n / 16777216);
   bytes[1] = Math.floor(n / 65536);
   bytes[2] = Math.floor(n / 256);

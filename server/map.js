@@ -29,7 +29,8 @@ module.exports = function(Matter){
   /*body = Body.create({"position": vector});
   Body.setVertices(body, array_of_vectors);*/
 
-  for(var i in map) Body.setStatic(map[i], true);
+  for(var i in map)
+    Body.setStatic(map[i], true);
 
   return map;
 };
