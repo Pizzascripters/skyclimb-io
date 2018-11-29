@@ -5,10 +5,12 @@ var hand = 0;         // Angle of the hand
 var pingStart;        // The time we sent out the ping
 var players = [];
 var map = [];
+var bullets = [];
 var keyboard = {
   left: false,
   right: false,
-  jump: false
+  jump: false,
+  shoot: false
 }
 var cam = {x:0, y:0}; // Position of the camera
 var images = {};
@@ -16,6 +18,8 @@ var images = {};
 window.addEventListener("load", init);
 window.addEventListener("resize", fullscreen);
 window.addEventListener("mousemove", mousemove);
+window.addEventListener("mousedown", mousedown);
+window.addEventListener("mouseup", mouseup);
 window.addEventListener("keydown", keydown);
 window.addEventListener("keyup", keyup);
 
@@ -76,6 +80,14 @@ function mousemove(e) {
   if(hand < 0) hand += 256;
 }
 
+function mousedown (e) {
+  keyboard.shoot = true;
+}
+
+function mouseup (e) {
+  keyboard.shoot = false;
+}
+
 // Runs constantly, only param is time since last frame
 function update(time){
   var delta = time - prevTime;  // Time since last frame
@@ -116,12 +128,13 @@ function ping(){
 
 // Sends keyboard input to server
 function sendKeyboard(){
-  var packet = new Uint8Array(5);
+  var packet = new Uint8Array(6);
   packet[0] = 1;
-  packet[1] = keyboard.left;
-  packet[2] = keyboard.right;
-  packet[3] = keyboard.jump;
-  packet[4] = hand;
+  packet[1] = hand;
+  packet[2] = keyboard.left;
+  packet[3] = keyboard.right;
+  packet[4] = keyboard.jump;
+  packet[5] = keyboard.shoot;
   ws.send(packet);
 }
 
@@ -160,7 +173,9 @@ function setMap(data){
 // Called when client recieves player information
 function setPlayers(data){
   players = [];
-  for(var i = 1; i < data.length; i += PLAYER_BYTES){
+  bullets = [];
+
+  for(var i = 2; i < data[1] * PLAYER_BYTES; i += PLAYER_BYTES){
     var player = {};
     player.vertices = [];
     player.x = player.y = 0;  // For finding the avergae vertex position
@@ -176,10 +191,22 @@ function setPlayers(data){
 
     players.push(player);
 
-    if(i === 1) {
+    if(players.length === 1) {
       cam.x = player.x;
       cam.y = player.y;
     }
+  }
+
+  for(;i < data.length; i += BULLET_BYTES){
+    var bullet = {};
+    bullet.vertices = [];
+    for(var n = 0; n < VERTICES_PER_BULLET * VERTEX_SIZE; n += VERTEX_SIZE) {
+      bullet.vertices[n/VERTEX_SIZE] = {};
+      bullet.vertices[n/VERTEX_SIZE].x = bytesToInt( new Uint8Array([data[i+n], data[i+n+1], data[i+n+2], data[i+n+3]]) );
+      bullet.vertices[n/VERTEX_SIZE].y = bytesToInt( new Uint8Array([data[i+n+4], data[i+n+5], data[i+n+6], data[i+n+7]]) );
+    }
+
+    bullets.push(bullet);
   }
 }
 

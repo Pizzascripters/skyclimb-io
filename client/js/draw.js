@@ -54,6 +54,11 @@ function draw(delta){
     }
     ctx.restore();
   }
+
+  for (var i in bullets) {
+    var b = bullets[i];
+    drawObject(b, PLAYER_OUTLINE);
+  }
 }
 
 function drawObject(p, outline) {

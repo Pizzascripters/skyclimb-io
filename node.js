@@ -1,5 +1,6 @@
 var clients = []; // The socket and some methods for communicating with the client
 var players = []; // Holds the player body and a virtual keyboard
+var bullets = []; // Holds all of the bullet objects
 var world;
 
 { // Load Modules
@@ -11,6 +12,7 @@ var world;
   var Matter = require('./server/matter');
   var Client = require('./server/Client');
   var Player = require('./server/Player');
+  var Bullet = require('./server/Bullet');
   var physics = require('./server/physics');
   var map = require('./server/map')(Matter);
 }
@@ -83,11 +85,11 @@ wss.on('connection', function(ws, req){ // User initial connection
 setInterval(function(){ // Send all players the player data
   for(var i in players){
     var p = players[i];
-    if(!p.deleted) p.client.playerData(players);
+    if(!p.deleted) p.client.playerData(players, bullets);
   }
 }, 1000 / 60);
 
-setInterval(physics, 1000 / 30, world, map, players) // Update physics
+setInterval(physics, 1000 / 30, Matter, world, map, players, bullets) // Update physics
 
 server.listen(process.env.PORT || 9090, function(){ // Listen on the server
   console.log('Listening on %d', server.address().port);

@@ -20,14 +20,16 @@ module.exports = function(ws, id){
     this.player.keyboard.left = false;
     this.player.keyboard.right = false;
     this.player.keyboard.jump = false;
+    this.player.keyboard.shoot = false;
 
     var body = this.player.body;
 
-    if(packet[0]) this.player.keyboard.left = true;
-    if(packet[1]) this.player.keyboard.right = true;
-    if(packet[2]) this.player.keyboard.jump = true;
+    this.player.hand = packet[0];
 
-    this.player.hand = packet[3];
+    if(packet[1]) this.player.keyboard.left = true;
+    if(packet[2]) this.player.keyboard.right = true;
+    if(packet[3]) this.player.keyboard.jump = true;
+    if(packet[4]) this.player.keyboard.shoot = true;
   }
 
   this.mapData = function(map){ // Send map data
@@ -55,7 +57,7 @@ module.exports = function(ws, id){
     return 0;
   }
 
-  this.playerData = function(players){ // Send player data
+  this.playerData = function(players, bullets){ // Send player data
     if(ws.readyState === ws.CLOSED || ws.readyState === ws.CLOSING) {
         players[id].apoptosis();
         return 1;
@@ -65,8 +67,11 @@ module.exports = function(ws, id){
     var header = Buffer.from( new Uint8Array([2]));
     var packet = [];
 
+    packet[0] = 0; // For counting players
+
     // Adds a player to the packet
     function addPlayer(p) {
+
       for(var i in p.body.vertices){
         packet.push( Buffer.from( intToBytes(p.body.vertices[i].x) ) );
         packet.push( Buffer.from( intToBytes(p.body.vertices[i].y) ) );
@@ -74,11 +79,24 @@ module.exports = function(ws, id){
       packet.push( Buffer.from( intToBytes(p.hand) ) );
     }
 
+    function addBullet(b) {
+
+      for(var i in b.body.vertices){
+        packet.push( Buffer.from( intToBytes(b.body.vertices[i].x) ) );
+        packet.push( Buffer.from( intToBytes(b.body.vertices[i].y) ) );
+      }
+    }
+
     addPlayer(players[id]); // Add yourself to the player packet
+    var num_players = 1;    // For counting the number of players
     for(var i in players){
       if(players[i].deleted || i === String(id)) continue;
       addPlayer(players[i]); // Add all the other players
+      num_players++;
     }
+    for(var i in bullets) addBullet(bullets[i]); // Add the bullets
+
+    packet[0] = Buffer.from( [num_players] ); // Indicate the number of players
 
     packet = Buffer.concat( packet );
     ws.send(Buffer.concat( [header, packet] ));
