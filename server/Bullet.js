@@ -1,4 +1,4 @@
-const Matter = require('./Matter');
+const Matter = require('./matter');
 
 const BULLET_WIDTH = 5;
 const BULLET_HEIGHT = 5;

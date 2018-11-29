@@ -1,4 +1,4 @@
-var Matter = require('./Matter');
+var Matter = require('./matter');
 
 var PLAYER_START_POS = {x: 0, y: 0};
 var PLAYER_RADIUS = 50;

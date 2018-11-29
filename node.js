@@ -4,7 +4,7 @@ const http = require('http');
 const path = require('path');
 const WebSocket = require('ws');
 
-const Matter = require('./server/Matter');
+const Matter = require('./server/matter');
 const Client = require('./server/Client');
 const Player = require('./server/Player');
 const Bullet = require('./server/Bullet');
