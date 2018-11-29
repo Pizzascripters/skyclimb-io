@@ -23,6 +23,8 @@ module.exports = function (world, p) {
     {x: xVelocity, y: yVelocity}
   );
 
+  this.angle = p.hand;
+
   setTimeout(this.apoptosis = () => {
     this.deleted = true;
     Matter.Composite.remove(world, body);

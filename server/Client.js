@@ -95,6 +95,7 @@ module.exports = function(ws, id){
         packet.push( b.body.vertices[i].x );
         packet.push( b.body.vertices[i].y );
       }
+      packet.push( b.angle );
     }
 
     addPlayer(players[id]); // Add yourself to the player packet

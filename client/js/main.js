@@ -27,10 +27,11 @@ function init(e){
   cvs = document.getElementById("cvs");
   ctx = cvs.getContext("2d");
 
+  // Connect to websocket server
   if( window.location.href.startsWith("https") ) {
-      ws = new WebSocket("wss://" + window.location.href.substring(6))
+      ws = new WebSocket("wss://" + window.location.href.substring(6));
   } else {
-    ws = new WebSocket("ws://" + window.location.href.substring(5))
+    ws = new WebSocket("ws://" + window.location.href.substring(5));
   }
   ws.binaryType = "arraybuffer"; // Allows us to recieve byte strings from the server
   ws.onmessage = handleMessage;
@@ -76,7 +77,8 @@ function keyup(e){
 }
 
 function mousemove(e) {
-  hand = Math.floor(256 * Math.atan2(cvs.height / 2 - e.clientY, e.clientX - cvs.width / 2) / (2*Math.PI));
+  let hand_angle = Math.atan2(cvs.height / 2 - e.clientY, e.clientX - cvs.width / 2);
+  hand = Math.floor(256 * hand_angle / (2*Math.PI));
   if(hand < 0) hand += 256;
 }
 
@@ -90,7 +92,7 @@ function mouseup (e) {
 
 // Runs constantly, only param is time since last frame
 function update(time){
-  var delta = time - prevTime;  // Time since last frame
+  let delta = time - prevTime;  // Time since last frame
   prevTime = time;
 
   draw(delta);
@@ -206,6 +208,8 @@ function setPlayers(data){
       bullet.vertices[n/VERTEX_SIZE].y = bytesToInt( new Uint8Array([data[i+n+4], data[i+n+5], data[i+n+6], data[i+n+7]]) );
     }
 
+    bullet.angle = bytesToInt( new Uint8Array([data[i+n], data[i+n+1], data[i+n+2], data[i+n+3]]) );
+
     bullets.push(bullet);
   }
 }
@@ -214,11 +218,12 @@ function loadImages(callback) {
   var count = 0;
   var onload = () => {
     count++;
-    if(count === 2) callback();
+    if(count === Object.keys(images).length) callback();
   }
 
   images.eyes = loadImage("eyes.png", onload);
   images.pistol = loadImage("pistol.png", onload);
+  images.bullet = loadImage("bullet.png", onload);
 }
 
 function loadImage(src, callback) {

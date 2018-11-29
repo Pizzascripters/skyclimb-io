@@ -36,8 +36,8 @@ function draw(delta){
 
     var player_radius = Math.sqrt(Math.pow(p.vertices[0].x - players[i].x, 2) + Math.pow(p.vertices[0].y - players[i].y, 2));
     var hand_angle = 2 * Math.PI * p.hand / 256;
-    var xCoord = p.x - cam.x + cvs.width / 2
-    var yCoord = p.y - cam.y + cvs.height / 2
+    var xCoord = p.x - cam.x + cvs.width / 2;
+    var yCoord = p.y - cam.y + cvs.height / 2;
 
     ctx.drawImage(images.eyes, xCoord - player_radius, yCoord - player_radius, player_radius * 2, player_radius * 2); // Draw eyes
 
@@ -57,8 +57,20 @@ function draw(delta){
 
   for (var i in bullets) {
     var b = bullets[i];
-    drawObject(b, PLAYER_OUTLINE);
+    drawBullet(b);
   }
+}
+
+function drawBullet(b) {
+  let bullet_angle = 2 * Math.PI * b.angle / 256;
+  let xCoord = b.vertices[0].x - cam.x + cvs.width / 2;
+  let yCoord = b.vertices[0].y - cam.y + cvs.height / 2;
+
+  ctx.save();
+  ctx.translate(xCoord, yCoord);
+  ctx.rotate(-bullet_angle);
+  ctx.drawImage(images.bullet, 0, 0);
+  ctx.restore();
 }
 
 function drawObject(p, outline) {
