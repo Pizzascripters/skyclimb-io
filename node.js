@@ -28,7 +28,8 @@ var world;
   var Engine = Matter.Engine,
       World = Matter.World,
       Bodies = Matter.Bodies,
-      Composite = Matter.Composite;
+      Composite = Matter.Composite,
+      Events = Matter.Events;
 
   // Create the world
   var engine = Engine.create();
@@ -89,7 +90,7 @@ setInterval(function(){ // Send all players the player data
   }
 }, 1000 / 60);
 
-setInterval(physics, 1000 / 30, Matter, world, map, players, bullets) // Update physics
+Events.on(engine, 'tick', (e) => {physics(e, Matter, world, map, players, bullets)});
 
 server.listen(process.env.PORT || 9090, function(){ // Listen on the server
   console.log('Listening on %d', server.address().port);
