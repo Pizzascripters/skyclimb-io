@@ -20,7 +20,7 @@ module.exports = function(Matter, world, map, players, bullets){
     if(p.keyboard.right) Matter.Body.applyForce(body, {x: body.position.x, y: body.position.y}, {x: HORIZONTAL_ACCELERTION, y: 0});
     if(p.keyboard.jump) Matter.Body.applyForce(body, {x: body.position.x, y: body.position.y}, {x: 0, y: -JUMP_ACCELERATION});
     if(p.keyboard.shoot) {
-      var bullet = new Bullet(Matter, p);
+      var bullet = new Bullet(Matter, world, p);
       Matter.World.addBody(world, bullet.body);
       bullets.push(bullet);
     }

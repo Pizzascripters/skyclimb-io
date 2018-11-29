@@ -94,7 +94,10 @@ module.exports = function(ws, id){
       addPlayer(players[i]); // Add all the other players
       num_players++;
     }
-    for(var i in bullets) addBullet(bullets[i]); // Add the bullets
+    for(var i in bullets){
+      if(bullets[i].deleted) continue;
+      addBullet(bullets[i]); // Add the bullets
+    }
 
     packet[0] = Buffer.from( [num_players] ); // Indicate the number of players
 
