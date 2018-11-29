@@ -16,6 +16,7 @@ module.exports = function(client){
     jump: false
   }
   this.hand = 0;
+  this.health = 1;
 
   this.deleted = false;
 

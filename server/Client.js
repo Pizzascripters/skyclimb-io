@@ -88,6 +88,7 @@ module.exports = function(ws, id){
         packet.push( p.body.vertices[i].y );
       }
       packet.push( p.hand );
+      packet.push( Math.floor(p.health * 255) );
     }
 
     function addBullet(b) {

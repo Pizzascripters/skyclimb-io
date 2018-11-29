@@ -1,12 +1,3 @@
-const PLAYER_COLOR = "#fc7";
-const OBJECT_COLOR = "#655";
-const PLAYER_OUTLINE = true;
-const PLAYER_OUTLINE_COLOR = "#000";
-const PLAYER_OUTLINE_WIDTH = 3;
-const OBJECT_OUTLINE = true;
-const OBJECT_OUTLINE_COLOR = "#000";
-const OBJECT_OUTLINE_WIDTH = 2;
-
 function draw(delta){
   var bg_gradient = ctx.createLinearGradient(
     0, -cvs.height * 2.5 - cvs.height * (cam.y / 360),
@@ -62,7 +53,20 @@ function draw(delta){
   }
 
   // Healthbar
-  ctx.drawImage(images.healthbar, cvs.width / 2 - images.healthbar.width / 2, 20);
+  let healthbar_x = cvs.width / 2 - images.healthbar.width / 2;
+  let healthbar_y = 20;
+  let health_gradient = ctx.createLinearGradient(
+    healthbar_x, 0,
+    healthbar_x + images.healthbar.width, 0
+  );
+  health_gradient.addColorStop(0, "#f00");
+  health_gradient.addColorStop(1, "#a00");
+
+  if(players.length > 0) {
+    ctx.fillStyle = health_gradient;
+    ctx.fillRect(healthbar_x + 28, healthbar_y + 5, 365 * players[0].health, 37);
+    ctx.drawImage(images.healthbar, healthbar_x, healthbar_y);
+  }
 }
 
 function drawBullet(b) {

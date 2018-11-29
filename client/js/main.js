@@ -190,6 +190,8 @@ function setPlayers(data){
     player.y /= player.vertices.length;
 
     player.hand = bytesToInt( new Uint8Array([data[i+n], data[i+n+1], data[i+n+2], data[i+n+3]]) );
+    n += 4;
+    player.health = bytesToInt( new Uint8Array([data[i+n], data[i+n+1], data[i+n+2], data[i+n+3]]) ) / 255;
 
     players.push(player);
 
