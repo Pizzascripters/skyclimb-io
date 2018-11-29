@@ -35,12 +35,15 @@ function init(e){
   }
   ws.binaryType = "arraybuffer"; // Allows us to recieve byte strings from the server
   ws.onmessage = handleMessage;
-  ws.onclose = socketClose;
+  ws.onclose = () => {
+    console.error("Socket closed");
+    clearInterval(sendKeyboardInterval);
+  };
 
   fullscreen();
   loadImages(() => {update(0)});
 
-  setInterval(sendKeyboard, 1000 / 60);
+  const sendKeyboardInterval = setInterval(sendKeyboard, 1000 / 60);
 }
 
 function fullscreen(e){
@@ -117,19 +120,20 @@ function handleMessage(packet){
   }
 }
 
-// Prints an error message when the socket closes
-function socketClose(){
-  console.error("Socket closed");
-}
-
 // Sends a 1 byte packet to the server
 function ping(){
+  if(ws.readyState != ws.OPEN)
+    return 1;
+
   pingStart = window.performance.now();
   ws.send(new Uint8Array(1));
 }
 
 // Sends keyboard input to server
 function sendKeyboard(){
+  if(ws.readyState != ws.OPEN)
+    return 1;
+
   var packet = new Uint8Array(6);
   packet[0] = 1;
   packet[1] = hand;
@@ -142,6 +146,9 @@ function sendKeyboard(){
 
 // Requests the map data in case we didn't get it
 function requestMapData(){
+  if(ws.readyState != ws.OPEN)
+    return 1;
+
   ws.send(new Uint8Array(2));
 }
 
