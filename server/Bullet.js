@@ -1,8 +1,8 @@
 const Matter = require('./matter');
 
-const BULLET_WIDTH = 5;
-const BULLET_HEIGHT = 5;
-const BULLET_SPEED = 30;
+const BULLET_WIDTH = 20;
+const BULLET_HEIGHT = 10;
+const BULLET_SPEED = 60;
 
 module.exports = function (world, p) {
   this.deleted = false;

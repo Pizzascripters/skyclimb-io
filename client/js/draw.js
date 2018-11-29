@@ -55,10 +55,14 @@ function draw(delta){
     ctx.restore();
   }
 
+  // Draw bullets
   for (var i in bullets) {
     var b = bullets[i];
     drawBullet(b);
   }
+
+  // Healthbar
+  ctx.drawImage(images.healthbar, cvs.width / 2 - images.healthbar.width / 2, 20);
 }
 
 function drawBullet(b) {

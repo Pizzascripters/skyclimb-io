@@ -1,8 +1,8 @@
 const Matter = require('./matter');
 const Bullet = require('./Bullet')
 
-const RECOIL = 0.003;
-const KNOCKBACK = 0.008;
+const RECOIL = 0.001;
+const KNOCKBACK = 0.004;
 const SHOOTING_COOLDOWN = 10;
 const TERMINAL_X_VELOCITY = 30;
 const TERMINAL_Y_VELOCITY = 30;
@@ -19,6 +19,18 @@ module.exports = function(Game){
       world = Game.world;
 
   world.gravity.y = 0; // I'm making my own gravity
+
+  for(var i in bullets) {
+    let b = bullets[i];
+    if(b.deleted)
+      continue;
+
+    // Do gravity
+    Matter.Body.applyForce(b.body,
+      {x: b.body.position.x, y: b.body.position.y},
+      {x: 0, y: GRAVITY / 300}
+    );
+  }
 
   for(var i in players){
     let p = players[i];

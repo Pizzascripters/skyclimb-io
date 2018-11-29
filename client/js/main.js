@@ -224,6 +224,7 @@ function loadImages(callback) {
   images.eyes = loadImage("eyes.png", onload);
   images.pistol = loadImage("pistol.png", onload);
   images.bullet = loadImage("bullet.png", onload);
+  images.healthbar = loadImage("healthbar.png", onload);
 }
 
 function loadImage(src, callback) {
