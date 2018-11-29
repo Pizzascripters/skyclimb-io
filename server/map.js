@@ -1,12 +1,12 @@
 module.exports = function(Matter){
-  var Vertices = Matter.Vertices,
+  let Vertices = Matter.Vertices,
       Bodies = Matter.Bodies,
       Body = Matter.Body,
       rectangle = Bodies.rectangle,
       circle = Bodies.circle,
       trapezoid = Bodies.trapezoid;
 
-  var map = [];
+  let map = [];
 
   // Outside box
   map[0] = rectangle(0, 1000, 1880, 100);

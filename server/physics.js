@@ -13,7 +13,7 @@ const GRAVITY = 0.02;
 var shooting_cooldown = 0;  // Number of frames until player can shoot again
 
 module.exports = function(Game){
-  var players = Game.players,
+  let players = Game.players,
       bullets = Game.bullets,
       map = Game.map,
       world = Game.world;
@@ -70,7 +70,7 @@ module.exports = function(Game){
     }
 
     if(p.keyboard.shoot && shooting_cooldown === 0) {
-      var bullet = new Bullet(world, p);
+      const bullet = new Bullet(world, p);
       bullets.push(bullet);
 
       // Recoil
@@ -95,11 +95,11 @@ module.exports = function(Game){
   }
 
   for(var i1 in bullets) {
-    var b = bullets[i1];
+    let b = bullets[i1];
     if(b.deleted) continue;
 
     for(var i2 in players) {
-      var p = players[i2];
+      let p = players[i2];
       if(p.deleted) continue;
 
       if(Matter.SAT.collides(b.body, p.body).collided){
@@ -118,7 +118,7 @@ module.exports = function(Game){
     }
 
     for(var i2 in map) {
-      var obj = map[i2];
+      const obj = map[i2];
       if(Matter.SAT.collides(b.body, obj).collided)
         b.apoptosis();
     }

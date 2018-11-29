@@ -12,7 +12,7 @@ module.exports = function(ws, id){
     if(ws.readyState === ws.CLOSED)
       return 1;
 
-    let header = Buffer.from( new Uint8Array([0]) );
+    const header = Buffer.from( new Uint8Array([0]) );
     ws.send(header);
 
     return 0;
@@ -23,8 +23,6 @@ module.exports = function(ws, id){
     this.player.keyboard.right = false;
     this.player.keyboard.jump = false;
     this.player.keyboard.shoot = false;
-
-    let body = this.player.body;
 
     this.player.hand = packet[0];
 
@@ -39,8 +37,8 @@ module.exports = function(ws, id){
       return 1;
 
     // 1 byte header
-    var header = Buffer.from( new Uint8Array([1]) );
-    var packet = [];
+    const header = Buffer.from( new Uint8Array([1]) );
+    let packet = [];
 
     // Add the body to the packet
     function addBody(body) {
@@ -76,8 +74,8 @@ module.exports = function(ws, id){
     }
 
     // 1 byte header
-    var header = Buffer.from( new Uint8Array([2]) );
-    var packet = [];
+    const header = Buffer.from( new Uint8Array([2]) );
+    let packet = [];
 
     packet[0] = 0; // For counting players
 

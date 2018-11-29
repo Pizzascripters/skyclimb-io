@@ -154,21 +154,19 @@ function pong(packet){
 function setMap(data){
   map = [];
 
-  var i = 1;
-  while(i < data.length){
-    var numVertices = bytesToInt( new Uint8Array([data[i], data[i+1], data[i+2], data[i+3]]) );
-    i += 4;
+  let ref = {i:1}; // We want to pass i by reference to readInt can increment it
+  while(ref.i < data.length){
+    var numVertices = readInt(data, ref);
 
     var body = {};
     body.vertices = [];
-    for(var n = 0; n < numVertices * VERTEX_SIZE; n += VERTEX_SIZE) {
-      body.vertices[n/VERTEX_SIZE] = {};
-      body.vertices[n/VERTEX_SIZE].x = bytesToInt( new Uint8Array([data[i+n], data[i+n+1], data[i+n+2], data[i+n+3]]) );
-      body.vertices[n/VERTEX_SIZE].y = bytesToInt( new Uint8Array([data[i+n+4], data[i+n+5], data[i+n+6], data[i+n+7]]) );
+    for(var n = 0; n < numVertices; n++) {
+      body.vertices[n] = {};
+      body.vertices[n].x = readInt(data, ref);
+      body.vertices[n].y = readInt(data, ref);
     }
-    map.push(body);
 
-    i += numVertices * VERTEX_SIZE
+    map.push(body);
   }
 }
 
@@ -177,21 +175,24 @@ function setPlayers(data){
   players = [];
   bullets = [];
 
-  for(var i = 2; i < data[1] * PLAYER_BYTES; i += PLAYER_BYTES){
+  let ref = {i:2}; // We want to pass i by reference to readInt can increment it
+  while(ref.i < data[1] * PLAYER_BYTES){
+
     var player = {};
     player.vertices = [];
     player.x = player.y = 0;  // For finding the avergae vertex position
-    for(var n = 0; n < VERTICES_PER_PLAYER * VERTEX_SIZE; n += VERTEX_SIZE) {
-      player.vertices[n/VERTEX_SIZE] = {};
-      player.x += player.vertices[n/VERTEX_SIZE].x = bytesToInt( new Uint8Array([data[i+n], data[i+n+1], data[i+n+2], data[i+n+3]]) );
-      player.y += player.vertices[n/VERTEX_SIZE].y = bytesToInt( new Uint8Array([data[i+n+4], data[i+n+5], data[i+n+6], data[i+n+7]]) );
+
+    for(var n = 0; n < VERTICES_PER_PLAYER; n++) {
+      player.vertices[n] = {};
+      player.x += player.vertices[n].x = readInt(data, ref);
+      player.y += player.vertices[n].y = readInt(data, ref);
     }
+
     player.x /= player.vertices.length; // Find the average
     player.y /= player.vertices.length;
 
-    player.hand = bytesToInt( new Uint8Array([data[i+n], data[i+n+1], data[i+n+2], data[i+n+3]]) );
-    n += 4;
-    player.health = bytesToInt( new Uint8Array([data[i+n], data[i+n+1], data[i+n+2], data[i+n+3]]) ) / 255;
+    player.hand = readInt(data, ref);
+    player.health = readInt(data, ref) / 255;
 
     players.push(player);
 
@@ -201,16 +202,16 @@ function setPlayers(data){
     }
   }
 
-  for(;i < data.length; i += BULLET_BYTES){
+  while(ref.i < data.length){
     var bullet = {};
     bullet.vertices = [];
-    for(var n = 0; n < VERTICES_PER_BULLET * VERTEX_SIZE; n += VERTEX_SIZE) {
-      bullet.vertices[n/VERTEX_SIZE] = {};
-      bullet.vertices[n/VERTEX_SIZE].x = bytesToInt( new Uint8Array([data[i+n], data[i+n+1], data[i+n+2], data[i+n+3]]) );
-      bullet.vertices[n/VERTEX_SIZE].y = bytesToInt( new Uint8Array([data[i+n+4], data[i+n+5], data[i+n+6], data[i+n+7]]) );
+    for(var n = 0; n < VERTICES_PER_BULLET; n++) {
+      bullet.vertices[n] = {};
+      bullet.vertices[n].x = readInt(data, ref);
+      bullet.vertices[n].y = readInt(data, ref);
     }
 
-    bullet.angle = bytesToInt( new Uint8Array([data[i+n], data[i+n+1], data[i+n+2], data[i+n+3]]) );
+    bullet.angle = readInt(data, ref);
 
     bullets.push(bullet);
   }
@@ -234,6 +235,16 @@ function loadImage(src, callback) {
   img.src = "img/" + src;
   img.onload = callback;
   return img;
+}
+
+// Reads a four byte intereger from an index in a byte array
+function readInt(a, ref) {
+  let b1 = a[ref.i];
+  let b2 = a[ref.i+1];
+  let b3 = a[ref.i+2];
+  let b4 = a[ref.i+3];
+  ref.i += 4;
+  return bytesToInt([b1, b2, b3, b4]);
 }
 
 // Converts a 4 byte uint8array to an integer

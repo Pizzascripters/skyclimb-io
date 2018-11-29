@@ -23,9 +23,9 @@ var clients = Game.clients, // The socket and some methods for communicating wit
     bullets = Game.bullets; // Holds all of the bullet objects
 
 // Create express app
-var app = express();
-var server = http.createServer(app);
-var wss = new WebSocket.Server({ "server" : server });
+const app = express();
+const server = http.createServer(app);
+const wss = new WebSocket.Server({ "server" : server });
 
 // Configure matter js
 // Module Aliases
@@ -54,7 +54,7 @@ app.use('/', express.static(__dirname + '/client'));
 wss.on('connection', (ws, req) => {
 
   // Create client and player
-  let clientId = clients.length;
+  const clientId = clients.length;
   let client = new Client(ws, clientId);
   let player = new Player(client);
   clients.push(client);
@@ -65,7 +65,7 @@ wss.on('connection', (ws, req) => {
 
   // On user message
   ws.on('message', (packet) => {
-    let data = new Uint8Array(packet);
+    const data = new Uint8Array(packet);
     switch( data[0] ){
       case 0: // Ping
         client.pong();
@@ -84,7 +84,7 @@ wss.on('connection', (ws, req) => {
 
 setInterval(() => { // Send all players the player data
   for(var i in players){
-    let p = players[i];
+    const p = players[i];
     if(!p.deleted)
       p.client.playerData(Game);
   }

@@ -1,7 +1,7 @@
 var Matter = require('./matter');
 
-var PLAYER_START_POS = {x: 0, y: 0};
-var PLAYER_RADIUS = 50;
+const PLAYER_START_POS = {x: 0, y: 0};
+const PLAYER_RADIUS = 50;
 
 module.exports = function(client){
   this.id = client.id;

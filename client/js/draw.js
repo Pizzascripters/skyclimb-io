@@ -1,5 +1,7 @@
 function draw(delta){
-  var bg_gradient = ctx.createLinearGradient(
+
+  // Background gradient
+  const bg_gradient = ctx.createLinearGradient(
     0, -cvs.height * 2.5 - cvs.height * (cam.y / 360),
     0, cvs.height * 2.5 - cvs.height * (cam.y / 360)
   );
@@ -10,27 +12,52 @@ function draw(delta){
   bg_gradient.addColorStop(0.5, "#4cf");
   bg_gradient.addColorStop(1, "#09f");
 
+  // Healthbar gradient
+  const healthbar_x = cvs.width / 2 - images.healthbar.width / 2;
+  const healthbar_y = 20;
+  const health_gradient = ctx.createLinearGradient(
+    healthbar_x, 0,
+    healthbar_x + images.healthbar.width, 0
+  );
+  health_gradient.addColorStop(0, "#f00");
+  health_gradient.addColorStop(1, "#a00");
+
+  // Fill the background
   ctx.fillStyle = bg_gradient;
   ctx.fillRect(0, 0, cvs.width, cvs.height);
 
+  // Draw the map
   ctx.fillStyle = OBJECT_COLOR;
   ctx.lineWidth = OBJECT_OUTLINE_WIDTH;
   ctx.fillStyle = OBJECT_COLOR;
-  for(var i in map) drawObject(map[i], OBJECT_OUTLINE);
+  for(var i in map)
+    drawObject(map[i], OBJECT_OUTLINE);
 
+  // Draw the players
   ctx.strokeStyle = PLAYER_OUTLINE_COLOR;
   ctx.lineWidth = PLAYER_OUTLINE_WIDTH;
   ctx.fillStyle = PLAYER_COLOR;
   for(var i in players) {
-    var p = players[i];
+    const p = players[i];
     drawObject(p, PLAYER_OUTLINE);
 
-    var player_radius = Math.sqrt(Math.pow(p.vertices[0].x - players[i].x, 2) + Math.pow(p.vertices[0].y - players[i].y, 2));
-    var hand_angle = 2 * Math.PI * p.hand / 256;
-    var xCoord = p.x - cam.x + cvs.width / 2;
-    var yCoord = p.y - cam.y + cvs.height / 2;
+    const player_radius =
+      Math.sqrt(
+        Math.pow(p.vertices[0].x - players[i].x, 2) +
+        Math.pow(p.vertices[0].y - players[i].y, 2)
+      );
+    const hand_angle = 2 * Math.PI * p.hand / 256;
+    const xCoord = p.x - cam.x + cvs.width / 2;
+    const yCoord = p.y - cam.y + cvs.height / 2;
 
-    ctx.drawImage(images.eyes, xCoord - player_radius, yCoord - player_radius, player_radius * 2, player_radius * 2); // Draw eyes
+    // Draw eyes
+    ctx.drawImage(
+      images.eyes,
+      xCoord - player_radius,
+      yCoord - player_radius,
+      player_radius * 2,
+      player_radius * 2
+    );
 
     // Draw weapon
     ctx.save();
@@ -48,20 +75,11 @@ function draw(delta){
 
   // Draw bullets
   for (var i in bullets) {
-    var b = bullets[i];
+    const b = bullets[i];
     drawBullet(b);
   }
 
   // Healthbar
-  let healthbar_x = cvs.width / 2 - images.healthbar.width / 2;
-  let healthbar_y = 20;
-  let health_gradient = ctx.createLinearGradient(
-    healthbar_x, 0,
-    healthbar_x + images.healthbar.width, 0
-  );
-  health_gradient.addColorStop(0, "#f00");
-  health_gradient.addColorStop(1, "#a00");
-
   if(players.length > 0) {
     ctx.fillStyle = health_gradient;
     ctx.fillRect(healthbar_x + 28, healthbar_y + 5, 365 * players[0].health, 37);
@@ -70,9 +88,9 @@ function draw(delta){
 }
 
 function drawBullet(b) {
-  let bullet_angle = 2 * Math.PI * b.angle / 256;
-  let xCoord = b.vertices[0].x - cam.x + cvs.width / 2;
-  let yCoord = b.vertices[0].y - cam.y + cvs.height / 2;
+  const bullet_angle = 2 * Math.PI * b.angle / 256;
+  const xCoord = b.vertices[0].x - cam.x + cvs.width / 2;
+  const yCoord = b.vertices[0].y - cam.y + cvs.height / 2;
 
   ctx.save();
   ctx.translate(xCoord, yCoord);
@@ -84,12 +102,23 @@ function drawBullet(b) {
 function drawObject(p, outline) {
   ctx.beginPath();
 
-  ctx.moveTo(p.vertices[0].x - cam.x + cvs.width / 2, p.vertices[0].y - cam.y + cvs.height / 2);
-  for(var i = 1; i < p.vertices.length; i++)
-    ctx.lineTo(p.vertices[i].x - cam.x + cvs.width / 2, p.vertices[i].y - cam.y + cvs.height / 2);
-  ctx.lineTo(p.vertices[0].x - cam.x + cvs.width / 2, p.vertices[0].y - cam.y + cvs.height / 2);
+  const v0 = getVertexPosition(p.vertices[0]);
+  ctx.moveTo(v0.x, v0.y);
+
+  for(var i = 1; i < p.vertices.length; i++) {
+    const v = getVertexPosition(p.vertices[i]);
+    ctx.lineTo(v.x, v.y);
+  }
+  ctx.lineTo(v0.x, v0.y);
 
   ctx.fill();
+  if(outline)
+    ctx.stroke();
+}
 
-  if(outline) ctx.stroke();
+function getVertexPosition(v) {
+  return {
+    x: v.x - cam.x + cvs.width / 2,
+    y: v.y - cam.y + cvs.height / 2
+  }
 }
