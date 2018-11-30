@@ -89,6 +89,7 @@ module.exports = function(ws, id){
       }
       packet.push( p.hand );
       packet.push( Math.floor(p.health * 255) );
+      packet.push( Math.floor(p.energy * 255) );
       packet.push( p.getItem() ); // The weapon player is holding
     }
 

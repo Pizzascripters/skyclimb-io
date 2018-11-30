@@ -14,12 +14,22 @@ function draw(){
   // Healthbar gradient
   const healthbarX = cvs.width / 2 - images.healthbar.width / 2;
   const healthbarY = 80;
-  const health_gradient = ctx.createLinearGradient(
+  const healthGradient = ctx.createLinearGradient(
     healthbarX, 0,
     healthbarX + images.healthbar.width, 0
   );
-  health_gradient.addColorStop(0, "#f00");
-  health_gradient.addColorStop(1, "#a00");
+  healthGradient.addColorStop(0, "#f00");
+  healthGradient.addColorStop(1, "#a00");
+
+  // Energybar gradient
+  const energybarX = cvs.width / 2 - images.energybar.width / 2;
+  const energybarY = 130;
+  const energyGradient = ctx.createLinearGradient(
+    energybarX, 0,
+    energybarX + images.energybar.width, 0
+  );
+  energyGradient.addColorStop(0, "#fd0");
+  energyGradient.addColorStop(1, "#b90");
 
   // Fill the background
   ctx.fillStyle = bg_gradient;
@@ -67,7 +77,8 @@ function draw(){
     drawBullet(b);
   }
 
-  drawHealthbar(health_gradient, healthbarX, healthbarY);
+  drawHealthbar(healthGradient, healthbarX, healthbarY);
+  drawEnergyBar(energyGradient, energybarX, energybarY);
   drawInventory();
 }
 
@@ -116,11 +127,19 @@ function drawObject(p, outline) {
     ctx.stroke();
 }
 
-function drawHealthbar(health_gradient, healthbarX, healthbarY){
+function drawHealthbar(healthGradient, healthbarX, healthbarY){
   if(players.length > 0) {
-    ctx.fillStyle = health_gradient;
+    ctx.fillStyle = healthGradient;
     ctx.fillRect(healthbarX + 28, healthbarY + 5, 365 * players[0].health, 37);
     ctx.drawImage(images.healthbar, healthbarX, healthbarY);
+  }
+}
+
+function drawEnergyBar(energyGradient, energybarX, energybarY){
+  if(players.length > 0) {
+    ctx.fillStyle = energyGradient;
+    ctx.fillRect(energybarX + 5, energybarY + 5, 289 * players[0].energy, 20);
+    ctx.drawImage(images.energybar, energybarX, energybarY);
   }
 }
 

@@ -219,6 +219,7 @@ function setPlayers(data){
 
     player.hand = readInt(data, ref);
     player.health = readInt(data, ref) / 255;
+    player.energy = readInt(data, ref) / 255;
     player.weapon = readInt(data, ref);
 
     players.push(player);
@@ -255,6 +256,7 @@ function loadImages(callback) {
   images.pistol = loadImage("pistol.png", onload);
   images.bullet = loadImage("bullet.png", onload);
   images.healthbar = loadImage("healthbar.png", onload);
+  images.energybar = loadImage("energybar.png", onload);
 }
 
 function loadImage(src, callback) {

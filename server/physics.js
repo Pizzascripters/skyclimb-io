@@ -7,8 +7,10 @@ const SHOOTING_COOLDOWN = 10;
 const TERMINAL_X_VELOCITY = 30;
 const TERMINAL_Y_VELOCITY = 30;
 const JUMP_ACCELERATION = 0.03;
+const JETPACK_CHARGE_SPEED = 0.003;
+const JETPACK_DRAIN_SPEED = 0.009;
 const HORIZONTAL_ACCELERTION = 0.01;
-const GRAVITY = 0.02; 
+const GRAVITY = 0.02;
 
 module.exports = function(Game){
   let players = Game.players,
@@ -24,6 +26,13 @@ module.exports = function(Game){
       continue;
 
     let body = p.body;
+
+    if(p.energy < 1)
+      p.energy += JETPACK_CHARGE_SPEED; // Charge the jetpack
+    else if(p.energy > 1)
+      p.energy = 1;
+    else if(p.energy < 0)
+      p.energy = 0;
 
     // Do gravity
     Matter.Body.applyForce(body,
@@ -47,12 +56,13 @@ module.exports = function(Game){
       );
     }
 
-    if(p.keyboard.jump){
+    if(p.keyboard.jump && p.energy > 0){
       Matter.Body.applyForce(
         body,
         {x: body.position.x, y: body.position.y},
         {x: 0, y: -JUMP_ACCELERATION}
       );
+      p.energy -= JETPACK_DRAIN_SPEED;
     }
 
     if(p.keyboard.shoot && p.shooting_cooldown === 0) {

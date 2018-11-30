@@ -23,6 +23,7 @@ module.exports = function(client){
   }
   this.hand = 0;
   this.health = 1;
+  this.energy = 1;
 
   this.deleted = false;
 
