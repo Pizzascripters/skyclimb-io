@@ -13,86 +13,99 @@ const HORIZONTAL_ACCELERTION = 0.01;
 const GRAVITY = 0.02;
 
 module.exports = function(Game){
-  let players = Game.players,
-      bullets = Game.bullets,
-      map = Game.map,
-      world = Game.world;
 
   world.gravity.y = 0; // I'm making my own gravity
 
-  for(var i in players){
-    let p = players[i];
+  for(var i in Game.players){
+    let p = Game.players[i];
     if(p.deleted)
       continue;
 
-    let body = p.body;
-
-    if(p.energy < 1)
-      p.energy += JETPACK_CHARGE_SPEED; // Charge the jetpack
-    else if(p.energy > 1)
-      p.energy = 1;
-    else if(p.energy < 0)
-      p.energy = 0;
-
-    // Do gravity
-    Matter.Body.applyForce(body,
-      {x: body.position.x, y: body.position.y},
-      {x: 0, y: GRAVITY}
-    );
-
-    if(p.keyboard.left){
-      Matter.Body.applyForce(
-        body,
-        {x: body.position.x, y: body.position.y},
-        {x: -HORIZONTAL_ACCELERTION, y: 0}
-      );
-    }
-
-    if(p.keyboard.right){
-      Matter.Body.applyForce(
-        body,
-        {x: body.position.x, y: body.position.y},
-        {x: HORIZONTAL_ACCELERTION, y: 0}
-      );
-    }
-
-    if(p.keyboard.jump && p.energy > 0){
-      Matter.Body.applyForce(
-        body,
-        {x: body.position.x, y: body.position.y},
-        {x: 0, y: -JUMP_ACCELERATION}
-      );
-      p.energy -= JETPACK_DRAIN_SPEED;
-    }
-
-    if(p.keyboard.shoot && p.shooting_cooldown === 0) {
-      const bullet = new Bullet(world, p);
-      bullets.push(bullet);
-
-      // Recoil
-      Matter.Body.applyForce(
-        body,
-        {x: body.position.x, y: body.position.y},
-        {x: -RECOIL * bullet.body.velocity.x, y: -RECOIL * bullet.body.velocity.y}
-      );
-
-      p.shooting_cooldown = SHOOTING_COOLDOWN;
-    }
-
-    if(p.shooting_cooldown > 0)
-      p.shooting_cooldown--;
-
-    // Terminal Velocity
-    if(body.velocity.x < -TERMINAL_X_VELOCITY)
-      Matter.Body.setVelocity(body, {x: -TERMINAL_X_VELOCITY, y: body.velocity.y});
-    if(body.velocity.x > TERMINAL_X_VELOCITY)
-      Matter.Body.setVelocity(body, {x: TERMINAL_X_VELOCITY, y: body.velocity.y});
-    if(body.velocity.y < -TERMINAL_Y_VELOCITY)
-      Matter.Body.setVelocity(body, {x: body.velocity.x, y: -TERMINAL_Y_VELOCITY});
-    if(body.velocity.y > TERMINAL_Y_VELOCITY)
-      Matter.Body.setVelocity(body, {x: body.velocity.x, y: TERMINAL_Y_VELOCITY});
+    doGravity(p.body);
+    handleMovement(p, p.body);
+    handleShooting(p, p.body, Game.bullets);
+    terminalVelocity(p.body);
+    chargeJetpack(p);
   }
 
+  bulletCollisions(Game.players, Game.bullets, Game.map);
+}
+
+function doGravity(body){
+  Matter.Body.applyForce(body,
+    {x: body.position.x, y: body.position.y},
+    {x: 0, y: GRAVITY}
+  );
+}
+
+function handleMovement(p, body) {
+  if(p.keyboard.left){
+    Matter.Body.applyForce(
+      body,
+      {x: body.position.x, y: body.position.y},
+      {x: -HORIZONTAL_ACCELERTION, y: 0}
+    );
+  }
+
+  if(p.keyboard.right){
+    Matter.Body.applyForce(
+      body,
+      {x: body.position.x, y: body.position.y},
+      {x: HORIZONTAL_ACCELERTION, y: 0}
+    );
+  }
+
+  if(p.keyboard.jump && p.energy > 0){
+    Matter.Body.applyForce(
+      body,
+      {x: body.position.x, y: body.position.y},
+      {x: 0, y: -JUMP_ACCELERATION}
+    );
+    p.energy -= JETPACK_DRAIN_SPEED;
+  }
+}
+
+function handleShooting(p, body, bullets) {
+  if(p.keyboard.shoot && p.getItem() !== 0 && p.shooting_cooldown === 0) {
+    const bullet = new Bullet(world, p);
+    bullets.push(bullet);
+
+    // Recoil
+    Matter.Body.applyForce(
+      body,
+      {x: body.position.x, y: body.position.y},
+      {x: -RECOIL * bullet.body.velocity.x, y: -RECOIL * bullet.body.velocity.y}
+    );
+
+    p.shooting_cooldown = SHOOTING_COOLDOWN;
+  }
+
+  if(p.shooting_cooldown > 0)
+    p.shooting_cooldown--;
+}
+
+function terminalVelocity(body){
+  if(body.velocity.x < -TERMINAL_X_VELOCITY)
+    Matter.Body.setVelocity(body, {x: -TERMINAL_X_VELOCITY, y: body.velocity.y});
+  if(body.velocity.x > TERMINAL_X_VELOCITY)
+    Matter.Body.setVelocity(body, {x: TERMINAL_X_VELOCITY, y: body.velocity.y});
+  if(body.velocity.y < -TERMINAL_Y_VELOCITY)
+    Matter.Body.setVelocity(body, {x: body.velocity.x, y: -TERMINAL_Y_VELOCITY});
+  if(body.velocity.y > TERMINAL_Y_VELOCITY)
+    Matter.Body.setVelocity(body, {x: body.velocity.x, y: TERMINAL_Y_VELOCITY});
+}
+
+function chargeJetpack(p){
+  if(p.energy < 1)
+    p.energy += JETPACK_CHARGE_SPEED; // Charge the jetpack
+
+  if(p.energy > 1)
+    p.energy = 1;
+  else if(p.energy < 0)
+    p.energy = 0;
+}
+
+function bulletCollisions(players, bullets, map){
   for(var i1 in bullets) {
     let b = bullets[i1];
     if(b.deleted) continue;

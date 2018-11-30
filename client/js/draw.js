@@ -90,7 +90,7 @@ function drawWeapon(xCoord, yCoord, playerRadius, handAngle, weapon){
     if(weapon === 1)
       ctx.drawImage(images.pistol, playerRadius, 0, 50, 50);
   } else {
-    ctx.rotate(-3.14 - handAngle);
+    ctx.rotate(0.15 - Math.PI - handAngle);
     ctx.scale(-1, 1);
     if(weapon === 1)
       ctx.drawImage(images.pistol, playerRadius, 42, 50, -50);
