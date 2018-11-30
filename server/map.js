@@ -1,3 +1,5 @@
+const fs = require('fs');
+
 const Matter = require('./matter');
 
 const Vertices = Matter.Vertices,
@@ -10,31 +12,32 @@ const Vertices = Matter.Vertices,
 module.exports = () => {
 
   let map = [];
-  let vertices = [];
+  let objects = [];
 
-  //vertices.push( {x:-900, y:600} );
-  vertices.push( {x:-500, y:300} );
-  vertices.push( {x:500, y:300} );
-  vertices.push( {x:1300, y:400} );
+  const json = fs.readFileSync("./server/mapdata.json");
+  objects = JSON.parse(json);
 
-  console.log(findAngle(vertices, 1))
+  for(var i in objects){
+    let vertices = objects[i];
+    vertices[vertices.length] = vertices[0];
 
-  let n = 0;
-  while(n < vertices.length - 1) {
-    if(n === vertices.length - 2 || findAngle(vertices, n+1) >= Math.PI / 2) {
-      const m = {
-        x: (vertices[n+1].x + vertices[n].x) / 2,
-        y: (vertices[n+1].y + vertices[n].y) / 2
-      };
-      const p = {
-        x: m.y - vertices[n+1].y + m.x,
-        y: vertices[n+1].x - m.x + m.y
-      };
-      createTriangle(map, vertices[n], vertices[n+1], p);
-      n++;
-    } else {
-      createTriangle(map, vertices[n], vertices[n+1], vertices[n+2]);
-      n += 2;
+    let n = 0;
+    while(n < vertices.length - 1) {
+      if(n === vertices.length - 2 || findAngle(vertices, n+1) >= Math.PI / 2) {
+        const m = {
+          x: (vertices[n+1].x + vertices[n].x) / 2,
+          y: (vertices[n+1].y + vertices[n].y) / 2
+        };
+        const p = {
+          x: m.y - vertices[n+1].y + m.x,
+          y: vertices[n+1].x - m.x + m.y
+        };
+        createTriangle(map, vertices[n], vertices[n+1], p);
+        n++;
+      } else {
+        createTriangle(map, vertices[n], vertices[n+1], vertices[n+2]);
+        n += 2;
+      }
     }
   }
 

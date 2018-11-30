@@ -22,11 +22,6 @@ var clients = Game.clients, // The socket and some methods for communicating wit
     players = Game.players, // Holds the player body and a virtual keyboard
     bullets = Game.bullets; // Holds all of the bullet objects
 
-// Create express app
-const app = express();
-const server = http.createServer(app);
-const wss = new WebSocket.Server({ "server" : server });
-
 // Configure matter js
 // Module Aliases
 var Engine = Matter.Engine,
@@ -43,6 +38,11 @@ World.add(world, []);
 
 for(var i in map)
   World.addBody(world, map[i]); // Add map bodies to matter js world
+
+// Create express app
+const app = express();
+const server = http.createServer(app);
+const wss = new WebSocket.Server({ "server" : server });
 
 // Allow users to access files in the client folder
 app.get('/', (req, res) => {
