@@ -14,6 +14,13 @@ var keyboard = {
 }
 var cam = {x:0, y:0}; // Position of the camera
 var images = {};
+var items = {};
+
+var inventory = {
+  select: 5,
+  anim: [0, 0, 0, 80, 80, 90, 0, 0, 0],
+  items: [0, 0, 0, 0, 0, 1, 0, 0, 0]
+}
 
 window.addEventListener("load", init);
 window.addEventListener("resize", fullscreen);
@@ -42,6 +49,7 @@ function init(e){
 
   fullscreen();
   loadImages(() => {update(0)});
+  initItems();
 
   const sendKeyboardInterval = setInterval(sendKeyboard, 1000 / 60);
 }
@@ -53,6 +61,15 @@ function fullscreen(e){
 
 function keydown(e){
   switch ( e.keyCode ) {
+    case 49:  // 1
+      inventory.select = 3;
+      break;
+    case 50:  // 2
+      inventory.select = 4;
+      break;
+    case 51:  // 3
+      inventory.select = 5;
+      break;
     case 65:  // A
       keyboard.left = true;
       break;
@@ -98,7 +115,8 @@ function update(time){
   let delta = time - prevTime;  // Time since last frame
   prevTime = time;
 
-  draw(delta);
+  draw();
+  anim.main(delta);
 
   requestAnimationFrame(update);
 }
@@ -134,14 +152,15 @@ function sendKeyboard(){
   if(ws.readyState != ws.OPEN)
     return 1;
 
-  var packet = new Uint8Array(6);
+  let packet = [];
   packet[0] = 1;
   packet[1] = hand;
   packet[2] = keyboard.left;
   packet[3] = keyboard.right;
   packet[4] = keyboard.jump;
   packet[5] = keyboard.shoot;
-  ws.send(packet);
+  packet[6] = inventory.select;
+  ws.send( new Uint8Array(packet) );
 }
 
 // Requests the map data in case we didn't get it
@@ -200,6 +219,7 @@ function setPlayers(data){
 
     player.hand = readInt(data, ref);
     player.health = readInt(data, ref) / 255;
+    player.weapon = readInt(data, ref);
 
     players.push(player);
 

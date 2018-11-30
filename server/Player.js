@@ -15,6 +15,10 @@ module.exports = function(client){
     right: false,
     jump: false
   }
+  this.inventory = {
+    select: 5,
+    items: [0, 0, 0, 0, 0, 1, 0, 0, 0]
+  }
   this.hand = 0;
   this.health = 1;
 
@@ -24,5 +28,9 @@ module.exports = function(client){
   this.apoptosis = function(world){
     this.deleted = true;
     Matter.Composite.remove(world, this.body);
+  }
+
+  this.getItem = function(){
+    return this.inventory.items[this.inventory.select];
   }
 }

@@ -30,6 +30,8 @@ module.exports = function(ws, id){
     if(packet[2]) this.player.keyboard.right = true;
     if(packet[3]) this.player.keyboard.jump = true;
     if(packet[4]) this.player.keyboard.shoot = true;
+
+    this.player.inventory.select = packet[5];
   }
 
   this.mapData = (map) => { // Send map data
@@ -87,6 +89,7 @@ module.exports = function(ws, id){
       }
       packet.push( p.hand );
       packet.push( Math.floor(p.health * 255) );
+      packet.push( p.getItem() ); // The weapon player is holding
     }
 
     function addBullet(b) {

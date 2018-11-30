@@ -20,18 +20,6 @@ module.exports = function(Game){
 
   world.gravity.y = 0; // I'm making my own gravity
 
-  for(var i in bullets) {
-    let b = bullets[i];
-    if(b.deleted)
-      continue;
-
-    // Do gravity
-    Matter.Body.applyForce(b.body,
-      {x: b.body.position.x, y: b.body.position.y},
-      {x: 0, y: GRAVITY / 300}
-    );
-  }
-
   for(var i in players){
     let p = players[i];
     if(p.deleted)
@@ -69,7 +57,7 @@ module.exports = function(Game){
       );
     }
 
-    if(p.keyboard.shoot && shooting_cooldown === 0) {
+    if(p.keyboard.shoot && p.getItem() !== 0 && shooting_cooldown === 0) {
       const bullet = new Bullet(world, p);
       bullets.push(bullet);
 

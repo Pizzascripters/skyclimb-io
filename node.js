@@ -90,7 +90,7 @@ setInterval(() => { // Send all players the player data
   }
 }, 1000 / 60);
 
-Events.on(engine, 'tick', (e) => {
+Events.on(engine, 'afterUpdate', (e) => {
   physics(Game);
 });
 

@@ -1,5 +1,4 @@
-function draw(delta){
-
+function draw(){
   // Background gradient
   const bg_gradient = ctx.createLinearGradient(
     0, -cvs.height * 2.5 - cvs.height * (cam.y / 360),
@@ -13,11 +12,11 @@ function draw(delta){
   bg_gradient.addColorStop(1, "#09f");
 
   // Healthbar gradient
-  const healthbar_x = cvs.width / 2 - images.healthbar.width / 2;
-  const healthbar_y = 20;
+  const healthbarX = cvs.width / 2 - images.healthbar.width / 2;
+  const healthbarY = 80;
   const health_gradient = ctx.createLinearGradient(
-    healthbar_x, 0,
-    healthbar_x + images.healthbar.width, 0
+    healthbarX, 0,
+    healthbarX + images.healthbar.width, 0
   );
   health_gradient.addColorStop(0, "#f00");
   health_gradient.addColorStop(1, "#a00");
@@ -41,36 +40,25 @@ function draw(delta){
     const p = players[i];
     drawObject(p, PLAYER_OUTLINE);
 
-    const player_radius =
+    const xCoord = p.x - cam.x + cvs.width / 2;
+    const yCoord = p.y - cam.y + cvs.height / 2;
+    const playerRadius =
       Math.sqrt(
         Math.pow(p.vertices[0].x - players[i].x, 2) +
         Math.pow(p.vertices[0].y - players[i].y, 2)
       );
-    const hand_angle = 2 * Math.PI * p.hand / 256;
-    const xCoord = p.x - cam.x + cvs.width / 2;
-    const yCoord = p.y - cam.y + cvs.height / 2;
+    const handAngle = 2 * Math.PI * p.hand / 256;
 
     // Draw eyes
     ctx.drawImage(
       images.eyes,
-      xCoord - player_radius,
-      yCoord - player_radius,
-      player_radius * 2,
-      player_radius * 2
+      xCoord - playerRadius,
+      yCoord - playerRadius,
+      playerRadius * 2,
+      playerRadius * 2
     );
 
-    // Draw weapon
-    ctx.save();
-    ctx.translate(xCoord, yCoord);
-    if(hand_angle < Math.PI / 2 || hand_angle > 3 * Math.PI / 2) {
-      ctx.rotate(-hand_angle - 0.15);
-      ctx.drawImage(images.pistol, player_radius, 0, 50, 50);
-    } else {
-      ctx.rotate(-3.14 - hand_angle);
-      ctx.scale(-1, 1);
-      ctx.drawImage(images.pistol, player_radius, 42, 50, -50);
-    }
-    ctx.restore();
+    drawWeapon(xCoord, yCoord, playerRadius, handAngle, p.weapon);
   }
 
   // Draw bullets
@@ -79,12 +67,24 @@ function draw(delta){
     drawBullet(b);
   }
 
-  // Healthbar
-  if(players.length > 0) {
-    ctx.fillStyle = health_gradient;
-    ctx.fillRect(healthbar_x + 28, healthbar_y + 5, 365 * players[0].health, 37);
-    ctx.drawImage(images.healthbar, healthbar_x, healthbar_y);
+  drawHealthbar(health_gradient, healthbarX, healthbarY);
+  drawInventory();
+}
+
+function drawWeapon(xCoord, yCoord, playerRadius, handAngle, weapon){
+  ctx.save();
+  ctx.translate(xCoord, yCoord);
+  if(handAngle < Math.PI / 2 || handAngle > 3 * Math.PI / 2) {
+    ctx.rotate(-handAngle - 0.15);
+    if(weapon === 1)
+      ctx.drawImage(images.pistol, playerRadius, 0, 50, 50);
+  } else {
+    ctx.rotate(-3.14 - handAngle);
+    ctx.scale(-1, 1);
+    if(weapon === 1)
+      ctx.drawImage(images.pistol, playerRadius, 42, 50, -50);
   }
+  ctx.restore();
 }
 
 function drawBullet(b) {
@@ -113,6 +113,65 @@ function drawObject(p, outline) {
 
   ctx.fill();
   if(outline)
+    ctx.stroke();
+}
+
+function drawHealthbar(health_gradient, healthbarX, healthbarY){
+  if(players.length > 0) {
+    ctx.fillStyle = health_gradient;
+    ctx.fillRect(healthbarX + 28, healthbarY + 5, 365 * players[0].health, 37);
+    ctx.drawImage(images.healthbar, healthbarX, healthbarY);
+  }
+}
+
+function drawInventory(){
+  ctx.fillStyle = "#888";
+  ctx.globalAlpha = 0.8;
+
+  roundRect(cvs.width / 2 - 170, -10, 100, inventory.anim[3], 10, true, false);
+  roundRect(cvs.width / 2 - 50, -10, 100, inventory.anim[4], 10, true, false);
+  roundRect(cvs.width / 2 + 70, -10, 100, inventory.anim[5], 10, true, false);
+
+  drawItem(cvs.width / 2 - 120, 100, inventory.anim[3], items[inventory.items[3]]);
+  drawItem(cvs.width / 2,       100, inventory.anim[4], items[inventory.items[4]]);
+  drawItem(cvs.width / 2 + 120, 100, inventory.anim[5], items[inventory.items[5]]);
+
+  ctx.globalAlpha = 1;
+}
+
+function drawItem(x, w, anim, item) {
+  const side = w - 20;
+  if(item.image)
+    ctx.drawImage(item.image, x - side/2, anim - side - 10, side, side);
+}
+
+function roundRect(x, y, width, height, radius, fill, stroke) {
+  if (typeof stroke == 'undefined')
+    stroke = true;
+  if (typeof radius === 'undefined')
+    radius = 5;
+  if (typeof radius === 'number')
+    radius = {tl: radius, tr: radius, br: radius, bl: radius};
+  else {
+    var defaultRadius = {tl: 0, tr: 0, br: 0, bl: 0};
+    for (var side in defaultRadius)
+      radius[side] = radius[side] || defaultRadius[side];
+  }
+  ctx.beginPath();
+  ctx.moveTo(x + radius.tl, y);
+  ctx.lineTo(x + width - radius.tr, y);
+  ctx.quadraticCurveTo(x + width, y, x + width, y + radius.tr);
+  ctx.lineTo(x + width, y + height - radius.br);
+  ctx.quadraticCurveTo(x + width, y + height, x + width - radius.br, y + height);
+  ctx.lineTo(x + radius.bl, y + height);
+  ctx.quadraticCurveTo(x, y + height, x, y + height - radius.bl);
+  ctx.lineTo(x, y + radius.tl);
+  ctx.quadraticCurveTo(x, y, x + radius.tl, y);
+  ctx.closePath();
+
+  if (fill)
+    ctx.fill();
+  if (stroke)
     ctx.stroke();
 }
 
