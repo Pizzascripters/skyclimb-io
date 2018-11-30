@@ -8,9 +8,7 @@ const TERMINAL_X_VELOCITY = 30;
 const TERMINAL_Y_VELOCITY = 30;
 const JUMP_ACCELERATION = 0.03;
 const HORIZONTAL_ACCELERTION = 0.01;
-const GRAVITY = 0.02;
-
-var shooting_cooldown = 0;  // Number of frames until player can shoot again
+const GRAVITY = 0.02; 
 
 module.exports = function(Game){
   let players = Game.players,
@@ -57,7 +55,7 @@ module.exports = function(Game){
       );
     }
 
-    if(p.keyboard.shoot && p.getItem() !== 0 && shooting_cooldown === 0) {
+    if(p.keyboard.shoot && p.shooting_cooldown === 0) {
       const bullet = new Bullet(world, p);
       bullets.push(bullet);
 
@@ -68,8 +66,11 @@ module.exports = function(Game){
         {x: -RECOIL * bullet.body.velocity.x, y: -RECOIL * bullet.body.velocity.y}
       );
 
-      shooting_cooldown = SHOOTING_COOLDOWN;
+      p.shooting_cooldown = SHOOTING_COOLDOWN;
     }
+
+    if(p.shooting_cooldown > 0)
+      p.shooting_cooldown--;
 
     // Terminal Velocity
     if(body.velocity.x < -TERMINAL_X_VELOCITY)
@@ -111,7 +112,4 @@ module.exports = function(Game){
         b.apoptosis();
     }
   }
-
-  if(shooting_cooldown > 0)
-    shooting_cooldown--;
 }
