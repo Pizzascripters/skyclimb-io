@@ -182,17 +182,17 @@ function setMap(data){
 
   let ref = {i:1}; // We want to pass i by reference to readInt can increment it
   while(ref.i < data.length){
-    var numVertices = readInt(data, ref);
+    const numVertices = readInt(data, ref);
 
-    var body = {};
-    body.vertices = [];
+    let object = {};
+    object.vertices = [];
     for(var n = 0; n < numVertices; n++) {
-      body.vertices[n] = {};
-      body.vertices[n].x = readInt(data, ref);
-      body.vertices[n].y = readInt(data, ref);
+      object.vertices[n] = {};
+      object.vertices[n].x = readInt(data, ref);
+      object.vertices[n].y = readInt(data, ref);
     }
 
-    map.push(body);
+    map.push(object);
   }
 }
 

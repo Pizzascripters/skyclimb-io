@@ -43,17 +43,17 @@ module.exports = function(ws, id){
     let packet = [];
 
     // Add the body to the packet
-    function addBody(body) {
-      packet.push( body.vertices.length );
-      for(var i in body.vertices){
-        packet.push( body.vertices[i].x );
-        packet.push( body.vertices[i].y );
+    function addObject(obj) {
+      packet.push( obj.length );
+      for(var i in obj){
+        packet.push( obj[i].x );
+        packet.push( obj[i].y );
       }
     }
 
     // Add them to the packet
-    for(var i in map)
-      addBody(map[i]);
+    for(var i in map.objects)
+      addObject(map.objects[i]);
 
     // Turn all the numbers into bytes
     for(var i in packet)

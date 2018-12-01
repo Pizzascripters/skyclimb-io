@@ -36,8 +36,8 @@ var engine = Engine.create();
 Engine.run(engine);
 World.add(world, []);
 
-for(var i in map)
-  World.addBody(world, map[i]); // Add map bodies to matter js world
+for(var i in map.bodies)
+  World.addBody(world, map.bodies[i]); // Add map bodies to matter js world
 
 // Create express app
 const app = express();

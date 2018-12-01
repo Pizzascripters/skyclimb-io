@@ -28,7 +28,7 @@ module.exports = function(Game){
     chargeJetpack(p);
   }
 
-  bulletCollisions(Game.players, Game.bullets, Game.map);
+  bulletCollisions(Game.players, Game.bullets, Game.map.bodies);
 }
 
 function doGravity(body){

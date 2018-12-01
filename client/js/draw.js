@@ -35,6 +35,12 @@ function draw(){
   ctx.fillStyle = bg_gradient;
   ctx.fillRect(0, 0, cvs.width, cvs.height);
 
+  // Draw bullets
+  for (var i in bullets) {
+    const b = bullets[i];
+    drawBullet(b);
+  }
+
   // Draw the map
   ctx.fillStyle = OBJECT_COLOR;
   ctx.lineWidth = OBJECT_OUTLINE_WIDTH;
@@ -69,12 +75,6 @@ function draw(){
     );
 
     drawWeapon(xCoord, yCoord, playerRadius, handAngle, p.weapon);
-  }
-
-  // Draw bullets
-  for (var i in bullets) {
-    const b = bullets[i];
-    drawBullet(b);
   }
 
   drawHealthbar(healthGradient, healthbarX, healthbarY);

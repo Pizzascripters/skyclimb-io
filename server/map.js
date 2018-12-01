@@ -23,7 +23,7 @@ module.exports = () => {
 
     let n = 0;
     while(n < vertices.length - 1) {
-      if(n === vertices.length - 2 || findAngle(vertices, n+1) >= Math.PI / 2) {
+      if(n === vertices.length - 2 || findAngle(vertices, n+1) >= 0) {
         const m = {
           x: (vertices[n+1].x + vertices[n].x) / 2,
           y: (vertices[n+1].y + vertices[n].y) / 2
@@ -41,7 +41,10 @@ module.exports = () => {
     }
   }
 
-  return map;
+  return {
+    bodies: map,
+    objects: objects
+  };
 };
 
 function createTriangle(map, p1, p2, p3) {
