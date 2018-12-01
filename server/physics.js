@@ -1,9 +1,8 @@
 const Matter = require('./matter');
 const Bullet = require('./Bullet')
 
-const RECOIL = 0.001;
+const RECOIL = 0.0005;
 const KNOCKBACK = 0.004;
-const SHOOTING_COOLDOWN = 10;
 const TERMINAL_X_VELOCITY = 30;
 const TERMINAL_Y_VELOCITY = 30;
 const JUMP_ACCELERATION = 0.03;
@@ -11,6 +10,11 @@ const JETPACK_CHARGE_SPEED = 0.003;
 const JETPACK_DRAIN_SPEED = 0.009;
 const HORIZONTAL_ACCELERTION = 0.01;
 const GRAVITY = 0.02;
+
+const SHOOTING_COOLDOWN = {
+  1: 10,
+  64: 30
+}
 
 module.exports = function(Game){
 
@@ -66,18 +70,25 @@ function handleMovement(p, body) {
 }
 
 function handleShooting(p, body, bullets) {
-  if(p.keyboard.shoot && p.getItem() !== 0 && p.shooting_cooldown === 0) {
-    const bullet = new Bullet(world, p);
-    bullets.push(bullet);
+  if(p.keyboard.shoot && p.shooting_cooldown === 0) {
+    const spawnBullet = (accuracy) => {
+      const bullet = new Bullet(world, p, accuracy);
+      bullets.push(bullet);
 
-    // Recoil
-    Matter.Body.applyForce(
-      body,
-      {x: body.position.x, y: body.position.y},
-      {x: -RECOIL * bullet.body.velocity.x, y: -RECOIL * bullet.body.velocity.y}
-    );
+      // Recoil
+      Matter.Body.applyForce(
+        body,
+        {x: body.position.x, y: body.position.y},
+        {x: -RECOIL * bullet.body.velocity.x, y: -RECOIL * bullet.body.velocity.y}
+      );
+    }
 
-    p.shooting_cooldown = SHOOTING_COOLDOWN;
+    if(p.getItem() === 1)
+      spawnBullet(Math.PI / 20)
+    else if(p.getItem() === 64)
+      for(var i = 0; i < 6; i++) spawnBullet(Math.PI / 4);
+
+    p.shooting_cooldown = SHOOTING_COOLDOWN[String(p.getItem())];
   }
 
   if(p.shooting_cooldown > 0)

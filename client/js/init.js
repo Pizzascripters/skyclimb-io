@@ -1,10 +1,10 @@
 var prevTime = 0;     // Time of last frame
 var pingStart;        // The time we sent out the ping
+var Game = {};        // Only for debugging
 
 window.addEventListener("load", init);
 
 function init(e){
-  let Game = {};
   Game.players = [];
   Game.map = [];
   Game.bullets = [];
