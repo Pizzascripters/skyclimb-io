@@ -143,7 +143,7 @@ function mousedown(e) {
   const y = e.clientY;
 
   const v = {
-    id: vertices.length,
+    id: uniqueId(),
     x: (x - cvs.width / 2) / cam.zoom + cam.x,
     y: (y - cvs.height / 2) / cam.zoom + cam.y,
     object: [{id: null}]
@@ -193,11 +193,13 @@ function mousedown(e) {
       for(var i in objectSelected)
         if(objectSelected[i].id === vertexSelected.id) index = i;
 
-      console.log(index)
       v.object = objectSelected;
       v.object.splice(index, 0, v);
       vertexSelected = v;
     }
+  } else if(e.button === 2 && !nearby) {
+    objectSelected = [{id: null}];
+    vertexSelected = [{id: null}];
   }
 }
 
@@ -260,11 +262,30 @@ function loadJSON(json) {
     let obj = [];
     for(var i2 in json[i1]) {
       let v = json[i1][i2];
-      v.id = v.length;
+
+      v.id = uniqueId();
+      v.object = obj;
+
       vertices.push(v);
       obj.push(v);
     }
     objects.push(obj);
+  }
+}
+
+function uniqueId() {
+  let id = 0;
+  while( true ) {
+    let found = false;
+    for(var i in vertices) {
+      const v = vertices[i];
+      if(v.id === id) {
+        found = true;
+        break;
+      }
+    }
+    if(!found) return id;
+    id++;
   }
 }
 

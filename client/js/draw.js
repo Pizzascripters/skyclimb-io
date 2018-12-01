@@ -1,14 +1,16 @@
 function draw(){
   // Background gradient
+  const range = GREATEST_Y_VALUE - LEAST_Y_VALUE;
+  const scale = (GREATEST_Y_VALUE - cam.y) / range;
   const bg_gradient = ctx.createLinearGradient(
-    0, -cvs.height * 2.5 - cvs.height * (cam.y / 360),
-    0, cvs.height * 2.5 - cvs.height * (cam.y / 360)
+    0, scale * cvs.height * 5 - cvs.height * 5,
+    0, scale * cvs.height * 5 - cvs.height * 5 + cvs.height * 5
   );
-  /*bg_gradient.addColorStop(-1, "#000");
-  bg_gradient.addColorStop(-0.8, "#206");
-  bg_gradient.addColorStop(-0.5, "#d22");*/
-  bg_gradient.addColorStop(0, "#fb2");
-  bg_gradient.addColorStop(0.5, "#4cf");
+  bg_gradient.addColorStop(0, "#000");
+  bg_gradient.addColorStop(0.1, "#206");
+  bg_gradient.addColorStop(0.2, "#d22");
+  bg_gradient.addColorStop(0.4, "#fb2");
+  bg_gradient.addColorStop(0.6, "#4cf");
   bg_gradient.addColorStop(1, "#09f");
 
   // Healthbar gradient

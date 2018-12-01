@@ -1,13 +1,23 @@
 var Matter = require('./matter');
 
-const PLAYER_START_POS = {x: 0, y: 0};
+const PLAYER_START_POS = [
+  {x: -4127, y: 4750},
+  {x: -3855, y: 3710},
+  {x: -3298, y: 5630},
+  {x: -3142, y: 2130},
+  {x: -1266, y: 2070},
+  {x: 1990, y: 5230},
+  {x: 567, y: 3700}
+];
 const PLAYER_RADIUS = 50;
 
 module.exports = function(client){
   this.id = client.id;
   this.shooting_cooldown = 0; // Number of frames until player can shoot again
 
-  this.body = Matter.Bodies.circle(PLAYER_START_POS.x, PLAYER_START_POS.y, PLAYER_RADIUS);
+  const rand = Math.floor(Math.random() * PLAYER_START_POS.length)
+
+  this.body = Matter.Bodies.circle(PLAYER_START_POS[rand].x, PLAYER_START_POS[rand].y, PLAYER_RADIUS);
   this.body.restitution = 0.3;
   this.client = client;
   client.player = this;
