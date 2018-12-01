@@ -157,9 +157,19 @@ function mousedown(e) {
   }
 
   if(e.button === 0){
-    if(nearby)
-      delete vertices[nearby];
-    else
+    if(nearby){
+      let obj = vertices[nearby].object;
+
+      let index = 0;
+      for(var i in obj)
+        if(obj[i].id === vertices[nearby].id) index = i;
+
+      obj.splice(index, 1);
+      vertices.splice(nearby, 1);
+
+      for(var i in objects)
+        if(objects[i].length === 0) objects.splice(i, 1);
+    } else
       vertices.push(v);
   } else if(e.button === 2 && nearby) {
     let v = vertices[nearby];
@@ -179,8 +189,13 @@ function mousedown(e) {
       vertexSelected = v;
       objects.push(v.object);
     } else { // Add a vertex to an object
+      let index = objectSelected.length;
+      for(var i in objectSelected)
+        if(objectSelected[i].id === vertexSelected.id) index = i;
+
+      console.log(index)
       v.object = objectSelected;
-      v.object.push(v);
+      v.object.splice(index, 0, v);
       vertexSelected = v;
     }
   }
@@ -238,6 +253,19 @@ function getJSON(){
   }
 
   return JSON.stringify(json);
+}
+
+function loadJSON(json) {
+  for(var i1 in json) {
+    let obj = [];
+    for(var i2 in json[i1]) {
+      let v = json[i1][i2];
+      v.id = v.length;
+      vertices.push(v);
+      obj.push(v);
+    }
+    objects.push(obj);
+  }
 }
 
 function distance(p1, p2) {
