@@ -29,7 +29,7 @@ module.exports = function(client){
   }
   this.inventory = {
     select: 5,
-    items: [0, 0, 0, 0, 0, 1, 0, 0, 0]
+    items: [0, 0, 0, 64, 0, 1, 0, 0, 0]
   }
   this.hand = 0;
   this.health = 1;

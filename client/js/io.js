@@ -1,128 +1,29 @@
-var cvs, ctx;         // Canvas and context
-var ws;               // Websocket
-var prevTime = 0;     // Time of last frame
-var hand = 0;         // Angle of the hand
-var pingStart;        // The time we sent out the ping
-var players = [];
-var map = [];
-var bullets = [];
-var keyboard = {
-  left: false,
-  right: false,
-  jump: false,
-  shoot: false
-}
-var cam = {x:0, y:0}; // Position of the camera
-var images = {};
-var items = {};
+function createWebsocket(Game) {
+  const sendKeyboardInterval = setInterval(() => {
+    sendKeyboard(Game.ws, Game.keyboard, Game.inventory.select, Game.hand);
+  }, 1000 / 60);
 
-var inventory = {
-  select: 5,
-  anim: [0, 0, 0, 80, 80, 90, 0, 0, 0],
-  items: [0, 0, 0, 0, 0, 1, 0, 0, 0]
-}
-
-window.addEventListener("load", init);
-window.addEventListener("resize", fullscreen);
-window.addEventListener("mousemove", mousemove);
-window.addEventListener("mousedown", mousedown);
-window.addEventListener("mouseup", mouseup);
-window.addEventListener("keydown", keydown);
-window.addEventListener("keyup", keyup);
-
-function init(e){
-  cvs = document.getElementById("cvs");
-  ctx = cvs.getContext("2d");
-
-  // Connect to websocket server
+  let ws;
   if( window.location.href.startsWith("https") ) {
-      ws = new WebSocket("wss://" + window.location.href.substring(6));
+    ws = new WebSocket("wss://" + window.location.href.substring(6));
   } else {
     ws = new WebSocket("ws://" + window.location.href.substring(5));
   }
   ws.binaryType = "arraybuffer"; // Allows us to recieve byte strings from the server
-  ws.onmessage = handleMessage;
+
+  ws.onmessage = (packet) => {
+    handleMessage(packet, Game);
+  };
   ws.onclose = () => {
     console.error("Socket closed");
     clearInterval(sendKeyboardInterval);
   };
 
-  fullscreen();
-  loadImages(() => {update(0)});
-  initItems();
-
-  const sendKeyboardInterval = setInterval(sendKeyboard, 1000 / 60);
-}
-
-function fullscreen(e){
-  cvs.width = window.innerWidth;
-  cvs.height = window.innerHeight;
-}
-
-function keydown(e){
-  switch ( e.keyCode ) {
-    case 49:  // 1
-      inventory.select = 3;
-      break;
-    case 50:  // 2
-      inventory.select = 4;
-      break;
-    case 51:  // 3
-      inventory.select = 5;
-      break;
-    case 65:  // A
-      keyboard.left = true;
-      break;
-    case 68:  // D
-      keyboard.right = true;
-      break;
-    case 87:  // W
-      keyboard.jump = true;
-      break;
-  }
-}
-
-function keyup(e){
-  switch ( e.keyCode ) {
-    case 65:  // A
-      keyboard.left = false;
-      break;
-    case 68:  // D
-      keyboard.right = false;
-      break;
-    case 87:  // W
-      keyboard.jump = false;
-      break;
-  }
-}
-
-function mousemove(e) {
-  let hand_angle = Math.atan2(cvs.height / 2 - e.clientY, e.clientX - cvs.width / 2);
-  hand = Math.floor(256 * hand_angle / (2*Math.PI));
-  if(hand < 0) hand += 256;
-}
-
-function mousedown (e) {
-  keyboard.shoot = true;
-}
-
-function mouseup (e) {
-  keyboard.shoot = false;
-}
-
-// Runs constantly, only param is time since last frame
-function update(time){
-  let delta = time - prevTime;  // Time since last frame
-  prevTime = time;
-
-  draw();
-  anim.main(delta);
-
-  requestAnimationFrame(update);
+  return ws;
 }
 
 // Given a packet, reads the first byte, sends it to a more specific function
-function handleMessage(packet){
+function handleMessage(packet, Game){
   var data = new Uint8Array(packet.data);
 
   switch(data[0]){
@@ -130,10 +31,10 @@ function handleMessage(packet){
       pong(packet);
       break;
     case 1: // Map data
-      setMap(new Uint8Array(packet.data));
+      setMap(new Uint8Array(packet.data), Game.map);
       break;
     case 2: // Player data
-      setPlayers(new Uint8Array(packet.data));
+      setPlayers(new Uint8Array(packet.data), Game.players, Game.bullets, Game.cam);
       break;
   }
 }
@@ -148,7 +49,7 @@ function ping(){
 }
 
 // Sends keyboard input to server
-function sendKeyboard(){
+function sendKeyboard(ws, keyboard, select, hand){
   if(ws.readyState != ws.OPEN)
     return 1;
 
@@ -159,12 +60,12 @@ function sendKeyboard(){
   packet[3] = keyboard.right;
   packet[4] = keyboard.jump;
   packet[5] = keyboard.shoot;
-  packet[6] = inventory.select;
+  packet[6] = select;
   ws.send( new Uint8Array(packet) );
 }
 
 // Requests the map data in case we didn't get it
-function requestMapData(){
+function requestMapData(ws){
   if(ws.readyState != ws.OPEN)
     return 1;
 
@@ -177,8 +78,8 @@ function pong(packet){
 }
 
 // Called when client recieves map data
-function setMap(data){
-  map = [];
+function setMap(data, map){
+  map.splice(0, map.length - 1);
 
   let ref = {i:1}; // We want to pass i by reference to readInt can increment it
   while(ref.i < data.length){
@@ -197,13 +98,13 @@ function setMap(data){
 }
 
 // Called when client recieves player information
-function setPlayers(data){
-  players = [];
-  bullets = [];
+function setPlayers(data, players, bullets, cam){
+  // Clear the arrays
+  players.splice(0, players.length);
+  bullets.splice(0, bullets.length);
 
   let ref = {i:2}; // We want to pass i by reference to readInt can increment it
   while(ref.i < data[1] * PLAYER_BYTES){
-
     var player = {};
     player.vertices = [];
     player.x = player.y = 0;  // For finding the avergae vertex position
@@ -243,27 +144,6 @@ function setPlayers(data){
 
     bullets.push(bullet);
   }
-}
-
-function loadImages(callback) {
-  var count = 0;
-  var onload = () => {
-    count++;
-    if(count === Object.keys(images).length) callback();
-  }
-
-  images.eyes = loadImage("eyes.png", onload);
-  images.pistol = loadImage("pistol.png", onload);
-  images.bullet = loadImage("bullet.png", onload);
-  images.healthbar = loadImage("healthbar.png", onload);
-  images.energybar = loadImage("energybar.png", onload);
-}
-
-function loadImage(src, callback) {
-  var img = new Image();
-  img.src = "img/" + src;
-  img.onload = callback;
-  return img;
 }
 
 // Reads a four byte intereger from an index in a byte array

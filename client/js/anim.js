@@ -1,9 +1,9 @@
 var anim = {
-  main: (delta) => {
-    anim.inventory(delta);
+  main: (delta, inventory) => {
+    anim.inventory(delta, inventory);
   },
 
-  inventory: (delta) => {
+  inventory: (delta, inventory) => {
     for(var i in inventory.anim) {
       if(inventory.select === Number(i)) {
         if(inventory.anim[i] < INVENTORY_SELECTED_HEIGHT)

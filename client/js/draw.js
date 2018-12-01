@@ -1,4 +1,14 @@
-function draw(){
+function draw(Game){
+  const cvs = Game.cvs,
+        ctx = Game.ctx,
+        cam = Game.cam,
+        players = Game.players,
+        map = Game.map,
+        bullets = Game.bullets,
+        inventory = Game.inventory,
+        items = Game.items,
+        images = Game.images;
+
   // Background gradient
   const range = GREATEST_Y_VALUE - LEAST_Y_VALUE;
   const scale = (GREATEST_Y_VALUE - cam.y) / range;
@@ -14,24 +24,28 @@ function draw(){
   bg_gradient.addColorStop(1, "#09f");
 
   // Healthbar gradient
-  const healthbarX = cvs.width / 2 - images.healthbar.width / 2;
-  const healthbarY = 80;
-  const healthGradient = ctx.createLinearGradient(
-    healthbarX, 0,
-    healthbarX + images.healthbar.width, 0
+  const healthbar = {};
+  healthbar.image = images.healthbar;
+  healthbar.x = cvs.width / 2 - images.healthbar.width / 2;
+  healthbar.y = 80;
+  healthbar.gradient = ctx.createLinearGradient(
+    healthbar.x, 0,
+    healthbar.x + healthbar.image.width, 0
   );
-  healthGradient.addColorStop(0, "#f00");
-  healthGradient.addColorStop(1, "#a00");
+  healthbar.gradient.addColorStop(0, "#f00");
+  healthbar.gradient.addColorStop(1, "#a00");
 
   // Energybar gradient
-  const energybarX = cvs.width / 2 - images.energybar.width / 2;
-  const energybarY = 130;
-  const energyGradient = ctx.createLinearGradient(
-    energybarX, 0,
-    energybarX + images.energybar.width, 0
+  const energybar = {};
+  energybar.image = images.energybar;
+  energybar.x = cvs.width / 2 - images.energybar.width / 2;
+  energybar.y = 130;
+  energybar.gradient = ctx.createLinearGradient(
+    energybar.x, 0,
+    energybar.x + energybar.image.width, 0
   );
-  energyGradient.addColorStop(0, "#fd0");
-  energyGradient.addColorStop(1, "#b90");
+  energybar.gradient.addColorStop(0, "#fd0");
+  energybar.gradient.addColorStop(1, "#b90");
 
   // Fill the background
   ctx.fillStyle = bg_gradient;
@@ -40,7 +54,7 @@ function draw(){
   // Draw bullets
   for (var i in bullets) {
     const b = bullets[i];
-    drawBullet(b);
+    drawBullet(ctx, b, images.bullet, cam);
   }
 
   // Draw the map
@@ -48,7 +62,7 @@ function draw(){
   ctx.lineWidth = OBJECT_OUTLINE_WIDTH;
   ctx.fillStyle = OBJECT_COLOR;
   for(var i in map)
-    drawObject(map[i], OBJECT_OUTLINE);
+    drawObject(ctx, cam, map[i], OBJECT_OUTLINE);
 
   // Draw the players
   ctx.strokeStyle = PLAYER_OUTLINE_COLOR;
@@ -56,7 +70,7 @@ function draw(){
   ctx.fillStyle = PLAYER_COLOR;
   for(var i in players) {
     const p = players[i];
-    drawObject(p, PLAYER_OUTLINE);
+    drawObject(ctx, cam, p, PLAYER_OUTLINE);
 
     const xCoord = p.x - cam.x + cvs.width / 2;
     const yCoord = p.y - cam.y + cvs.height / 2;
@@ -76,31 +90,42 @@ function draw(){
       playerRadius * 2
     );
 
-    drawWeapon(xCoord, yCoord, playerRadius, handAngle, p.weapon);
+    drawWeapon(
+      ctx,
+      {x: xCoord, y: yCoord, r: playerRadius, hand: handAngle},
+      items[p.weapon]
+    );
   }
 
-  drawHealthbar(healthGradient, healthbarX, healthbarY);
-  drawEnergyBar(energyGradient, energybarX, energybarY);
-  drawInventory();
+  if(players.length > 0) {
+    drawHealthbar(ctx, players[0].health, healthbar);
+    drawEnergyBar(ctx, players[0].energy, energybar);
+    drawInventory(ctx, inventory, items);
+  }
 }
 
-function drawWeapon(xCoord, yCoord, playerRadius, handAngle, weapon){
+function drawWeapon(ctx, player, item){
+  if(item.image === null) return 1;
+
+  const xCoord = player.x,
+        yCoord = player.y,
+        playerRadius = player.r,
+        handAngle = player.hand
+
   ctx.save();
   ctx.translate(xCoord, yCoord);
   if(handAngle < Math.PI / 2 || handAngle > 3 * Math.PI / 2) {
     ctx.rotate(-handAngle - 0.15);
-    if(weapon === 1)
-      ctx.drawImage(images.pistol, playerRadius, 0, 50, 50);
+    ctx.drawImage(item.image, playerRadius + item.radialShift, 0, item.width, item.height);
   } else {
     ctx.rotate(0.15 - Math.PI - handAngle);
     ctx.scale(-1, 1);
-    if(weapon === 1)
-      ctx.drawImage(images.pistol, playerRadius, 42, 50, -50);
+    ctx.drawImage(item.image, playerRadius + item.radialShift, 42, item.width, -item.height);
   }
   ctx.restore();
 }
 
-function drawBullet(b) {
+function drawBullet(ctx, b, image, cam) {
   const bullet_angle = 2 * Math.PI * b.angle / 256;
   const xCoord = b.vertices[0].x - cam.x + cvs.width / 2;
   const yCoord = b.vertices[0].y - cam.y + cvs.height / 2;
@@ -108,18 +133,18 @@ function drawBullet(b) {
   ctx.save();
   ctx.translate(xCoord, yCoord);
   ctx.rotate(-bullet_angle);
-  ctx.drawImage(images.bullet, 0, 0);
+  ctx.drawImage(image, 0, 0);
   ctx.restore();
 }
 
-function drawObject(p, outline) {
+function drawObject(ctx, cam, p, outline) {
   ctx.beginPath();
 
-  const v0 = getVertexPosition(p.vertices[0]);
+  const v0 = getVertexPosition(p.vertices[0], cam);
   ctx.moveTo(v0.x, v0.y);
 
   for(var i = 1; i < p.vertices.length; i++) {
-    const v = getVertexPosition(p.vertices[i]);
+    const v = getVertexPosition(p.vertices[i], cam);
     ctx.lineTo(v.x, v.y);
   }
   ctx.lineTo(v0.x, v0.y);
@@ -129,44 +154,42 @@ function drawObject(p, outline) {
     ctx.stroke();
 }
 
-function drawHealthbar(healthGradient, healthbarX, healthbarY){
-  if(players.length > 0) {
-    ctx.fillStyle = healthGradient;
-    ctx.fillRect(healthbarX + 28, healthbarY + 5, 365 * players[0].health, 37);
-    ctx.drawImage(images.healthbar, healthbarX, healthbarY);
-  }
+function drawHealthbar(ctx, health, healthbar){
+  ctx.fillStyle = healthbar.gradient;
+  ctx.fillRect(healthbar.x + 28, healthbar.y + 5, 365 * health, 37);
+  ctx.drawImage(healthbar.image, healthbar.x, healthbar.y);
 }
 
-function drawEnergyBar(energyGradient, energybarX, energybarY){
-  if(players.length > 0) {
-    ctx.fillStyle = energyGradient;
-    ctx.fillRect(energybarX + 5, energybarY + 5, 289 * players[0].energy, 20);
-    ctx.drawImage(images.energybar, energybarX, energybarY);
-  }
+function drawEnergyBar(ctx, energy, energybar){
+  ctx.fillStyle = energybar.gradient;
+  ctx.fillRect(energybar.x + 5, energybar.y + 5, 289 * energy, 20);
+  ctx.drawImage(energybar.image, energybar.x, energybar.y);
 }
 
-function drawInventory(){
+function drawInventory(ctx, inventory, items){
   ctx.fillStyle = "#888";
   ctx.globalAlpha = 0.8;
 
-  roundRect(cvs.width / 2 - 170, -10, 100, inventory.anim[3], 10, true, false);
-  roundRect(cvs.width / 2 - 50, -10, 100, inventory.anim[4], 10, true, false);
-  roundRect(cvs.width / 2 + 70, -10, 100, inventory.anim[5], 10, true, false);
+  roundRect(ctx, cvs.width / 2 - 170, -10, 100, inventory.anim[3], 10, true, false);
+  roundRect(ctx, cvs.width / 2 - 50, -10, 100, inventory.anim[4], 10, true, false);
+  roundRect(ctx, cvs.width / 2 + 70, -10, 100, inventory.anim[5], 10, true, false);
 
-  drawItem(cvs.width / 2 - 120, 100, inventory.anim[3], items[inventory.items[3]]);
-  drawItem(cvs.width / 2,       100, inventory.anim[4], items[inventory.items[4]]);
-  drawItem(cvs.width / 2 + 120, 100, inventory.anim[5], items[inventory.items[5]]);
+  drawItem(ctx, cvs.width / 2 - 120, 100, inventory.anim[3], items[inventory.items[3]]);
+  drawItem(ctx, cvs.width / 2,       100, inventory.anim[4], items[inventory.items[4]]);
+  drawItem(ctx, cvs.width / 2 + 120, 100, inventory.anim[5], items[inventory.items[5]]);
 
   ctx.globalAlpha = 1;
 }
 
-function drawItem(x, w, anim, item) {
-  const side = w - 20;
-  if(item.image)
-    ctx.drawImage(item.image, x - side/2, anim - side - 10, side, side);
+function drawItem(ctx, x, w, anim, item) {
+  if(item.image) {
+    const width = w - 20;
+    const height = width * item.image.height / item.image.width;
+    ctx.drawImage(item.image, x - width/2, anim - height - 20, width, height);
+  }
 }
 
-function roundRect(x, y, width, height, radius, fill, stroke) {
+function roundRect(ctx, x, y, width, height, radius, fill, stroke) {
   if (typeof stroke == 'undefined')
     stroke = true;
   if (typeof radius === 'undefined')
@@ -196,7 +219,7 @@ function roundRect(x, y, width, height, radius, fill, stroke) {
     ctx.stroke();
 }
 
-function getVertexPosition(v) {
+function getVertexPosition(v, cam) {
   return {
     x: v.x - cam.x + cvs.width / 2,
     y: v.y - cam.y + cvs.height / 2
