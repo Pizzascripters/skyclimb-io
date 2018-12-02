@@ -86,7 +86,7 @@ function handleShooting(p, body, bullets) {
     if(p.getItem() === 1)
       spawnBullet(Math.PI / 20)
     else if(p.getItem() === 64)
-      for(var i = 0; i < 6; i++) spawnBullet(Math.PI / 4);
+      for(var i = 0; i < 10; i++) spawnBullet(Math.PI / 8);
 
     p.shooting_cooldown = SHOOTING_COOLDOWN[String(p.getItem())];
   }
