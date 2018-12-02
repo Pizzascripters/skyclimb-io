@@ -1,5 +1,5 @@
-const Matter = require('./matter');
-const Bullet = require('./Bullet')
+const Matter = require('../lib/matter');
+const Bullet = require('../constructors/Bullet')
 
 const RECOIL = 0.0005;
 const KNOCKBACK = 0.004;

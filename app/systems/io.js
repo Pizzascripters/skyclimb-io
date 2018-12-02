@@ -1,14 +1,8 @@
-const intToBytes = require('./intToBytes');
-
-module.exports = function(ws, id){
-  this.id = id;
-  this.socket = ws;
-  this.player = {};
-
+module.exports = {
   /*  Following are a series of functions that send a packet to the client
       Each has a 1 byte header to identify its purpose */
 
-  this.pong = () => { // 0 - Return ping
+  pong: (ws) => { // 0 - Return ping
     if(ws.readyState === ws.CLOSED)
       return 1;
 
@@ -16,25 +10,25 @@ module.exports = function(ws, id){
     ws.send(header);
 
     return 0;
-  }
+  },
 
-  this.setKeyboard = (packet) => { // 1 - Update keyboard object
-    this.player.keyboard.left = false;
-    this.player.keyboard.right = false;
-    this.player.keyboard.jump = false;
-    this.player.keyboard.shoot = false;
+  setKeyboard: (ws, packet, player) => { // 1 - Update keyboard object
+    player.keyboard.left = false;
+    player.keyboard.right = false;
+    player.keyboard.jump = false;
+    player.keyboard.shoot = false;
 
-    this.player.hand = packet[0];
+    player.hand = packet[0];
 
-    if(packet[1]) this.player.keyboard.left = true;
-    if(packet[2]) this.player.keyboard.right = true;
-    if(packet[3]) this.player.keyboard.jump = true;
-    if(packet[4]) this.player.keyboard.shoot = true;
+    if(packet[1]) player.keyboard.left = true;
+    if(packet[2]) player.keyboard.right = true;
+    if(packet[3]) player.keyboard.jump = true;
+    if(packet[4]) player.keyboard.shoot = true;
 
-    this.player.inventory.select = packet[5];
-  }
+    player.inventory.select = packet[5];
+  },
 
-  this.mapData = (map) => { // Send map data
+  mapData: (ws, map) => { // Send map data
     if(ws.readyState === ws.CLOSED || ws.readyState === ws.CLOSING)
       return 1;
 
@@ -63,9 +57,9 @@ module.exports = function(ws, id){
     ws.send( Buffer.concat([header, packet]) );
 
     return 0;
-  }
+  },
 
-  this.playerData = (Game) => { // Send player data
+  playerData: (ws, Game, id) => { // Send player data
     var players = Game.players,
         bullets = Game.bullets,
         world = Game.world;
@@ -128,4 +122,35 @@ module.exports = function(ws, id){
 
     return 0;
   }
+}
+
+// Converts a unit8array to a string
+function bytesToStr(bytes){
+  let str = "";
+  for(var i = 0; i < bytes.length; i++){
+    if(bytes[i] !== 0)
+      str += String.fromCharCode(bytes[i]);
+  }
+  return str;
+}
+
+function strToBytes(str){
+  let bytes = [];
+  for(var i = 0; i < str.length; i++){
+    const code = str.charCodeAt(i);
+    bytes = bytes.concat([code]);
+  }
+  return bytes;
+}
+
+// Converts an integer into a unit8array
+function intToBytes(n){
+  n += 2147483648;
+
+  let bytes = new Uint8Array(4);
+  bytes[0] = Math.floor(n / 16777216);
+  bytes[1] = Math.floor(n / 65536);
+  bytes[2] = Math.floor(n / 256);
+  bytes[3] = Math.floor(n % 256);
+  return new Uint8Array(bytes);
 }

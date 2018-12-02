@@ -1,6 +1,6 @@
 const fs = require('fs');
 
-const Matter = require('./matter');
+const Matter = require('./lib/matter');
 
 const Vertices = Matter.Vertices,
       Bodies = Matter.Bodies,
@@ -9,42 +9,39 @@ const Vertices = Matter.Vertices,
       circle = Bodies.circle,
       trapezoid = Bodies.trapezoid;
 
-module.exports = () => {
+let map = [];
+let objects = [];
 
-  let map = [];
-  let objects = [];
+const json = fs.readFileSync("./app/json/mapdata.json");
+objects = JSON.parse(json);
 
-  const json = fs.readFileSync("./server/mapdata.json");
-  objects = JSON.parse(json);
+for(var i in objects){
+  let vertices = objects[i];
+  vertices[vertices.length] = vertices[0];
 
-  for(var i in objects){
-    let vertices = objects[i];
-    vertices[vertices.length] = vertices[0];
-
-    let n = 0;
-    while(n < vertices.length - 1) {
-      if(n === vertices.length - 2 || findAngle(vertices, n+1) >= 0) {
-        const m = {
-          x: (vertices[n+1].x + vertices[n].x) / 2,
-          y: (vertices[n+1].y + vertices[n].y) / 2
-        };
-        const p = {
-          x: m.y - vertices[n+1].y + m.x,
-          y: vertices[n+1].x - m.x + m.y
-        };
-        createTriangle(map, vertices[n], vertices[n+1], p);
-        n++;
-      } else {
-        createTriangle(map, vertices[n], vertices[n+1], vertices[n+2]);
-        n += 2;
-      }
+  let n = 0;
+  while(n < vertices.length - 1) {
+    if(n === vertices.length - 2 || findAngle(vertices, n+1) >= 0) {
+      const m = {
+        x: (vertices[n+1].x + vertices[n].x) / 2,
+        y: (vertices[n+1].y + vertices[n].y) / 2
+      };
+      const p = {
+        x: m.y - vertices[n+1].y + m.x,
+        y: vertices[n+1].x - m.x + m.y
+      };
+      createTriangle(map, vertices[n], vertices[n+1], p);
+      n++;
+    } else {
+      createTriangle(map, vertices[n], vertices[n+1], vertices[n+2]);
+      n += 2;
     }
   }
+}
 
-  return {
-    bodies: map,
-    objects: objects
-  };
+module.exports = {
+  bodies: map,
+  objects: objects
 };
 
 function createTriangle(map, p1, p2, p3) {

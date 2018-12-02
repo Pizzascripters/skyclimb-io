@@ -1,4 +1,4 @@
-const Matter = require('./matter');
+const Matter = require('../lib/matter');
 
 const BULLET_WIDTH = 20;
 const BULLET_HEIGHT = 10;

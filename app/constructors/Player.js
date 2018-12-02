@@ -1,4 +1,4 @@
-var Matter = require('./matter');
+var Matter = require('../lib/matter');
 
 const PLAYER_START_POS = [
   {x: -4127, y: 4750},
