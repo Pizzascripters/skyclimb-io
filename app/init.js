@@ -81,7 +81,7 @@ wss.on('connection', (ws, req) => {
 setInterval(() => { // Send all players the player data
   for(var i in players){
     const p = players[i];
-    if(!p.deleted)
+    if(!p.disconnected)
       io.playerData(p.ws, Game, p.id);
   }
 }, 1000 / 60);

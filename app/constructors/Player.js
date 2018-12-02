@@ -14,6 +14,7 @@ const PLAYER_RADIUS = 50;
 module.exports = function(ws, id){
   this.ws = ws;
   this.id = id;
+  this.disconnected = false;
   this.shooting_cooldown = 0; // Number of frames until player can shoot again
 
   const rand = Math.floor(Math.random() * PLAYER_START_POS.length)

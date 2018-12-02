@@ -67,7 +67,7 @@ module.exports = {
         world = Game.world;
 
     if(ws.readyState === ws.CLOSED || ws.readyState === ws.CLOSING) {
-        players[id].apoptosis(world);
+        players[id].disconnected = true;
         return 1;
     }
 
