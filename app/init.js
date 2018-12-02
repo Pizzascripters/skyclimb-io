@@ -5,7 +5,6 @@ const path = require('path');
 const WebSocket = require('ws');
 
 const Matter = require('./lib/matter');
-const Client = require('./constructors/Client');
 const Player = require('./constructors/Player');
 const Bullet = require('./constructors/Bullet');
 const io = require('./systems/io');
@@ -13,14 +12,12 @@ const physics = require('./systems/physics');
 const map = require('./map');
 
 var Game = {
-  clients: [],
   players: [],
   bullets: [],
   map: map
 }
 
-var clients = Game.clients, // The socket and some methods for communicating with the client
-    players = Game.players, // Holds the player body and a virtual keyboard
+var players = Game.players, // Holds the player body and a virtual keyboard
     bullets = Game.bullets; // Holds all of the bullet objects
 
 // Configure matter js
@@ -54,13 +51,11 @@ app.use('/', express.static(__dirname + '/client'));
 // User initial connection
 wss.on('connection', (ws, req) => {
 
-  // Create client and player
-  const clientId = clients.length;
-  let client = new Client(ws, clientId);
-  let player = new Player(client);
-  clients.push(client);
+  // Create the player
+  const playerId = players.length;
+  let player = new Player(ws, playerId);
   players.push(player);
-  console.log("New client, id: %d", clientId);
+  console.log("New client, id: %d", playerId);
 
   World.addBody(world, player.body);
 
@@ -87,7 +82,7 @@ setInterval(() => { // Send all players the player data
   for(var i in players){
     const p = players[i];
     if(!p.deleted)
-      io.playerData(p.client.socket, Game, p.id);
+      io.playerData(p.ws, Game, p.id);
   }
 }, 1000 / 60);
 

@@ -11,16 +11,15 @@ const PLAYER_START_POS = [
 ];
 const PLAYER_RADIUS = 50;
 
-module.exports = function(client){
-  this.id = client.id;
+module.exports = function(ws, id){
+  this.ws = ws;
+  this.id = id;
   this.shooting_cooldown = 0; // Number of frames until player can shoot again
 
   const rand = Math.floor(Math.random() * PLAYER_START_POS.length)
 
   this.body = Matter.Bodies.circle(PLAYER_START_POS[rand].x, PLAYER_START_POS[rand].y, PLAYER_RADIUS);
   this.body.restitution = 0.3;
-  this.client = client;
-  client.player = this;
 
   this.keyboard = {
     left: false,
