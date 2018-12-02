@@ -1,3 +1,5 @@
+const distance = require('../lib/distance');
+
 module.exports = {
   /*  Following are a series of functions that send a packet to the client
       Each has a 1 byte header to identify its purpose */
@@ -77,10 +79,10 @@ module.exports = {
 
     // Adds a player to the packet
     function addPlayer(p) {
-      for(var i in p.body.vertices){
-        packet.push( p.body.vertices[i].x );
-        packet.push( p.body.vertices[i].y );
-      }
+      const radius = distance(p.body.position, p.body.vertices[0]);
+      packet.push( p.body.position.x );
+      packet.push( p.body.position.y );
+      packet.push( radius );
       packet.push( p.hand );
       packet.push( Math.floor(p.health * 255) );
       packet.push( Math.floor(p.energy * 255) );

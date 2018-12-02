@@ -1,5 +1,4 @@
-const VERTICES_PER_PLAYER = 26; // # of vertices in a player body
-const PLAYER_BYTES = VERTICES_PER_PLAYER * 8 + 16;
+const PLAYER_BYTES = 28;
 
 const VERTICES_PER_BULLET = 4;
 const BULLET_BYTES = VERTICES_PER_BULLET * 8 + 4;

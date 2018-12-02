@@ -106,17 +106,9 @@ function setPlayers(data, players, bullets, cam){
   let ref = {i:2}; // We want to pass i by reference to readInt can increment it
   while(ref.i < data[1] * PLAYER_BYTES){
     var player = {};
-    player.vertices = [];
-    player.x = player.y = 0;  // For finding the avergae vertex position
-
-    for(var n = 0; n < VERTICES_PER_PLAYER; n++) {
-      player.vertices[n] = {};
-      player.x += player.vertices[n].x = readInt(data, ref);
-      player.y += player.vertices[n].y = readInt(data, ref);
-    }
-
-    player.x /= player.vertices.length; // Find the average
-    player.y /= player.vertices.length;
+    player.x = readInt(data, ref);
+    player.y = readInt(data, ref);
+    player.radius = readInt(data, ref);
 
     player.hand = readInt(data, ref);
     player.health = readInt(data, ref) / 255;

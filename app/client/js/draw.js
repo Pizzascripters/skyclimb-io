@@ -70,29 +70,24 @@ function draw(Game){
   ctx.fillStyle = PLAYER_COLOR;
   for(var i in players) {
     const p = players[i];
-    drawObject(ctx, cam, p, PLAYER_OUTLINE);
+    drawPlayer(ctx, cam, p, PLAYER_OUTLINE);
 
     const xCoord = p.x - cam.x + cvs.width / 2;
     const yCoord = p.y - cam.y + cvs.height / 2;
-    const playerRadius =
-      Math.sqrt(
-        Math.pow(p.vertices[0].x - players[i].x, 2) +
-        Math.pow(p.vertices[0].y - players[i].y, 2)
-      );
     const handAngle = 2 * Math.PI * p.hand / 256;
 
     // Draw eyes
     ctx.drawImage(
       images.eyes,
-      xCoord - playerRadius,
-      yCoord - playerRadius,
-      playerRadius * 2,
-      playerRadius * 2
+      xCoord - p.radius,
+      yCoord - p.radius,
+      p.radius * 2,
+      p.radius * 2
     );
 
     drawWeapon(
       ctx,
-      {x: xCoord, y: yCoord, r: playerRadius, hand: handAngle},
+      {x: xCoord, y: yCoord, r: p.radius, hand: handAngle},
       items[p.weapon]
     );
   }
@@ -137,10 +132,20 @@ function drawBullet(ctx, b, image, cam) {
   ctx.restore();
 }
 
-function drawObject(ctx, cam, p, outline) {
+function drawPlayer(ctx, cam, p, outline) {
+  const v = getVertexPosition(p, cam);
   ctx.beginPath();
+  ctx.arc(v.x, v.y, p.radius, 0, 2 * Math.PI);
 
+  ctx.fill();
+  if(outline)
+    ctx.stroke();
+}
+
+function drawObject(ctx, cam, p, outline) {
   const v0 = getVertexPosition(p.vertices[0], cam);
+
+  ctx.beginPath();
   ctx.moveTo(v0.x, v0.y);
 
   for(var i = 1; i < p.vertices.length; i++) {
