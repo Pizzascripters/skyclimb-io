@@ -96,6 +96,7 @@ function draw(Game){
     drawHealthbar(ctx, players[0].health, healthbar);
     drawEnergyBar(ctx, players[0].energy, energybar);
     drawInventory(ctx, inventory, items);
+    drawStats(ctx, players[0].gold, players[0].kills);
   }
 }
 
@@ -192,6 +193,43 @@ function drawItem(ctx, x, w, anim, item) {
     const height = width * item.image.height / item.image.width;
     ctx.drawImage(item.image, x - width/2, anim - height - 20, width, height);
   }
+}
+
+function drawStats(ctx, gold, kills) {
+  ctx.fillStyle = "#888";
+  ctx.globalAlpha = 0.8;
+  roundRect(ctx, cvs.width - 20 - STATS_WIDTH, cvs.height - 20 - STATS_HEIGHT, STATS_WIDTH, STATS_HEIGHT, 10, true, false)
+  ctx.globalAlpha = 1;
+
+  ctx.fillStyle = "#fff";
+  ctx.font = "50px Arial";
+  ctx.fillText(
+    "Stats",
+    cvs.width - 20 - STATS_WIDTH/2 - ctx.measureText("Stats").width/2,
+    cvs.height - STATS_HEIGHT + 30
+  );
+
+  ctx.font = "30px Arial";
+  ctx.fillText(
+    "Gold",
+    cvs.width - STATS_WIDTH,
+    cvs.height - STATS_HEIGHT + 80
+  );
+  ctx.fillText(
+    gold,
+    cvs.width - 40 - ctx.measureText(gold).width,
+    cvs.height - STATS_HEIGHT + 80
+  );
+  ctx.fillText(
+    "Kills",
+    cvs.width - STATS_WIDTH,
+    cvs.height - STATS_HEIGHT + 120
+  );
+  ctx.fillText(
+    kills,
+    cvs.width - 40 - ctx.measureText(kills).width,
+    cvs.height - STATS_HEIGHT + 120
+  );
 }
 
 function roundRect(ctx, x, y, width, height, radius, fill, stroke) {

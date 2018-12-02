@@ -115,6 +115,11 @@ function setPlayers(data, players, bullets, cam){
     player.energy = readInt(data, ref) / 255;
     player.weapon = readInt(data, ref);
 
+    if(players.length === 0) {
+      player.gold = readInt(data, ref);
+      player.kills = readInt(data, ref);
+    }
+
     players.push(player);
 
     if(players.length === 1) {

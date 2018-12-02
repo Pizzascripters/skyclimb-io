@@ -132,11 +132,14 @@ function bulletCollisions(players, bullets, map){
           {x: b.body.position.x, y: b.body.position.y},
           {x: KNOCKBACK * b.body.velocity.x, y: KNOCKBACK * b.body.velocity.y}
         );
-        b.apoptosis();
 
         p.health -= 0.1;
-        if(p.health <= 0)
-          p.apoptosis(world);
+        if(p.health <= 0) {
+            p.apoptosis(world);
+            b.player.kills++;
+        }
+
+        b.apoptosis();
       }
     }
 

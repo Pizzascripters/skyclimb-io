@@ -33,6 +33,8 @@ module.exports = function(ws, id){
   this.hand = 0;
   this.health = 1;
   this.energy = 1;
+  this.gold = 0;
+  this.kills = 0;
 
   this.deleted = false;
 

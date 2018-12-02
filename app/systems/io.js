@@ -61,7 +61,7 @@ module.exports = {
     return 0;
   },
 
-  playerData: (ws, Game, id) => { // Send player data
+  playerData: (ws, Game, id) => { // Send player and bullet data
     var players = Game.players,
         bullets = Game.bullets,
         world = Game.world;
@@ -87,6 +87,11 @@ module.exports = {
       packet.push( Math.floor(p.health * 255) );
       packet.push( Math.floor(p.energy * 255) );
       packet.push( p.getItem() ); // The weapon player is holding
+
+      if(p.id === id) {
+        packet.push( p.gold );
+        packet.push( p.kills );
+      }
     }
 
     function addBullet(b) {

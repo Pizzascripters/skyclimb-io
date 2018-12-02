@@ -7,6 +7,9 @@ const INVENTORY_COLLAPSED_HEIGHT = 80;
 const INVENTORY_SELECTED_HEIGHT = 90;
 const INVENTORY_ANIMATION_SPEED = 80; // px / sec
 
+const STATS_WIDTH = 200;
+const STATS_HEIGHT = 300;
+
 const PLAYER_COLOR = "#fc7";
 const OBJECT_COLOR = "#655";
 const PLAYER_OUTLINE = true;

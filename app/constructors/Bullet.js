@@ -9,6 +9,7 @@ const BULLET_DISTANCE = 50; // Distance from player to bullet spawn
 // A constructor for the bullet
 module.exports = function (world, p, accuracy) {
   this.deleted = false;
+  this.player = p;
 
   const angle =
     2 * Math.PI * p.hand / 256 +
