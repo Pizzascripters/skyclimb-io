@@ -134,10 +134,8 @@ function bulletCollisions(players, bullets, map){
         );
 
         p.health -= 0.1;
-        if(p.health <= 0) {
-            p.apoptosis(world);
-            b.player.kills++;
-        }
+        if(p.health <= 0)
+          b.player.kill(world, p);
 
         b.apoptosis();
       }

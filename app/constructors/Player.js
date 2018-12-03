@@ -1,4 +1,5 @@
 var Matter = require('../lib/matter');
+const economy = require('../systems/economy');
 
 const PLAYER_START_POS = [
   {x: -4127, y: 4750},
@@ -34,18 +35,25 @@ module.exports = function(ws, id){
   this.hand = 0;
   this.health = 1;
   this.energy = 1;
-  this.gold = 0;
   this.kills = 0;
+  this.gold = 0;
+  this.score = 0;
 
   this.deleted = false;
 
+  this.kill = (world, p) => {
+    this.kills++;
+    economy.addGold(this, Math.round(p.gold / 2));
+    p.apoptosis(world);
+  }
+
   // Programmed cell suicide
-  this.apoptosis = function(world){
+  this.apoptosis = (world) => {
     this.deleted = true;
     Matter.Composite.remove(world, this.body);
   }
 
-  this.getItem = function(){
+  this.getItem = () => {
     return this.inventory.items[this.inventory.select];
   }
 }

@@ -5,11 +5,12 @@ const path = require('path');
 const WebSocket = require('ws');
 
 const Matter = require('./lib/matter');
+const map = require('./map');
 const Player = require('./constructors/Player');
 const Bullet = require('./constructors/Bullet');
 const io = require('./systems/io');
 const physics = require('./systems/physics');
-const map = require('./map');
+const economy = require('./systems/economy');
 
 var Game = {
   players: [],
@@ -81,10 +82,12 @@ wss.on('connection', (ws, req) => {
 setInterval(() => { // Send all players the player data
   for(var i in players){
     const p = players[i];
-    if(!p.disconnected)
+    if(!p.disconnected && !p.deleted)
       io.playerData(p.ws, Game, p.id);
   }
 }, 1000 / 60);
+
+setInterval(economy.update, 1000, Game.players);
 
 Events.on(engine, 'afterUpdate', (e) => {
   physics(Game);

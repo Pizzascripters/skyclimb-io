@@ -89,8 +89,9 @@ module.exports = {
       packet.push( p.getItem() ); // The weapon player is holding
 
       if(p.id === id) {
-        packet.push( p.gold );
         packet.push( p.kills );
+        packet.push( p.gold );
+        packet.push( p.score );
       }
     }
 
