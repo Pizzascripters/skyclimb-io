@@ -104,7 +104,7 @@ function setPlayers(data, players, inventory, bullets, cam){
   bullets.splice(0, bullets.length);
 
   let ref = {i:2}; // We want to pass i by reference to readInt can increment it
-  while(ref.i < data[1] * PLAYER_BYTES){
+  while(ref.i < FIRST_PLAYER_BYTES + (data[1] - 1) * PLAYER_BYTES){
     var player = {};
     player.x = readInt(data, ref);
     player.y = readInt(data, ref);

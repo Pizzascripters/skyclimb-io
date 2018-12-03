@@ -89,7 +89,7 @@ setInterval(() => { // Send all players the player data
 
 setInterval(economy.update, 1000, Game.players);
 
-Events.on(engine, 'afterUpdate', (e) => {
+Events.on(engine, 'beforeUpdate', (e) => {
   physics(Game);
 });
 

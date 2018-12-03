@@ -1,3 +1,4 @@
+const FIRST_PLAYER_BYTES = 68;
 const PLAYER_BYTES = 28;
 
 const VERTICES_PER_BULLET = 4;

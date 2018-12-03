@@ -38,7 +38,7 @@ module.exports = function(ws, id){
   this.inventory = {};
   this.inventory.select = 4;
   this.inventory.items = [];
-  const itemIds = [0, 0, 64, 0, 1, 0, 0];
+  const itemIds = [0, 0, 64, 32, 1, 0, 0];
   for(var i = 0; i < 7; i++)
     this.inventory.items[i] = new Item( itemIds[i] );
 

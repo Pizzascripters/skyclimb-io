@@ -23,6 +23,19 @@ class Pistol extends Item {
   }
 }
 
+class Ak47 extends Item {
+  constructor() {
+    super();
+    this.id = 32;
+    this.canShoot = true;
+    this.bulletDistance = 50;
+    this.numBullets = 1;
+    this.accuracy = Math.PI / 10;
+    this.cooldownTime = 5;
+    this.shootingCooldown = this.cooldownTime;
+  }
+}
+
 class Shotgun extends Item {
   constructor() {
     super();
@@ -42,6 +55,9 @@ module.exports = function(id) {
   switch(id) {
     case 1:
       item = new Pistol();
+      break;
+    case 32:
+      item = new Ak47();
       break;
     case 64:
       item = new Shotgun();

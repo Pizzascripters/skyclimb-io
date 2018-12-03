@@ -75,6 +75,7 @@ function loadImages(images, callback) {
 
   images.eyes = loadImage("eyes.png", onload);
   images.pistol = loadImage("pistol.png", onload);
+  images.ak47 = loadImage("ak47.png", onload);
   images.shotgun = loadImage("shotgun.png", onload);
   images.bullet = loadImage("bullet.png", onload);
   images.healthbar = loadImage("healthbar.png", onload);

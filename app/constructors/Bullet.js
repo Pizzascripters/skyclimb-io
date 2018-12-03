@@ -25,7 +25,7 @@ module.exports = function (world, p, accuracy) {
     {x: xVelocity, y: yVelocity}
   );
 
-  this.angle = p.hand;
+  this.angle = Math.floor(256 * angle / (2 * Math.PI));
 
   setTimeout(this.apoptosis = () => {
     this.deleted = true;
