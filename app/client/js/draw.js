@@ -176,13 +176,13 @@ function drawInventory(ctx, inventory, items){
   ctx.fillStyle = "#888";
   ctx.globalAlpha = 0.8;
 
-  roundRect(ctx, cvs.width / 2 - 170, -10, 100, inventory.anim[3], 10, true, false);
-  roundRect(ctx, cvs.width / 2 - 50, -10, 100, inventory.anim[4], 10, true, false);
-  roundRect(ctx, cvs.width / 2 + 70, -10, 100, inventory.anim[5], 10, true, false);
+  roundRect(ctx, cvs.width / 2 - 170, -10, 100, inventory.anim[2], 10, true, false);
+  roundRect(ctx, cvs.width / 2 - 50, -10, 100, inventory.anim[3], 10, true, false);
+  roundRect(ctx, cvs.width / 2 + 70, -10, 100, inventory.anim[4], 10, true, false);
 
-  drawItem(ctx, cvs.width / 2 - 120, 100, inventory.anim[3], items[inventory.items[3]]);
-  drawItem(ctx, cvs.width / 2,       100, inventory.anim[4], items[inventory.items[4]]);
-  drawItem(ctx, cvs.width / 2 + 120, 100, inventory.anim[5], items[inventory.items[5]]);
+  drawItem(ctx, cvs.width / 2 - 120, 100, inventory.anim[2], items[inventory.items[2]]);
+  drawItem(ctx, cvs.width / 2,       100, inventory.anim[3], items[inventory.items[3]]);
+  drawItem(ctx, cvs.width / 2 + 120, 100, inventory.anim[4], items[inventory.items[4]]);
 
   ctx.globalAlpha = 1;
 }

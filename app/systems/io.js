@@ -86,9 +86,13 @@ module.exports = {
       packet.push( p.hand );
       packet.push( Math.floor(p.health * 255) );
       packet.push( Math.floor(p.energy * 255) );
-      packet.push( p.getItem() ); // The weapon player is holding
+      packet.push( p.getItem().id ); // The weapon player is holding
 
       if(p.id === id) {
+        // Inventory
+        for(var i = 0; i < p.inventory.items.length; i++)
+          packet.push( p.inventory.items[i].id );
+
         packet.push( p.kills );
         packet.push( p.gold );
         packet.push( p.score );

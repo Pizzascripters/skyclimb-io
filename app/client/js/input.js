@@ -1,13 +1,13 @@
 function keydown(e, keyboard, inventory){
   switch ( e.keyCode ) {
     case 49:  // 1
-      inventory.select = 3;
+      inventory.select = 2;
       break;
     case 50:  // 2
-      inventory.select = 4;
+      inventory.select = 3;
       break;
     case 51:  // 3
-      inventory.select = 5;
+      inventory.select = 4;
       break;
     case 65:  // A
       keyboard.left = true;

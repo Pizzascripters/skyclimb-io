@@ -25,9 +25,9 @@ function init(e){
   Game.hand = 0;         // Angle of the hand
 
   Game.inventory = {
-    select: 5,
-    anim: [0, 0, 0, 80, 80, 90, 0, 0, 0],
-    items: [0, 0, 0, 64, 0, 1, 0, 0, 0]
+    select: 4,
+    anim: [0, 0, 80, 80, 90, 0, 0],
+    items: [0, 0, 0, 0, 0, 0, 0]
   }
   Game.items = {};
   initItems(Game.items, Game.images);

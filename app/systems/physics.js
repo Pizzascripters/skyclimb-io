@@ -70,7 +70,9 @@ function handleMovement(p, body) {
 }
 
 function handleShooting(p, body, bullets) {
-  if(p.keyboard.shoot && p.shooting_cooldown === 0) {
+  const item = p.getItem();
+  
+  if(p.keyboard.shoot && item.shootingCooldown === 0) {
     const spawnBullet = (accuracy) => {
       const bullet = new Bullet(world, p, accuracy);
       bullets.push(bullet);
@@ -83,16 +85,19 @@ function handleShooting(p, body, bullets) {
       );
     }
 
-    if(p.getItem() === 1)
-      spawnBullet(Math.PI / 20)
-    else if(p.getItem() === 64)
-      for(var i = 0; i < 10; i++) spawnBullet(Math.PI / 8);
+    if(item.canShoot) {
+      for(var i = 0; i < item.numBullets; i++)
+        spawnBullet(item.accuracy);
+    }
 
-    p.shooting_cooldown = SHOOTING_COOLDOWN[String(p.getItem())];
+    item.shootingCooldown = item.cooldownTime;
   }
 
-  if(p.shooting_cooldown > 0)
-    p.shooting_cooldown--;
+  for(var i in p.inventory.items) {
+    const item = p.inventory.items[i];
+    if(item.shootingCooldown > 0)
+      item.shootingCooldown--;
+  }
 }
 
 function terminalVelocity(body){

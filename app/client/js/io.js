@@ -34,7 +34,7 @@ function handleMessage(packet, Game){
       setMap(new Uint8Array(packet.data), Game.map);
       break;
     case 2: // Player data
-      setPlayers(new Uint8Array(packet.data), Game.players, Game.bullets, Game.cam);
+      setPlayers(new Uint8Array(packet.data), Game.players, Game.inventory.items, Game.bullets, Game.cam);
       break;
   }
 }
@@ -98,7 +98,7 @@ function setMap(data, map){
 }
 
 // Called when client recieves player information
-function setPlayers(data, players, bullets, cam){
+function setPlayers(data, players, inventory, bullets, cam){
   // Clear the arrays
   players.splice(0, players.length);
   bullets.splice(0, bullets.length);
@@ -116,6 +116,10 @@ function setPlayers(data, players, bullets, cam){
     player.weapon = readInt(data, ref);
 
     if(players.length === 0) {
+      // Inventory
+      for(var i = 0; i < inventory.length; i++)
+        inventory[i] = readInt(data, ref);
+
       player.kills = readInt(data, ref);
       player.gold = readInt(data, ref);
       player.score = readInt(data, ref);
