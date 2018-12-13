@@ -47,12 +47,22 @@ function init(e){
 
   fullscreen(Game.cvs);
   window.addEventListener("resize", () => {fullscreen(Game.cvs)});
+
 }
 
 function fullscreen(cvs){
   cvs.width = window.innerWidth;
   cvs.height = window.innerHeight;
 }
+
+// Adds a script to the html document
+function loadScript(name){
+  let script = document.createElement("script");
+  script.src = "js/" + name + ".js";
+  document.head.appendChild(script);
+}
+let scripts = ["anim", "constants", "draw", "input", "io", "Item"];
+scripts.map(x => loadScript(x));
 
 // Runs constantly
 function update(Game, time){
