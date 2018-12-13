@@ -15,6 +15,9 @@ function keydown(e, keyboard, inventory){
     case 68:  // D
       keyboard.right = true;
       break;
+    case 81:  // Q
+      keyboard.cook = true;
+      break;
     case 87:  // W
       keyboard.jump = true;
       break;
@@ -28,6 +31,10 @@ function keyup(e, keyboard){
       break;
     case 68:  // D
       keyboard.right = false;
+      break;
+    case 81:  // Q
+      keyboard.cook = false;
+      keyboard.throw = true;
       break;
     case 87:  // W
       keyboard.jump = false;

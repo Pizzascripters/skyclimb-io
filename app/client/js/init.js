@@ -8,6 +8,7 @@ function init(e){
   Game.players = [];
   Game.map = [];
   Game.bullets = [];
+  Game.throwables = [];
 
   Game.images = {};
   loadImages(Game.images, () => {
@@ -77,6 +78,7 @@ function loadImages(images, callback) {
   images.pistol = loadImage("pistol.png", onload);
   images.ak47 = loadImage("ak47.png", onload);
   images.shotgun = loadImage("shotgun.png", onload);
+  images.nade = loadImage("nade.png", onload);
   images.bullet = loadImage("bullet.png", onload);
   images.healthbar = loadImage("healthbar.png", onload);
   images.energybar = loadImage("energybar.png", onload);

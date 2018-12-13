@@ -15,11 +15,13 @@ const economy = require('./systems/economy');
 var Game = {
   players: [],
   bullets: [],
+  throwables: [],
   map: map
 }
 
 var players = Game.players, // Holds the player body and a virtual keyboard
-    bullets = Game.bullets; // Holds all of the bullet objects
+    bullets = Game.bullets, // Holds all of the bullet objects
+    throwables = Game.throwables; // Holds all of the throwable objects (nades, smokes, nukes?)
 
 // Configure matter js
 // Module Aliases

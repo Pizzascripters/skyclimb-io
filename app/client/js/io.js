@@ -34,7 +34,7 @@ function handleMessage(packet, Game){
       setMap(new Uint8Array(packet.data), Game.map);
       break;
     case 2: // Player data
-      setPlayers(new Uint8Array(packet.data), Game.players, Game.inventory.items, Game.bullets, Game.cam);
+      setPlayers(new Uint8Array(packet.data), Game.players, Game.inventory.items, Game.bullets, Game.throwables, Game.cam);
       break;
   }
 }
@@ -54,14 +54,17 @@ function sendKeyboard(ws, keyboard, select, hand){
     return 1;
 
   let packet = [];
-  packet[0] = 1;
-  packet[1] = hand;
-  packet[2] = keyboard.left;
-  packet[3] = keyboard.right;
-  packet[4] = keyboard.jump;
-  packet[5] = keyboard.shoot;
-  packet[6] = select;
+  packet.push(1);
+  packet.push(hand);
+  packet.push(keyboard.left);
+  packet.push(keyboard.right);
+  packet.push(keyboard.jump);
+  packet.push(keyboard.shoot);
+  packet.push(keyboard.throw);
+  packet.push(select);
   ws.send( new Uint8Array(packet) );
+
+  keyboard.throw = false;
 }
 
 // Requests the map data in case we didn't get it
@@ -98,10 +101,11 @@ function setMap(data, map){
 }
 
 // Called when client recieves player information
-function setPlayers(data, players, inventory, bullets, cam){
+function setPlayers(data, players, inventory, bullets, throwables, cam){
   // Clear the arrays
   players.splice(0, players.length);
   bullets.splice(0, bullets.length);
+  throwables.splice(0, throwables.length);
 
   let ref = {i:2}; // We want to pass i by reference to readInt can increment it
   while(ref.i < FIRST_PLAYER_BYTES + (data[1] - 1) * PLAYER_BYTES){
@@ -133,8 +137,9 @@ function setPlayers(data, players, inventory, bullets, cam){
     }
   }
 
-  while(ref.i < data.length){
-    var bullet = {};
+  let numBullets = readInt(data, ref);
+  while(bullets.length < numBullets){
+    let bullet = {};
     bullet.vertices = [];
     for(var n = 0; n < VERTICES_PER_BULLET; n++) {
       bullet.vertices[n] = {};
@@ -145,6 +150,20 @@ function setPlayers(data, players, inventory, bullets, cam){
     bullet.angle = readInt(data, ref);
 
     bullets.push(bullet);
+  }
+
+  let numThrowables = readInt(data, ref);
+  while(throwables.length < numThrowables){
+    let throwable = {};
+    throwable.vertices = [];
+    for(var n = 0; n < VERTICES_PER_BULLET; n++) {
+      throwable.vertices[n] = {};
+      throwable.vertices[n].x = readInt(data, ref);
+      throwable.vertices[n].y = readInt(data, ref);
+    }
+    throwable.angle = readInt(data, ref);
+
+    throwables.push(throwable);
   }
 }
 

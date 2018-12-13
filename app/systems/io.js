@@ -19,6 +19,7 @@ module.exports = {
     player.keyboard.right = false;
     player.keyboard.jump = false;
     player.keyboard.shoot = false;
+    player.keyboard.throw = false;
 
     player.hand = packet[0];
 
@@ -26,8 +27,9 @@ module.exports = {
     if(packet[2]) player.keyboard.right = true;
     if(packet[3]) player.keyboard.jump = true;
     if(packet[4]) player.keyboard.shoot = true;
+    if(packet[5]) player.keyboard.throw = true;
 
-    player.inventory.select = packet[5];
+    player.inventory.select = packet[6];
   },
 
   mapData: (ws, map) => { // Send map data
@@ -64,6 +66,7 @@ module.exports = {
   playerData: (ws, Game, id) => { // Send player and bullet data
     var players = Game.players,
         bullets = Game.bullets,
+        throwables = Game.throwables,
         world = Game.world;
 
     if(ws.readyState === ws.CLOSED || ws.readyState === ws.CLOSING) {
@@ -107,6 +110,14 @@ module.exports = {
       packet.push( b.angle );
     }
 
+    function addThrowable(b) {
+      for(var i in b.body.vertices){
+        packet.push( b.body.vertices[i].x );
+        packet.push( b.body.vertices[i].y );
+      }
+      packet.push( b.body.angle );
+    }
+
     addPlayer(players[id]); // Add yourself to the player packet
     let num_players = 1;    // For counting the number of players
 
@@ -117,10 +128,28 @@ module.exports = {
       num_players++;
     }
 
+    let numBullets = 0;
+    for(var i in bullets){
+      if(!bullets[i].deleted)
+        numBullets++; // Count the bullets
+    }
+    packet.push(numBullets);
     for(var i in bullets){
       if(bullets[i].deleted)
         continue;
       addBullet(bullets[i]); // Add the bullets
+    }
+
+    let numThrowables = 0;
+    for(var i in throwables){
+      if(!throwables[i].deleted)
+        numThrowables++; // Count the throwables
+    }
+    packet.push(numThrowables);
+    for(var i in throwables){
+      if(throwables[i].deleted)
+        continue;
+      addThrowable(throwables[i]); // Add the throwables
     }
 
     // Turn all the numbers into bytes

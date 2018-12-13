@@ -13,7 +13,7 @@ module.exports = function (world, p, accuracy) {
   const angle =
     2 * Math.PI * p.hand / 256 +
     (Math.random() * accuracy) - accuracy / 2;
-  const radius = distance(p.body.position, p.body.vertices[0]) + p.getItem().bulletDistance;
+  const radius = distance(p.body.position, p.body.vertices[0]) + p.getItem().spawnDistance;
   const bulletX = p.body.position.x + radius * Math.cos(2 * Math.PI * p.hand / 256);
   const bulletY = p.body.position.y - radius * Math.sin(2 * Math.PI * p.hand / 256);
   const xVelocity = BULLET_SPEED * Math.cos(angle);

@@ -5,6 +5,7 @@ function draw(Game){
         players = Game.players,
         map = Game.map,
         bullets = Game.bullets,
+        throwables = Game.throwables,
         inventory = Game.inventory,
         items = Game.items,
         images = Game.images;
@@ -55,6 +56,13 @@ function draw(Game){
   for (var i in bullets) {
     const b = bullets[i];
     drawBullet(ctx, b, images.bullet, cam);
+  }
+
+  // Draw Throwables
+  ctx.fillStyle = "#040"
+  for (var i in throwables) {
+    const t = throwables[i];
+    drawThrowable(ctx, t, images.nade, cam);
   }
 
   // Draw the map
@@ -133,6 +141,21 @@ function drawBullet(ctx, b, image, cam) {
   ctx.restore();
 }
 
+function drawThrowable(ctx, t, image, cam) {
+  const v0 = getVertexPosition(t.vertices[0], cam);
+
+  ctx.beginPath();
+  ctx.moveTo(v0.x, v0.y);
+
+  for(var i = 1; i < t.vertices.length; i++) {
+    const v = getVertexPosition(t.vertices[i], cam);
+    ctx.lineTo(v.x, v.y);
+  }
+  ctx.lineTo(v0.x, v0.y);
+
+  ctx.fill();
+}
+
 function drawPlayer(ctx, cam, p, outline) {
   const v = getVertexPosition(p, cam);
   ctx.beginPath();
@@ -176,23 +199,75 @@ function drawInventory(ctx, inventory, items){
   ctx.fillStyle = "#888";
   ctx.globalAlpha = 0.8;
 
-  roundRect(ctx, cvs.width / 2 - 170, -10, 100, inventory.anim[2], 10, true, false);
-  roundRect(ctx, cvs.width / 2 - 50, -10, 100, inventory.anim[3], 10, true, false);
-  roundRect(ctx, cvs.width / 2 + 70, -10, 100, inventory.anim[4], 10, true, false);
+  roundRect(ctx, cvs.width / 2 - 280, 5, 100, 30, 10);
+  roundRect(ctx, cvs.width / 2 - 280, 40, 100, 30, 10);
 
-  drawItem(ctx, cvs.width / 2 - 120, 100, inventory.anim[2], items[inventory.items[2]]);
-  drawItem(ctx, cvs.width / 2,       100, inventory.anim[3], items[inventory.items[3]]);
-  drawItem(ctx, cvs.width / 2 + 120, 100, inventory.anim[4], items[inventory.items[4]]);
+  roundRect(ctx, cvs.width / 2 - 170, -10, 100, inventory.anim[2]);
+  roundRect(ctx, cvs.width / 2 - 50, -10, 100, inventory.anim[3]);
+  roundRect(ctx, cvs.width / 2 + 70, -10, 100, inventory.anim[4]);
+
+  roundRect(ctx, cvs.width / 2 + 180, 5, 100, 30, 10);
+  roundRect(ctx, cvs.width / 2 + 180, 40, 100, 30, 10);
+
+  drawItem(ctx, cvs.width, 0, items[inventory.items[0]]);
+  drawItem(ctx, cvs.width, 1, items[inventory.items[1]]);
+
+  drawItem(ctx, cvs.width, 2, items[inventory.items[2]], inventory.anim[2]);
+  drawItem(ctx, cvs.width, 3, items[inventory.items[3]], inventory.anim[3]);
+  drawItem(ctx, cvs.width, 4, items[inventory.items[4]], inventory.anim[4]);
+
+  drawItem(ctx, cvs.width, 0, items[inventory.items[5]]);
+  drawItem(ctx, cvs.width, 1, items[inventory.items[6]]);
 
   ctx.globalAlpha = 1;
 }
 
-function drawItem(ctx, x, w, anim, item) {
-  if(item.image) {
-    const width = w - 20;
-    const height = width * item.image.height / item.image.width;
-    ctx.drawImage(item.image, x - width/2, anim - height - 20, width, height);
+function drawItem(ctx, cvswidth, slot, item, anim) {
+  if(!item.image) return;
+
+  switch(slot) {
+    case 0:
+    case 1:
+      x = cvs.width / 2 - 275;
+      break;
+    case 2:
+      x = cvswidth / 2 - 160;
+      break;
+    case 3:
+      x = cvswidth / 2 - 40;
+      break;
+    case 4:
+      x = cvswidth / 2 + 80;
+      break;
+    case 5:
+    case 6:
+      x = cvs.width / 2 - 185;
+      break;
   }
+
+  switch(slot) {
+    case 0:
+    case 5:
+      width = 20;
+      height = width * item.image.height / item.image.width;
+      y = 30 - height;
+      break;
+    case 1:
+    case 6:
+      width = 20;
+      height = width * item.image.height / item.image.width;
+      y = 30 - height;
+      break;
+    case 2:
+    case 3:
+    case 4:
+      width = 80;
+      height = width * item.image.height / item.image.width;
+      y = anim - height - 20;
+      break;
+  }
+
+  ctx.drawImage(item.image, x, y, width, height);
 }
 
 function drawStats(ctx, gold, kills, score) {
@@ -244,17 +319,11 @@ function drawStats(ctx, gold, kills, score) {
 }
 
 function roundRect(ctx, x, y, width, height, radius, fill, stroke) {
-  if (typeof stroke == 'undefined')
-    stroke = true;
   if (typeof radius === 'undefined')
-    radius = 5;
+    radius = 10;
   if (typeof radius === 'number')
     radius = {tl: radius, tr: radius, br: radius, bl: radius};
-  else {
-    var defaultRadius = {tl: 0, tr: 0, br: 0, bl: 0};
-    for (var side in defaultRadius)
-      radius[side] = radius[side] || defaultRadius[side];
-  }
+
   ctx.beginPath();
   ctx.moveTo(x + radius.tl, y);
   ctx.lineTo(x + width - radius.tr, y);
@@ -267,10 +336,7 @@ function roundRect(ctx, x, y, width, height, radius, fill, stroke) {
   ctx.quadraticCurveTo(x, y, x + radius.tl, y);
   ctx.closePath();
 
-  if (fill)
-    ctx.fill();
-  if (stroke)
-    ctx.stroke();
+  ctx.fill();
 }
 
 function getVertexPosition(v, cam) {
