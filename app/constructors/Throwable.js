@@ -1,8 +1,9 @@
 const Matter = require('../lib/matter');
+const Bullet = require('./Bullet');
 const distance = require('../lib/distance');
 
 // A constructor for the throwable item
-module.exports = function (world, p) {
+module.exports = function (world, bullets, p) {
   this.deleted = false;
   this.player = p;
 
@@ -20,8 +21,10 @@ module.exports = function (world, p) {
     {x: xVelocity, y: yVelocity}
   );
 
-  setTimeout(this.apoptosis = () => {
+  setTimeout(this.apoptosis = () => { // Explode
     this.deleted = true;
+    for(i = 0; i < 20; i++)
+      bullets.push(new Bullet(world, this, Math.PI*2));
     Matter.Composite.remove(world, body);
   }, 5000);
 

@@ -10,10 +10,17 @@ module.exports = function (world, p, accuracy) {
   this.deleted = false;
   this.player = p;
 
+  if(!p.hand)
+    p.hand = 0;
+  if(!p.getItem)
+    spawnDistance = 0;
+  else
+    spawnDistance = p.getItem().spawnDistance
+
   const angle =
     2 * Math.PI * p.hand / 256 +
     (Math.random() * accuracy) - accuracy / 2;
-  const radius = distance(p.body.position, p.body.vertices[0]) + p.getItem().spawnDistance;
+  const radius = distance(p.body.position, p.body.vertices[0]) + spawnDistance;
   const bulletX = p.body.position.x + radius * Math.cos(2 * Math.PI * p.hand / 256);
   const bulletY = p.body.position.y - radius * Math.sin(2 * Math.PI * p.hand / 256);
   const xVelocity = BULLET_SPEED * Math.cos(angle);

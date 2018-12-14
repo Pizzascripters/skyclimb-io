@@ -29,7 +29,7 @@ module.exports = function(Game){
     doGravity(p.body);
     handleMovement(p, p.body);
     handleShooting(p, p.body, Game.bullets);
-    handleThrowing(p, p.body, Game.throwables);
+    handleThrowing(p, p.body, Game.bullets, Game.throwables);
     terminalVelocity(p.body);
     chargeJetpack(p);
   }
@@ -107,10 +107,10 @@ function handleShooting(p, body, bullets) {
   }
 }
 
-function handleThrowing(p, body, throwables){
+function handleThrowing(p, body, bullets, throwables){
   if(p.keyboard.throw && p.inventory.amt[0] !== 0) {
     const spawnThrowable = () => {
-      const throwable = new Throwable(world, p);
+      const throwable = new Throwable(world, bullets, p);
       throwables.push(throwable);
     }
 
@@ -158,7 +158,10 @@ function bulletCollisions(players, bullets, map){
 
         p.health -= 0.1;
         if(p.health <= 0)
-          b.player.kill(world, p);
+          if(b.player.kill)
+            b.player.kill(world, p);
+          else // It's a nade kill
+            b.player.player.kill(world, p);
 
         b.apoptosis();
       }
