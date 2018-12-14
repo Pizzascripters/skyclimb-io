@@ -156,12 +156,12 @@ function setPlayers(data, players, inventory, bullets, throwables, cam){
   while(throwables.length < numThrowables){
     let throwable = {};
     throwable.vertices = [];
-    for(var n = 0; n < VERTICES_PER_BULLET; n++) {
-      throwable.vertices[n] = {};
-      throwable.vertices[n].x = readInt(data, ref);
-      throwable.vertices[n].y = readInt(data, ref);
-    }
+    throwable.vertices[n] = {};
+    throwable.x = readInt(data, ref);
+    throwable.y = readInt(data, ref);
     throwable.angle = readInt(data, ref);
+    throwable.width = 30;
+    throwable.height = 30;
 
     throwables.push(throwable);
   }

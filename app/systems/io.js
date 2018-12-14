@@ -111,11 +111,9 @@ module.exports = {
     }
 
     function addThrowable(b) {
-      for(var i in b.body.vertices){
-        packet.push( b.body.vertices[i].x );
-        packet.push( b.body.vertices[i].y );
-      }
-      packet.push( b.body.angle );
+      packet.push( b.body.position.x );
+      packet.push( b.body.position.y );
+      packet.push( Math.floor(255*(b.body.angle % (Math.PI*2)) / (Math.PI*2)) );
     }
 
     addPlayer(players[id]); // Add yourself to the player packet

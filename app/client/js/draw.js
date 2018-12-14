@@ -142,18 +142,15 @@ function drawBullet(ctx, b, image, cam) {
 }
 
 function drawThrowable(ctx, t, image, cam) {
-  const v0 = getVertexPosition(t.vertices[0], cam);
+  const angle = 2 * Math.PI * t.angle / 256;
+  const xCoord = t.x - cam.x + cvs.width / 2;
+  const yCoord = t.y - cam.y + cvs.height / 2;
 
-  ctx.beginPath();
-  ctx.moveTo(v0.x, v0.y);
-
-  for(var i = 1; i < t.vertices.length; i++) {
-    const v = getVertexPosition(t.vertices[i], cam);
-    ctx.lineTo(v.x, v.y);
-  }
-  ctx.lineTo(v0.x, v0.y);
-
-  ctx.fill();
+  ctx.save();
+  ctx.translate(xCoord, yCoord);
+  ctx.rotate(angle);
+  ctx.drawImage(image, -t.width/2, -t.height/2, t.width, t.height);
+  ctx.restore();
 }
 
 function drawPlayer(ctx, cam, p, outline) {

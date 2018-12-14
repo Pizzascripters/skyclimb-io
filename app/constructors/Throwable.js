@@ -14,13 +14,11 @@ module.exports = function (world, p) {
   const xVelocity = item.throwSpeed * Math.cos(angle);
   const yVelocity = -item.throwSpeed * Math.sin(angle);
 
-  let body = this.body = Matter.Bodies.rectangle(throwableX, throwableY, item.width, item.height);
+  let body = this.body = Matter.Bodies.circle(throwableX, throwableY, item.radius);
   Matter.Body.setVelocity(
     this.body,
     {x: xVelocity, y: yVelocity}
   );
-
-  this.angle = Math.floor(256 * angle / (2 * Math.PI));
 
   setTimeout(this.apoptosis = () => {
     this.deleted = true;
