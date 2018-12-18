@@ -33,6 +33,8 @@ module.exports = function (world, p, accuracy) {
   );
 
   this.angle = Math.floor(256 * angle / (2 * Math.PI));
+  this.xv = xVelocity;
+  this.yv = yVelocity;
 
   setTimeout(this.apoptosis = () => {
     this.deleted = true;

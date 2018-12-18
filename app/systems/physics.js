@@ -3,7 +3,7 @@ const Bullet = require('../constructors/Bullet');
 const Throwable = require('../constructors/Throwable');
 
 const RECOIL = 0.0005;
-const KNOCKBACK = 0.004;
+const KNOCKBACK = 0.001;
 const TERMINAL_X_VELOCITY = 30;
 const TERMINAL_Y_VELOCITY = 30;
 const JUMP_ACCELERATION = 0.03;
@@ -143,6 +143,11 @@ function bulletCollisions(players, bullets, map){
   for(var i1 in bullets) {
     let b = bullets[i1];
     if(b.deleted) continue;
+
+    Matter.Body.setVelocity(
+      b.body,
+      {x: b.xv, y: b.yv}
+    );
 
     for(var i2 in players) {
       let p = players[i2];

@@ -19,23 +19,42 @@ for(var i in objects){
   let vertices = objects[i];
   vertices[vertices.length] = vertices[0];
 
-  let n = 0;
-  while(n < vertices.length - 1) {
-    if(n === vertices.length - 2 || findAngle(vertices, n+1) >= 0) {
-      const m = {
-        x: (vertices[n+1].x + vertices[n].x) / 2,
-        y: (vertices[n+1].y + vertices[n].y) / 2
-      };
-      const p = {
-        x: m.y - vertices[n+1].y + m.x,
-        y: vertices[n+1].x - m.x + m.y
-      };
-      createTriangle(map, vertices[n], vertices[n+1], p);
-      n++;
-    } else {
-      createTriangle(map, vertices[n], vertices[n+1], vertices[n+2]);
-      n += 2;
+  for(var i in vertices) {
+    i = Number(i);
+
+    // Get points A, B, C, and D
+    var a = i === 0 ? vertices[vertices.length - 1] : vertices[i - 1];
+    const b = vertices[i];
+    const c = vertices[(i + 1) % vertices.length];
+    const d = vertices[(i + 2) % vertices.length];
+
+    // Calculate angles be and cf
+    const bc = Math.atan2(c.y - b.y, c.x - b.x);
+    const ba = Math.atan2(a.y - b.y, a.x - b.x);
+    const cb = Math.atan2(b.y - c.y, b.x - c.x);
+    const cd = Math.atan2(d.y - c.y, d.x - c.x);
+    const be = (bc + ba) / 2;
+    const cf = (cb + cd) / 2;
+
+    // Create other side of trapezoid
+    const e = {
+      x: b.x + 50 * Math.cos(be),
+      y: b.y + 50 * Math.sin(be)
     }
+    const f = {
+      x: c.x + 50 * Math.cos(cf),
+      y: c.y + 50 * Math.sin(cf)
+    }
+
+    // Create body BCFE
+    let v = [b, c, f, e];
+    v = Vertices.clockwiseSort(v);
+    body = Body.create({
+      position: Vertices.centre(v),
+      isStatic: true
+    });
+    Body.setVertices(body, v);
+    map.push(body);
   }
 }
 
