@@ -78,26 +78,9 @@ function draw(Game){
   ctx.fillStyle = PLAYER_COLOR;
   for(var i in players) {
     const p = players[i];
-    drawPlayer(ctx, cam, p, PLAYER_OUTLINE);
+    drawPlayer(ctx, cam, p, PLAYER_OUTLINE, images.eyes, items[p.weapon]);
 
-    const xCoord = p.x - cam.x + cvs.width / 2;
-    const yCoord = p.y - cam.y + cvs.height / 2;
-    const handAngle = 2 * Math.PI * p.hand / 256;
-
-    // Draw eyes
-    ctx.drawImage(
-      images.eyes,
-      xCoord - p.radius,
-      yCoord - p.radius,
-      p.radius * 2,
-      p.radius * 2
-    );
-
-    drawWeapon(
-      ctx,
-      {x: xCoord, y: yCoord, r: p.radius, hand: handAngle},
-      items[p.weapon]
-    );
+    const v = getVertexPosition(p, cam);
   }
 
   if(players.length > 0) {
@@ -111,31 +94,25 @@ function draw(Game){
 function drawWeapon(ctx, player, item){
   if(item.image === null) return 1;
 
-  const xCoord = player.x,
-        yCoord = player.y,
-        playerRadius = player.r,
-        handAngle = player.hand
-
   ctx.save();
-  ctx.translate(xCoord, yCoord);
-  if(handAngle < Math.PI / 2 || handAngle > 3 * Math.PI / 2) {
-    ctx.rotate(-handAngle - 0.15);
-    ctx.drawImage(item.image, playerRadius + item.radialShift, 0, item.width, item.height);
+  ctx.translate(player.x, player.y);
+  if(player.hand < Math.PI / 2 || player.hand > 3 * Math.PI / 2) {
+    ctx.rotate(-player.hand - 0.15);
+    ctx.drawImage(item.image, player.r + item.radialShift, 0, item.width, item.height);
   } else {
-    ctx.rotate(0.15 - Math.PI - handAngle);
+    ctx.rotate(0.15 - Math.PI - player.hand);
     ctx.scale(-1, 1);
-    ctx.drawImage(item.image, playerRadius + item.radialShift, 42, item.width, -item.height);
+    ctx.drawImage(item.image, player.r + item.radialShift, 42, item.width, -item.height);
   }
   ctx.restore();
 }
 
 function drawBullet(ctx, b, image, cam) {
   const bullet_angle = 2 * Math.PI * b.angle / 256;
-  const xCoord = b.vertices[0].x - cam.x + cvs.width / 2;
-  const yCoord = b.vertices[0].y - cam.y + cvs.height / 2;
+  const v = getVertexPosition(b.vertices[0], cam);
 
   ctx.save();
-  ctx.translate(xCoord, yCoord);
+  ctx.translate(v.x, v.y);
   ctx.rotate(-bullet_angle);
   ctx.drawImage(image, 0, 0);
   ctx.restore();
@@ -143,24 +120,40 @@ function drawBullet(ctx, b, image, cam) {
 
 function drawThrowable(ctx, t, image, cam) {
   const angle = 2 * Math.PI * t.angle / 256;
-  const xCoord = t.x - cam.x + cvs.width / 2;
-  const yCoord = t.y - cam.y + cvs.height / 2;
+  const v = getVertexPosition(t, cam);
 
   ctx.save();
-  ctx.translate(xCoord, yCoord);
+  ctx.translate(v.x, v.y);
   ctx.rotate(angle);
   ctx.drawImage(image, -t.width/2, -t.height/2, t.width, t.height);
   ctx.restore();
 }
 
-function drawPlayer(ctx, cam, p, outline) {
-  const v = getVertexPosition(p, cam);
-  ctx.beginPath();
-  ctx.arc(v.x, v.y, p.radius, 0, 2 * Math.PI);
+function drawPlayer(ctx, cam, p, outline, eyes, weapon) {
+  const v = getVertexPosition(p, cam),
+        handAngle = 2 * Math.PI * p.hand / 256,
+        radius = p.radius * cvs.width / 1920;
 
+  ctx.beginPath();
+  ctx.arc(v.x, v.y, radius, 0, 2 * Math.PI);
   ctx.fill();
   if(outline)
     ctx.stroke();
+
+  // Draw eyes
+  ctx.drawImage(
+    eyes,
+    v.x - radius,
+    v.y - radius,
+    radius * 2,
+    radius * 2
+  );
+
+  drawWeapon(
+    ctx,
+    {x: v.x, y: v.y, r: radius, hand: handAngle},
+    weapon
+  );
 }
 
 function drawObject(ctx, cam, p, outline) {
@@ -337,8 +330,10 @@ function roundRect(ctx, x, y, width, height, radius, fill, stroke) {
 }
 
 function getVertexPosition(v, cam) {
+  const zoom = cvs.width / 1920;
+
   return {
-    x: v.x - cam.x + cvs.width / 2,
-    y: v.y - cam.y + cvs.height / 2
+    x: (v.x - cam.x) * zoom + cvs.width / 2,
+    y: (v.y - cam.y) * zoom + cvs.height / 2
   }
 }

@@ -153,7 +153,7 @@ module.exports = {
     for(var i in throwables){
       if(
         !throwables[i].deleted &&
-        distance(p.body.position, bullets[i].body.position) < VISIBILITY
+        distance(p.body.position, throwables[i].body.position) < VISIBILITY
       ) {
         addThrowable(throwables[i]); // Add the throwables
         numThrowables++; // Count the throwables
