@@ -74,7 +74,7 @@ function draw(Game){
 
   // Draw the players
   ctx.strokeStyle = PLAYER_OUTLINE_COLOR;
-  ctx.lineWidth = PLAYER_OUTLINE_WIDTH;
+  ctx.lineWidth = PLAYER_OUTLINE_WIDTH * (cvs.width / 1920);
   ctx.fillStyle = PLAYER_COLOR;
   for(var i in players) {
     const p = players[i];
@@ -91,18 +91,18 @@ function draw(Game){
   }
 }
 
-function drawWeapon(ctx, player, item){
+function drawWeapon(ctx, player, item, radius){
   if(item.image === null) return 1;
 
   ctx.save();
   ctx.translate(player.x, player.y);
   if(player.hand < Math.PI / 2 || player.hand > 3 * Math.PI / 2) {
     ctx.rotate(-player.hand - 0.15);
-    ctx.drawImage(item.image, player.r + item.radialShift, 0, item.width, item.height);
+    ctx.drawImage(item.image, radius + item.radialShift, 0, item.width * (radius / 50), item.height * (radius / 50));
   } else {
     ctx.rotate(0.15 - Math.PI - player.hand);
     ctx.scale(-1, 1);
-    ctx.drawImage(item.image, player.r + item.radialShift, 42, item.width, -item.height);
+    ctx.drawImage(item.image, radius + item.radialShift, 42, item.width * (radius / 50), -item.height * (radius / 50));
   }
   ctx.restore();
 }
@@ -110,11 +110,12 @@ function drawWeapon(ctx, player, item){
 function drawBullet(ctx, b, image, cam) {
   const bullet_angle = 2 * Math.PI * b.angle / 256;
   const v = getVertexPosition(b.vertices[0], cam);
+  const zoom = cvs.width / 1920;
 
   ctx.save();
   ctx.translate(v.x, v.y);
   ctx.rotate(-bullet_angle);
-  ctx.drawImage(image, 0, 0);
+  ctx.drawImage(image, 0, 0, 20 * zoom, 10 * zoom);
   ctx.restore();
 }
 
@@ -152,7 +153,8 @@ function drawPlayer(ctx, cam, p, outline, eyes, weapon) {
   drawWeapon(
     ctx,
     {x: v.x, y: v.y, r: radius, hand: handAngle},
-    weapon
+    weapon,
+    radius
   );
 }
 
