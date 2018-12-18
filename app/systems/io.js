@@ -52,17 +52,17 @@ module.exports = {
     }
 
     // Sends the outline of the map
-    /*for(var i in map.objects)
-      addObject(map.objects[i]);*/
+    for(var i in map.objects)
+      addObject(map.objects[i]);
 
     // Sends the physical map (for debugging only)
-    for(var i1 in map.bodies) {
+    /*for(var i1 in map.bodies) {
       packet.push(map.bodies[i1].vertices.length);
       for(var i2 in map.bodies[i1].vertices) {
         packet.push(map.bodies[i1].vertices[i2].x);
         packet.push(map.bodies[i1].vertices[i2].y);
       }
-    }
+    }*/
 
     // Turn all the numbers into bytes
     for(var i in packet)
