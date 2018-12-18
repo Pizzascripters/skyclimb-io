@@ -1,5 +1,7 @@
 const distance = require('../lib/distance');
 
+const VISIBILITY = 1100; // Any objectect at a greater distance will not be sent to client
+
 module.exports = {
   /*  Following are a series of functions that send a packet to the client
       Each has a 1 byte header to identify its purpose */
@@ -63,7 +65,10 @@ module.exports = {
     return 0;
   },
 
-  playerData: (ws, Game, id) => { // Send player and bullet data
+  playerData: (p, Game) => { // Send player and bullet data
+    const id = p.id,
+          ws = p.ws;
+
     var players = Game.players,
         bullets = Game.bullets,
         throwables = Game.throwables,
@@ -79,6 +84,8 @@ module.exports = {
     let packet = [];
 
     packet[0] = 0; // For counting players
+    packet[1] = 0; // For counting bullets
+    packet[2] = 0; // For counting throwables
 
     // Adds a player to the packet
     function addPlayer(p) {
@@ -116,45 +123,50 @@ module.exports = {
       packet.push( Math.floor(255*(b.body.angle % (Math.PI*2)) / (Math.PI*2)) );
     }
 
+    let numPlayers = 1;
+    let numBullets = 0;
+    let numThrowables = 0;
+
     addPlayer(players[id]); // Add yourself to the player packet
-    let num_players = 1;    // For counting the number of players
 
     for(var i in players){
-      if(players[i].deleted || i === String(id))
-        continue;
-      addPlayer(players[i]); // Add all the other players
-      num_players++;
+      if(
+        !players[i].deleted &&
+        i !== String(id) &&
+        distance(p.body.position, players[i].body.position) < VISIBILITY
+      ) {
+        addPlayer(players[i]); // Add all the other players
+        numPlayers++;
+      }
     }
 
-    let numBullets = 0;
     for(var i in bullets){
-      if(!bullets[i].deleted)
+      if(
+        !bullets[i].deleted &&
+        distance(p.body.position, bullets[i].body.position) < VISIBILITY
+      ) {
+        addBullet(bullets[i]); // Add the bullets
         numBullets++; // Count the bullets
-    }
-    packet.push(numBullets);
-    for(var i in bullets){
-      if(bullets[i].deleted)
-        continue;
-      addBullet(bullets[i]); // Add the bullets
+      }
     }
 
-    let numThrowables = 0;
     for(var i in throwables){
-      if(!throwables[i].deleted)
+      if(
+        !throwables[i].deleted &&
+        distance(p.body.position, bullets[i].body.position) < VISIBILITY
+      ) {
+        addThrowable(throwables[i]); // Add the throwables
         numThrowables++; // Count the throwables
+      }
     }
-    packet.push(numThrowables);
-    for(var i in throwables){
-      if(throwables[i].deleted)
-        continue;
-      addThrowable(throwables[i]); // Add the throwables
-    }
+
+    packet[0] = numPlayers;
+    packet[1] = numBullets;
+    packet[2] = numThrowables;
 
     // Turn all the numbers into bytes
     for(var i in packet)
       packet[i] = Buffer.from( intToBytes(packet[i]) );
-
-    packet[0] = Buffer.from( [num_players] ); // Indicate the number of players
 
     packet = Buffer.concat( packet );
     ws.send(Buffer.concat( [header, packet] ));

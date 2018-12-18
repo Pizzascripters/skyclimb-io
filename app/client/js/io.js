@@ -107,8 +107,13 @@ function setPlayers(data, players, inventory, bullets, throwables, cam){
   bullets.splice(0, bullets.length);
   throwables.splice(0, throwables.length);
 
-  let ref = {i:2}; // We want to pass i by reference to readInt can increment it
-  while(ref.i < FIRST_PLAYER_BYTES + (data[1] - 1) * PLAYER_BYTES){
+  let ref = {i:1}; // We want to pass i by reference to readInt can increment it
+
+  let numPlayers = readInt(data, ref);
+  let numBullets = readInt(data, ref);
+  let numThrowables = readInt(data, ref);
+
+  while(players.length < numPlayers){
     var player = {};
     player.x = readInt(data, ref);
     player.y = readInt(data, ref);
@@ -137,7 +142,6 @@ function setPlayers(data, players, inventory, bullets, throwables, cam){
     }
   }
 
-  let numBullets = readInt(data, ref);
   while(bullets.length < numBullets){
     let bullet = {};
     bullet.vertices = [];
@@ -152,7 +156,6 @@ function setPlayers(data, players, inventory, bullets, throwables, cam){
     bullets.push(bullet);
   }
 
-  let numThrowables = readInt(data, ref);
   while(throwables.length < numThrowables){
     let throwable = {};
     throwable.vertices = [];

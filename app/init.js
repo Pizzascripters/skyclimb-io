@@ -85,7 +85,7 @@ setInterval(() => { // Send all players the player data
   for(var i in players){
     const p = players[i];
     if(!p.disconnected && !p.deleted)
-      io.playerData(p.ws, Game, p.id);
+      io.playerData(p, Game, p.id);
   }
 }, 1000 / 60);
 
