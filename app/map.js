@@ -19,6 +19,10 @@ for(var i in objects){
   let vertices = objects[i];
   vertices[vertices.length] = vertices[0];
 
+  /* Following is an algorithm for generating a layer of trapezoids based on the set of vertices loaded in JSON
+   * The trapezoids are invisible to the player, but they serve as the physical collision boundaries for the map
+   * Currently, this algorithm is awful, and I am open to suggestions */
+
   for(var i in vertices) {
     i = Number(i);
 
@@ -33,22 +37,35 @@ for(var i in objects){
     const ba = Math.atan2(a.y - b.y, a.x - b.x);
     const cb = Math.atan2(b.y - c.y, b.x - c.x);
     const cd = Math.atan2(d.y - c.y, d.x - c.x);
-    const be = (bc + ba) / 2;
-    const cf = (cb + cd) / 2;
+    let be = midangle(bc, ba);
+    let cf = midangle(cb, cd);
 
     // Create other side of trapezoid
-    const e = {
-      x: b.x + 50 * Math.cos(be),
-      y: b.y + 50 * Math.sin(be)
+    if(clockwise(a, b, c)) {
+      var e = {
+        x: b.x + 50 * Math.cos(be),
+        y: b.y + 50 * Math.sin(be)
+      }
+    } else {
+      var e = {
+        x: b.x - 50 * Math.cos(be),
+        y: b.y - 50 * Math.sin(be)
+      }
     }
-    const f = {
-      x: c.x + 50 * Math.cos(cf),
-      y: c.y + 50 * Math.sin(cf)
+    if(clockwise(b, c, d)) {
+      var f = {
+        x: c.x + 50 * Math.cos(cf),
+        y: c.y + 50 * Math.sin(cf)
+      }
+    } else {
+      var f = {
+        x: c.x - 50 * Math.cos(cf),
+        y: c.y - 50 * Math.sin(cf)
+      }
     }
 
     // Create body BCFE
     let v = [b, c, f, e];
-    v = Vertices.clockwiseSort(v);
     body = Body.create({
       position: Vertices.centre(v),
       isStatic: true
@@ -86,6 +103,27 @@ function findAngle(vertices, i) {
   );
 }
 
+// Determines if a triplet of points is clockwise
+function clockwise(a, b, c) {
+  return (a.y - b.y) * (c.x - b.x) -
+         (b.x - a.x) * (b.y - c.y) > 0;
+}
+
+// Finds the bisector angle between two angles
+function midangle(a, b) {
+  var i = 1;
+  while(Math.abs(a - b) > Math.PI) {
+    if(i % 2 === 0) {
+      a += Math.PI * 2 * i;
+    } else {
+      a -= Math.PI * 2 * i;
+    }
+    i++;
+  }
+  return (a + b) / 2;
+}
+
+// Finds the distance between two points
 function distance(p1, p2) {
   return Math.sqrt(
     Math.pow(p2.x - p1.x, 2) +
