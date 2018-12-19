@@ -34,7 +34,7 @@ function handleMessage(packet, Game){
       setMap(new Uint8Array(packet.data), Game.map);
       break;
     case 2: // Player data
-      setPlayers(new Uint8Array(packet.data), Game.players, Game.inventory.items, Game.bullets, Game.throwables, Game.cam);
+      setPlayers(new Uint8Array(packet.data), Game.players, Game.inventory, Game.bullets, Game.throwables, Game.cam);
       break;
   }
 }
@@ -61,10 +61,12 @@ function sendKeyboard(ws, keyboard, select, hand){
   packet.push(keyboard.jump);
   packet.push(keyboard.shoot);
   packet.push(keyboard.throw);
+  packet.push(keyboard.consume);
   packet.push(select);
   ws.send( new Uint8Array(packet) );
 
   keyboard.throw = false;
+  keyboard.consume = false;
 }
 
 // Requests the map data in case we didn't get it
@@ -126,8 +128,11 @@ function setPlayers(data, players, inventory, bullets, throwables, cam){
 
     if(players.length === 0) {
       // Inventory
-      for(var i = 0; i < inventory.length; i++)
-        inventory[i] = readInt(data, ref);
+      for(var i = 0; i < inventory.items.length; i++) {
+        if(i === 0 || i === 1)
+          inventory.amt[i] = readInt(data, ref);
+        inventory.items[i] = readInt(data, ref);
+      }
 
       player.kills = readInt(data, ref);
       player.gold = readInt(data, ref);

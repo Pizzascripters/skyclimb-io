@@ -62,6 +62,24 @@ class Nade extends Item {
   }
 }
 
+class Bandage extends Item {
+  constructor() {
+    super();
+    this.id = 192;
+    this.consumable = true;
+
+    this.canConsume = p => {
+      if(p.health < 1)
+        return true;
+      return false;
+    }
+
+    this.consume = p => {
+      p.health += 0.3;
+    }
+  }
+}
+
 // Exports is a function that inputs an id and returns an item
 module.exports = function(id) {
   let item;
@@ -77,6 +95,9 @@ module.exports = function(id) {
       break;
     case 128:
       item = new Nade();
+      break;
+    case 192:
+      item = new Bandage();
       break;
     default:
       item = new Item();

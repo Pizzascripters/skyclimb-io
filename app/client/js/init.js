@@ -28,7 +28,8 @@ function init(e){
   Game.inventory = {
     select: 4,
     anim: [0, 0, 80, 80, 90, 0, 0],
-    items: [0, 0, 0, 0, 0, 0, 0]
+    items: [0, 0, 0, 0, 0, 0, 0],
+    amt: [0, 0]
   }
   Game.items = {};
   initItems(Game.items, Game.images);
@@ -89,6 +90,7 @@ function loadImages(images, callback) {
   images.ak47 = loadImage("ak47.png", onload);
   images.shotgun = loadImage("shotgun.png", onload);
   images.nade = loadImage("nade.png", onload);
+  images.bandage = loadImage("bandage.png", onload);
   images.bullet = loadImage("bullet.png", onload);
   images.healthbar = loadImage("healthbar.png", onload);
   images.energybar = loadImage("energybar.png", onload);
