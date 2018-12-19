@@ -24,4 +24,5 @@ function initItems(items, images) {
   items[32] = new Item(32, "AK47", images.ak47, 100, 50, -50);
   items[64] = new Item(64, "Shotgun", images.shotgun, 100, 50, -50);
   items[128] = new Item(128, "Nade", images.nade, 20, 20);
+  items[192] = new Item(192, "Bandage", images.bandage, 20, 20);
 }

@@ -30,6 +30,7 @@ module.exports = function(Game){
     handleMovement(p, p.body);
     handleShooting(p, p.body, Game.bullets);
     handleThrowing(p, p.body, Game.bullets, Game.throwables);
+    handleConsuming(p);
     terminalVelocity(p.body);
     chargeJetpack(p);
   }
@@ -108,13 +109,23 @@ function handleShooting(p, body, bullets) {
 }
 
 function handleThrowing(p, body, bullets, throwables){
-  if(p.keyboard.throw && p.inventory.amt[0] !== 0) {
+  if(p.keyboard.throw && p.inventory.amt[0] > 0) {
     const spawnThrowable = () => {
       const throwable = new Throwable(world, bullets, p);
       throwables.push(throwable);
+      p.inventory.amt[0]--;
     }
 
     spawnThrowable();
+  }
+}
+
+function handleConsuming(p) {
+  if(p.keyboard.consume && p.inventory.amt[1] > 0) {
+    if(p.inventory.items[1].canConsume(p)) {
+      p.inventory.items[1].consume(p);
+      p.inventory.amt[1]--;
+    }
   }
 }
 

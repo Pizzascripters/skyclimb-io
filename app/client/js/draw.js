@@ -201,26 +201,26 @@ function drawInventory(ctx, inventory, items){
   roundRect(ctx, cvs.width / 2 + 180, 5, 100, 30, 10);
   roundRect(ctx, cvs.width / 2 + 180, 40, 100, 30, 10);
 
-  drawItem(ctx, cvs.width, 0, items[inventory.items[0]]);
-  drawItem(ctx, cvs.width, 1, items[inventory.items[1]]);
+  drawItem(ctx, cvs.width, 0, items[inventory.items[0]], 0, inventory.amt[0]);
+  drawItem(ctx, cvs.width, 1, items[inventory.items[1]], 0, inventory.amt[1]);
 
   drawItem(ctx, cvs.width, 2, items[inventory.items[2]], inventory.anim[2]);
   drawItem(ctx, cvs.width, 3, items[inventory.items[3]], inventory.anim[3]);
   drawItem(ctx, cvs.width, 4, items[inventory.items[4]], inventory.anim[4]);
 
-  drawItem(ctx, cvs.width, 0, items[inventory.items[5]]);
-  drawItem(ctx, cvs.width, 1, items[inventory.items[6]]);
+  drawItem(ctx, cvs.width, 5, items[inventory.items[5]]);
+  drawItem(ctx, cvs.width, 6, items[inventory.items[6]]);
 
   ctx.globalAlpha = 1;
 }
 
-function drawItem(ctx, cvswidth, slot, item, anim) {
+function drawItem(ctx, cvswidth, slot, item, anim, amt) {
   if(!item.image) return;
 
   switch(slot) {
     case 0:
     case 1:
-      x = cvs.width / 2 - 275;
+      x = cvswidth / 2 - 275;
       break;
     case 2:
       x = cvswidth / 2 - 160;
@@ -233,7 +233,7 @@ function drawItem(ctx, cvswidth, slot, item, anim) {
       break;
     case 5:
     case 6:
-      x = cvs.width / 2 - 185;
+      x = cvswidth / 2 - 185;
       break;
   }
 
@@ -248,7 +248,7 @@ function drawItem(ctx, cvswidth, slot, item, anim) {
     case 6:
       width = 20;
       height = width * item.image.height / item.image.width;
-      y = 30 - height;
+      y = 65 - height;
       break;
     case 2:
     case 3:
@@ -260,6 +260,16 @@ function drawItem(ctx, cvswidth, slot, item, anim) {
   }
 
   ctx.drawImage(item.image, x, y, width, height);
+  if(slot === 0 || slot === 1) {
+    var savedStyle = ctx.fillStyle;
+    var savedOpacity = ctx.globalAlpha;
+    ctx.fillStyle = "#fff";
+    ctx.font = "24px Arial";
+    ctx.globalAlpha = 1;
+    ctx.fillText(amt, x + 30, y + 18)
+    ctx.fillStyle = savedStyle;
+    ctx.globalAlpha = savedOpacity;
+  }
 }
 
 function drawStats(ctx, gold, kills, score) {

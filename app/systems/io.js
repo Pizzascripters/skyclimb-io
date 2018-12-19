@@ -17,11 +17,9 @@ module.exports = {
   },
 
   setKeyboard: (ws, packet, player) => { // 1 - Update keyboard object
-    player.keyboard.left = false;
-    player.keyboard.right = false;
-    player.keyboard.jump = false;
-    player.keyboard.shoot = false;
-    player.keyboard.throw = false;
+    for(var i in player.keyboard) {
+      player.keyboard[i] = false;
+    }
 
     player.hand = packet[0];
 
@@ -30,8 +28,9 @@ module.exports = {
     if(packet[3]) player.keyboard.jump = true;
     if(packet[4]) player.keyboard.shoot = true;
     if(packet[5]) player.keyboard.throw = true;
+    if(packet[6]) player.keyboard.consume = true;
 
-    player.inventory.select = packet[6];
+    player.inventory.select = packet[7];
   },
 
   mapData: (ws, map) => { // Send map data
@@ -109,8 +108,11 @@ module.exports = {
 
       if(p.id === id) {
         // Inventory
-        for(var i = 0; i < p.inventory.items.length; i++)
+        for(var i = 0; i < p.inventory.items.length; i++) {
+          if( i === 0 || i === 1 )
+            packet.push( p.inventory.amt[i] );
           packet.push( p.inventory.items[i].id );
+        }
 
         packet.push( p.kills );
         packet.push( p.gold );
