@@ -10,10 +10,10 @@ const Vertices = Matter.Vertices,
       trapezoid = Bodies.trapezoid;
 
 let map = [];
-let objects = [];
 
-const json = fs.readFileSync("./app/json/mapdata.json");
-objects = JSON.parse(json);
+const json = JSON.parse(fs.readFileSync("./app/json/mapdata.json"));
+let objects = json.objects;
+let shops = json.shops;
 
 for(var i in objects){
   let vertices = objects[i];
@@ -27,7 +27,7 @@ for(var i in objects){
     i = Number(i);
 
     // Get points A, B, C, and D
-    var a = i === 0 ? vertices[vertices.length - 1] : vertices[i - 1];
+    const a = i === 0 ? vertices[vertices.length - 1] : vertices[i - 1];
     const b = vertices[i];
     const c = vertices[(i + 1) % vertices.length];
     const d = vertices[(i + 2) % vertices.length];
@@ -77,7 +77,8 @@ for(var i in objects){
 
 module.exports = {
   bodies: map,
-  objects: objects
+  objects: objects,
+  shops: shops
 };
 
 function createTriangle(map, p1, p2, p3) {

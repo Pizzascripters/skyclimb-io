@@ -30,7 +30,7 @@ wss.on('connection', (ws, req) => {
       }
     } else if (type === "s") {
       let filename = "";
-      for(var i = 1; message[i] !== '['; i++)
+      for(var i = 1; message[i] !== '{'; i++)
         filename += message[i];
       const json = message.substring(i);
       fs.writeFile("./mapmaker/saves/" + filename + ".json", json, err => {

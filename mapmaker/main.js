@@ -15,8 +15,10 @@ var keyboard = {
 var vertices = [];
 var edges = [];
 var objects = [];
+var shops = [];
 var objectSelected = [{id: null}];;
 var vertexSelected = [{id: null}];;
+var shop = null;
 
 var cam = {x: 0, y: 0, zoom: 1};
 var menu = "main";
@@ -67,13 +69,17 @@ function draw() {
 
   ctx.clearRect(0, 0, cvs.width, cvs.height);
 
-  const side = 100 * cam.zoom;
-  ctx.drawImage(images.player, cvs.width / 2 - side / 2, cvs.height / 2 - side / 2, side, side);
+  if(shop)
+    ctx.drawImage(images.shops[shop], mouse.x, mouse.y, images.shops[shop].width * cam.zoom, images.shops[shop].height * cam.zoom);
 
   ctx.save();
   ctx.translate(cvs.width / 2, cvs.height / 2);
   ctx.scale(cam.zoom, cam.zoom);
   ctx.translate(-cam.x, -cam.y)
+
+  // Draw shops
+  for(var i in shops)
+    ctx.drawImage(images.shops[shops[i].type], shops[i].x, shops[i].y);
 
   // Draw vertices
   ctx.fillStyle = "#000";
@@ -103,6 +109,9 @@ function draw() {
   }
 
   ctx.restore();
+
+  const side = 100 * cam.zoom;
+  ctx.drawImage(images.player, cvs.width / 2 - side / 2, cvs.height / 2 - side / 2, side, side);
 
   if(vertexSelected.id !== null){
     ctx.lineTo(mouse.x, mouse.y);
@@ -162,6 +171,8 @@ function keydown(e) {
         requestJSON();
       } else if (menu === "save") {
         saveJSON();
+      } else if (menu === "shop") {
+        shop = "generic";
       }
       break;
     case 50:
@@ -219,57 +230,82 @@ function mousedown(e) {
     object: [{id: null}]
   }
 
-  // Search for nearby vertex
+  // Search for nearby vertices and shops
   let nearby = false;
+  let nearbytype = null;
   for(var i in vertices){
-    if(distance(vertices[i], v) < 20)
+    if(distance(vertices[i], v) < 20) {
       nearby = i;
+      nearbytype = "vertex";
+    }
+  }
+  for(var i in shops){
+    if(distance(shops[i], v) < 20) {
+      nearby = i;
+      nearbytype = "shop";
+    }
   }
 
-  if(e.button === 0){
-    if(nearby){
-      let obj = vertices[nearby].object;
+  if(shop) {
+      if(e.button === 0) {
+        shops.push({
+          type: shop,
+          x: v.x,
+          y: v.y
+        });
+      } else if(e.button === 2) {
+        shop = null;
+      }
+  } else {
+    if(e.button === 0){
+      if(nearbytype === "vertex"){
+        let obj = vertices[nearby].object;
 
-      let index = 0;
-      for(var i in obj)
-        if(obj[i].id === vertices[nearby].id) index = i;
+        let index = 0;
+        for(var i in obj)
+          if(obj[i].id === vertices[nearby].id) index = i;
 
-      obj.splice(index, 1);
-      vertices.splice(nearby, 1);
+        obj.splice(index, 1);
+        vertices.splice(nearby, 1);
 
-      for(var i in objects)
-        if(objects[i].length === 0) objects.splice(i, 1);
-    } else
-      vertices.push(v);
-  } else if(e.button === 2 && nearby) {
-    let v = vertices[nearby];
+        for(var i in objects)
+          if(objects[i].length === 0) objects.splice(i, 1);
+      } else if (nearbytype === "shop") {
+        let s = shops[nearby];
+        shops.splice(nearby, 1);
+      } else {
+        vertices.push(v);
+      }
+    } else if(e.button === 2 && nearbytype === "vertex") {
+      let v = vertices[nearby];
 
-    if(objectSelected[0].id === v.object[0].id && objectSelected[0].id !== null) { // Object forms a loop
+      if(objectSelected[0].id === v.object[0].id && objectSelected[0].id !== null) { // Object forms a loop
+        objectSelected = [{id: null}];
+        vertexSelected = [{id: null}];
+      } else if(objectSelected[0].id !== v.object[0].id && objectSelected[0].id !== null && v.object[0].id !== null) { // User tries to give a vertex a second object
+        objectSelected = [{id: null}];
+        vertexSelected = [{id: null}];
+      } else if (objectSelected[0].id === null && v.object[0].id !== null) { // Recontinue an object
+        objectSelected = v.object;
+        vertexSelected = v;
+      } else if (objectSelected[0].id === null){ // Begin an object
+        v.object = [v];
+        objectSelected = v.object;
+        vertexSelected = v;
+        objects.push(v.object);
+      } else { // Add a vertex to an object
+        let index = objectSelected.length;
+        for(var i in objectSelected)
+          if(objectSelected[i].id === vertexSelected.id) index = i;
+
+        v.object = objectSelected;
+        v.object.splice(index, 0, v);
+        vertexSelected = v;
+      }
+    } else if(e.button === 2 && !nearby) {
       objectSelected = [{id: null}];
       vertexSelected = [{id: null}];
-    } else if(objectSelected[0].id !== v.object[0].id && objectSelected[0].id !== null && v.object[0].id !== null) { // User tries to give a vertex a second object
-      objectSelected = [{id: null}];
-      vertexSelected = [{id: null}];
-    } else if (objectSelected[0].id === null && v.object[0].id !== null) { // Recontinue an object
-      objectSelected = v.object;
-      vertexSelected = v;
-    } else if (objectSelected[0].id === null){ // Begin an object
-      v.object = [v];
-      objectSelected = v.object;
-      vertexSelected = v;
-      objects.push(v.object);
-    } else { // Add a vertex to an object
-      let index = objectSelected.length;
-      for(var i in objectSelected)
-        if(objectSelected[i].id === vertexSelected.id) index = i;
-
-      v.object = objectSelected;
-      v.object.splice(index, 0, v);
-      vertexSelected = v;
     }
-  } else if(e.button === 2 && !nearby) {
-    objectSelected = [{id: null}];
-    vertexSelected = [{id: null}];
   }
 }
 
@@ -295,6 +331,8 @@ function loadImages(callback) {
   }
 
   images.player = loadImage("player.png", onload);
+  images.shops = {};
+  images.shops.generic = loadImage("shops/generic.png", onload);
 }
 
 function loadImage(src, callback) {
@@ -310,8 +348,9 @@ function fullscreen(e){
 }
 
 function getJSON(){
-  let json = [];
+  let json = {};
 
+  json.objects = [];
   for(var i1 in objects) {
     let obj = [];
     for(var i2 in objects[i1]) {
@@ -321,17 +360,26 @@ function getJSON(){
         y:Math.floor(v.y)
       });
     }
-    json.push(obj);
+    json.objects.push(obj);
+  }
+
+  json.shops = [];
+  for(var i in shops) {
+    json.shops.push({
+      type: shops[i].type,
+      x: Math.floor(shops[i].x),
+      y: Math.floor(shops[i].y)
+    });
   }
 
   return JSON.stringify(json);
 }
 
 function loadJSON(json) {
-  for(var i1 in json) {
+  for(var i1 in json.objects) {
     let obj = [];
-    for(var i2 in json[i1]) {
-      let v = json[i1][i2];
+    for(var i2 in json.objects[i1]) {
+      let v = json.objects[i1][i2];
 
       v.id = uniqueId();
       v.object = obj;
@@ -340,6 +388,10 @@ function loadJSON(json) {
       obj.push(v);
     }
     objects.push(obj);
+  }
+
+  for(var i in json.shops) {
+    shops.push(json.shops[i])
   }
 }
 
