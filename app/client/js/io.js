@@ -84,10 +84,15 @@ function pong(packet){
 
 // Called when client recieves map data
 function setMap(data, map){
-  map.splice(0, map.length - 1);
+  for(var i in map)
+    delete map[i];
 
   let ref = {i:1}; // We want to pass i by reference to readInt can increment it
-  while(ref.i < data.length){
+
+  map.objects = [];
+  const numObjects = readInt(data, ref);
+  var count = 0;
+  while(count < numObjects){
     const numVertices = readInt(data, ref);
 
     let object = {};
@@ -98,7 +103,27 @@ function setMap(data, map){
       object.vertices[n].y = readInt(data, ref);
     }
 
-    map.push(object);
+    map.objects.push(object);
+    count++;
+  }
+
+  map.shops = [];
+  const numShops = readInt(data, ref);
+  count = 0;
+  while(count < numShops) {
+    let shop = {};
+    switch(readInt(data, ref)) {
+      default:
+        shop.type = "generic";
+        break;
+    }
+    shop.x = readInt(data, ref);
+    shop.y = readInt(data, ref);
+    shop.width = readInt(data, ref);
+    shop.height = readInt(data, ref);
+
+    map.shops.push(shop);
+    count++;
   }
 }
 

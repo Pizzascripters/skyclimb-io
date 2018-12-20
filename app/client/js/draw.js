@@ -69,8 +69,10 @@ function draw(Game){
   ctx.fillStyle = OBJECT_COLOR;
   ctx.lineWidth = OBJECT_OUTLINE_WIDTH;
   ctx.fillStyle = OBJECT_COLOR;
-  for(var i in map)
-    drawObject(ctx, cam, map[i], OBJECT_OUTLINE);
+  for(var i in map.objects)
+    drawObject(ctx, cam, map.objects[i], OBJECT_OUTLINE);
+  for(var i in map.shops)
+    drawShop(ctx, cam, map.shops[i], images.shops);
 
   // Draw the players
   ctx.strokeStyle = PLAYER_OUTLINE_COLOR;
@@ -173,6 +175,12 @@ function drawObject(ctx, cam, p, outline) {
   ctx.fill();
   if(outline)
     ctx.stroke();
+}
+
+function drawShop(ctx, cam, shop, shopImages) {
+  const v = getVertexPosition({x: shop.x, y: shop.y}, cam);
+
+  ctx.drawImage(shopImages[shop.type], v.x, v.y, shop.width, shop.height);
 }
 
 function drawHealthbar(ctx, health, healthbar){

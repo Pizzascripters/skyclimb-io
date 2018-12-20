@@ -50,7 +50,17 @@ module.exports = {
       }
     }
 
+    // Add the body to the packet
+    function addShop(shop) {
+      packet.push( shop.type );
+      packet.push( shop.x );
+      packet.push( shop.y );
+      packet.push( shop.width );
+      packet.push( shop.height );
+    }
+
     // Sends the outline of the map
+    packet.push(map.objects.length);
     for(var i in map.objects)
       addObject(map.objects[i]);
 
@@ -62,6 +72,11 @@ module.exports = {
         packet.push(map.bodies[i1].vertices[i2].y);
       }
     }*/
+
+    // Sends all the shops
+    packet.push(map.shops.length);
+    for(var i in map.shops)
+      addShop(map.shops[i]);
 
     // Turn all the numbers into bytes
     for(var i in packet)

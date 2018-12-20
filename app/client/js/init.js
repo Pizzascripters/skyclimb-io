@@ -94,6 +94,9 @@ function loadImages(images, callback) {
   images.bullet = loadImage("bullet.png", onload);
   images.healthbar = loadImage("healthbar.png", onload);
   images.energybar = loadImage("energybar.png", onload);
+
+  images.shops = {};
+  images.shops.generic = loadImage("shops/generic.png", onload);
 }
 
 function loadImage(src, callback) {

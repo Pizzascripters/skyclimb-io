@@ -1,6 +1,7 @@
 const fs = require('fs');
 
 const Matter = require('./lib/matter');
+const Shop = require('./constructors/shop')
 
 const Vertices = Matter.Vertices,
       Bodies = Matter.Bodies,
@@ -74,6 +75,9 @@ for(var i in objects){
     map.push(body);
   }
 }
+
+for(var i in shops)
+  shops[i] = new Shop(shops[i].type, shops[i].x, shops[i].y)
 
 module.exports = {
   bodies: map,

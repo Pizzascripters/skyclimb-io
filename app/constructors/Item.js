@@ -55,6 +55,7 @@ class Nade extends Item {
   constructor() {
     super();
     this.id = 128;
+    this.price = 20;
     this.throwable = true;
     this.throwSpeed = 20;
     this.spawnDistance = 60;
