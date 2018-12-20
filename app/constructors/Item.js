@@ -76,6 +76,8 @@ class Bandage extends Item {
 
     this.consume = p => {
       p.health += 0.3;
+      if(p.health > 1)
+        p.health = 1;
     }
   }
 }
