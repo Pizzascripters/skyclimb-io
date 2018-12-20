@@ -1,0 +1,15 @@
+{
+  "name": "skyclimb-io-mapmaker",
+  "description": "The mapmaker for skyclimb-io.",
+  "version": "1.0.0",
+  "main": "node.js",
+  "keywords": [],
+  "scripts": {
+    "start": "nodemon node.js"
+  },
+  "author": "Pizzascripters",
+  "dependencies": {
+    "express": "^4.16.4",
+    "ws": "^5.2.2"
+  }
+}

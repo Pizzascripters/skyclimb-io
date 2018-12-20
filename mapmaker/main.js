@@ -1,4 +1,5 @@
 var cvs, ctx;         // Canvas and context
+var menuElement;      // The header that displays the text
 var ws;               // Websocket
 var images = {};
 var mouse = {
@@ -18,6 +19,7 @@ var objectSelected = [{id: null}];;
 var vertexSelected = [{id: null}];;
 
 var cam = {x: 0, y: 0, zoom: 1};
+var menu = "main";
 const PAN_SPEED = 10;
 
 window.addEventListener("load", init);
@@ -26,18 +28,24 @@ window.addEventListener("keydown", keydown);
 window.addEventListener("keyup", keyup);
 window.addEventListener("mousedown", mousedown);
 window.addEventListener("mousemove", mousemove);
-window.addEventListener("contextmenu", (e) => {e.preventDefault()});
+window.addEventListener("contextmenu", e => {e.preventDefault()});
 window.addEventListener("wheel", zoom);
+window.onbeforeunload = ()=>{return""};
 
 function init(e){
   cvs = document.getElementById("cvs");
   ctx = cvs.getContext("2d");
+  menuElement = document.getElementById("menu");
+  mainMenu();
 
   // Connect to websocket server
   if( window.location.href.startsWith("https") ) {
-      ws = new WebSocket("wss://" + window.location.href.substring(6));
+    ws = new WebSocket("wss://" + window.location.href.substring(6));
   } else {
     ws = new WebSocket("ws://" + window.location.href.substring(5));
+  }
+  ws.onmessage = packet => {
+    loadJSON(JSON.parse(packet.data));
   }
   ws.onclose = () => {
     console.error("Socket closed");
@@ -104,8 +112,70 @@ function draw() {
   requestAnimationFrame(draw);
 }
 
+function mainMenu() {
+  menu = "main";
+  menuElement.innerHTML = "1 - Load <br /> 2 - Save <br /> 3 - Shops"
+}
+
+function loadMenu() {
+  menu = "load";
+  menuElement.innerHTML = "0 - Back <br /> 1 - Load JSON <br /> <input type='text' id='load' />"
+}
+
+function saveMenu() {
+  menu = "save";
+  menuElement.innerHTML = "0 - Back <br /> 1 - Save JSON <br /> <input type='text' id='save' />"
+}
+
+function shopMenu() {
+  menu = "shop";
+  menuElement.innerHTML = "0 - Back <br /> 1 - Generic Shop";
+}
+
+function requestJSON() {
+  const filename = document.getElementById("load").value;
+  ws.send("l" + filename);
+}
+
+function saveJSON() {
+  const filename = document.getElementById("save").value;
+  ws.send("s" + filename + getJSON());
+}
+
 function keydown(e) {
+  if(document.activeElement.nodeName !== "BODY")
+    return;
+
   switch(e.keyCode) {
+    case 27: // Esc
+    case 48:
+    case 96: // 0
+      if(menu !== "main") {
+        mainMenu();
+      }
+      break;
+    case 49:
+    case 97: // 1
+      if(menu === "main") {
+        loadMenu();
+      } else if (menu === "load") {
+        requestJSON();
+      } else if (menu === "save") {
+        saveJSON();
+      }
+      break;
+    case 50:
+    case 98: // 2
+      if(menu === "main") {
+        saveMenu();
+      }
+      break;
+    case 51:
+    case 99: // 3
+      if(menu === "main") {
+        shopMenu();
+      }
+      break;
     case 87: // W
       keyboard.up = true;
       break;
