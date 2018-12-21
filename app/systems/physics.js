@@ -1,6 +1,7 @@
 const Matter = require('../lib/matter');
 const Bullet = require('../constructors/Bullet');
 const Throwable = require('../constructors/Throwable');
+const io = require('./io');
 
 const RECOIL = 0.0005;
 const KNOCKBACK = 0.001;
@@ -33,6 +34,7 @@ module.exports = function(Game){
     handleConsuming(p);
     terminalVelocity(p.body);
     chargeJetpack(p);
+    sendShopData(p, Game.map.shops);
   }
 
   for(var i in Game.throwables){
@@ -188,5 +190,34 @@ function bulletCollisions(players, bullets, map){
       if(Matter.SAT.collides(b.body, obj).collided)
         b.apoptosis();
     }
+  }
+}
+
+// Send shop data if p is trying to open a shop
+function sendShopData(p, shops) {
+  for(var i in shops) {
+    const rect = {
+      x: shops[i].x - p.radius,
+      y: shops[i].y - p.radius,
+      width: shops[i].width + p.radius * 2,
+      height: shops[i].height + p.radius * 2
+    }
+    if(insideRect(p.body.position, rect) && p.keyboard.select) {
+      io.shopData(p, shops[i]);
+    }
+  }
+}
+
+// Check if point p is inside a rectangle
+function insideRect(p, rect) {
+  if(
+    p.x < rect.x ||
+    p.x > rect.x + rect.width ||
+    p.y < rect.y ||
+    p.y > rect.y + rect.height
+  ) {
+    return false;
+  } else {
+    return true;
   }
 }

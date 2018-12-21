@@ -8,6 +8,7 @@ function draw(Game){
         throwables = Game.throwables,
         inventory = Game.inventory,
         items = Game.items,
+        shopMenu = Game.shopMenu,
         images = Game.images;
 
   // Background gradient
@@ -92,6 +93,10 @@ function draw(Game){
     drawEnergyBar(ctx, players[0].energy, energybar);
     drawInventory(ctx, inventory, items);
     drawStats(ctx, players[0].gold, players[0].kills, players[0].score);
+  }
+
+  if(shopMenu.length > 0) {
+    drawShopMenu(ctx, shopMenu);
   }
 }
 
@@ -328,6 +333,19 @@ function drawStats(ctx, gold, kills, score) {
     cvs.width - 40 - ctx.measureText(score).width,
     cvs.height - STATS_HEIGHT + 160
   );
+}
+
+function drawShopMenu(ctx, shopMenu) {
+  // Outline
+  ctx.strokeStyle = "#000";
+  ctx.lineWidth = 4;
+  ctx.beginPath();
+  ctx.moveTo(cvs.width / 4, cvs.height / 4);
+  ctx.lineTo(3 * cvs.width / 4, cvs.height / 4);
+  ctx.lineTo(3 * cvs.width / 4, 3 * cvs.height / 4);
+  ctx.lineTo(cvs.width / 4, 3 * cvs.height / 4);
+  ctx.lineTo(cvs.width / 4, cvs.height / 4);
+  ctx.stroke();
 }
 
 function roundRect(ctx, x, y, width, height, radius, fill, stroke) {

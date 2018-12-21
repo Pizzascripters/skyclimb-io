@@ -29,8 +29,9 @@ module.exports = {
     if(packet[4]) player.keyboard.shoot = true;
     if(packet[5]) player.keyboard.throw = true;
     if(packet[6]) player.keyboard.consume = true;
+    if(packet[7]) player.keyboard.select = true;
 
-    player.inventory.select = packet[7];
+    player.inventory.select = packet[8];
   },
 
   mapData: (ws, map) => { // Send map data
@@ -190,15 +191,26 @@ module.exports = {
     packet[1] = numBullets;
     packet[2] = numThrowables;
 
-    // Turn all the numbers into bytes
-    for(var i in packet)
-      packet[i] = Buffer.from( intToBytes(packet[i]) );
+    sendArray(ws, header, packet);
+  },
 
-    packet = Buffer.concat( packet );
-    ws.send(Buffer.concat( [header, packet] ));
+  shopData: (p, shop) => {
+    let packet = [shop.type];
+    for(var i in shop.items) {
+      packet.push(shop.items[i].id);
+    }
 
-    return 0;
+    sendArray(p.ws, Buffer.from(new Uint8Array([3])), packet);
   }
+}
+
+// Converts an array of ints to bytes and sends it
+function sendArray(ws, header, packet) {
+  for(var i in packet)
+    packet[i] = Buffer.from( intToBytes(packet[i]) );
+
+  packet = Buffer.concat( packet );
+  ws.send(Buffer.concat( [header, packet] ));
 }
 
 // Converts a unit8array to a string

@@ -15,11 +15,17 @@ function keydown(e, keyboard, inventory){
     case 68:  // D
       keyboard.right = true;
       break;
+    case 69:
+      keyboard.select = true;
+      break;
     case 87:  // W
       keyboard.jump = true;
       break;
+    case 88:  // X
+      keyboard.consume = true;
+      break;
     case 90:  // Z
-      keyboard.cook = true;
+      keyboard.throw = true;
       break;
   }
 }
@@ -34,13 +40,6 @@ function keyup(e, keyboard){
       break;
     case 87:  // W
       keyboard.jump = false;
-      break;
-    case 88:  // X
-      keyboard.consume = true;
-      break;
-    case 90:  // Z
-      keyboard.cook = false;
-      keyboard.throw = true;
       break;
   }
 }

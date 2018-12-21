@@ -21,7 +21,11 @@ function init(e){
     left: false,
     right: false,
     jump: false,
-    shoot: false
+    shoot: false,
+    select: false,
+    consume: false,
+    cook: false,
+    throw: false
   }
   Game.hand = 0;         // Angle of the hand
 
@@ -31,6 +35,7 @@ function init(e){
     items: [0, 0, 0, 0, 0, 0, 0],
     amt: [0, 0]
   }
+  Game.shopMenu = [];
   Game.items = {};
   initItems(Game.items, Game.images);
 
@@ -38,11 +43,23 @@ function init(e){
   Game.ctx = Game.cvs.getContext("2d");
   Game.cam = {x:0, y:0}; // Position of the camera
 
-  window.addEventListener("mousemove", (e) => {Game.hand = mousemove(e)});
-  window.addEventListener("mousedown", (e) => {mousedown(e, Game.keyboard)});
-  window.addEventListener("mouseup", (e) => {mouseup(e, Game.keyboard)});
-  window.addEventListener("keydown", (e) => {keydown(e, Game.keyboard, Game.inventory)});
-  window.addEventListener("keyup", (e) => {keyup(e, Game.keyboard)});
+  window.addEventListener("mousemove", e => {Game.hand = mousemove(e)});
+  window.addEventListener("mousedown", e => {
+    if(Game.shopMenu.length === 0) {
+        mousedown(e, Game.keyboard);
+    }
+  });
+  window.addEventListener("mouseup", e => {mouseup(e, Game.keyboard)});
+  window.addEventListener("keydown", e => {
+    if(Game.shopMenu.length > 0) {
+      if(e.keyCode === 27 || e.keyCode === 88) {
+        Game.shopMenu = [];
+      }
+    } else {
+      keydown(e, Game.keyboard, Game.inventory);
+    }
+  });
+  window.addEventListener("keyup", e => {keyup(e, Game.keyboard)});
 
   Game.ws = createWebsocket(Game);
 
@@ -69,6 +86,27 @@ scripts.map(x => loadScript(x));
 function update(Game, time){
   let delta = time - prevTime;  // Time since last frame
   prevTime = time;
+
+  // Check if we have exited shop
+  let exited = true;
+  if(shopMenu.length > 0) {
+    const p = Game.players[0];
+    for(var i in Game.map.shops) {
+      const shop = Game.map.shops[i];
+      const rect = {
+        x: shop.x - p.radius,
+        y: shop.y - p.radius,
+        width: shop.width + p.radius * 2,
+        height: shop.height + p.radius * 2
+      }
+      if(insideRect(p, rect)) {
+        exited = false;
+      }
+    }
+  }
+  if(exited) {
+    Game.shopMenu = [];
+  }
 
   draw(Game);
   anim.main(delta, Game.inventory);
@@ -104,4 +142,18 @@ function loadImage(src, callback) {
   img.src = "img/" + src;
   img.onload = callback;
   return img;
+}
+
+// Check if point p is inside a rectangle
+function insideRect(p, rect) {
+  if(
+    p.x < rect.x ||
+    p.x > rect.x + rect.width ||
+    p.y < rect.y ||
+    p.y > rect.y + rect.height
+  ) {
+    return false;
+  } else {
+    return true;
+  }
 }

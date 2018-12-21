@@ -22,11 +22,16 @@ module.exports = function(ws, id){
 
   this.body = Matter.Bodies.circle(PLAYER_START_POS[rand].x, PLAYER_START_POS[rand].y, PLAYER_RADIUS);
   this.body.restitution = 0.3;
+  this.radius = PLAYER_RADIUS;
 
   this.keyboard = {
     left: false,
     right: false,
-    jump: false
+    jump: false,
+    shoot: false,
+    throw: false,
+    consume: false,
+    select: false
   }
   this.hand = 0;
   this.health = 1;

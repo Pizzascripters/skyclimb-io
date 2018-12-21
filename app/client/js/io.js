@@ -36,6 +36,9 @@ function handleMessage(packet, Game){
     case 2: // Player data
       setPlayers(new Uint8Array(packet.data), Game.players, Game.inventory, Game.bullets, Game.throwables, Game.cam);
       break;
+    case 3: // Shop data
+      shopMenu(new Uint8Array(packet.data), Game.shopMenu);
+      break;
   }
 }
 
@@ -62,11 +65,13 @@ function sendKeyboard(ws, keyboard, select, hand){
   packet.push(keyboard.shoot);
   packet.push(keyboard.throw);
   packet.push(keyboard.consume);
+  packet.push(keyboard.select);
   packet.push(select);
   ws.send( new Uint8Array(packet) );
 
   keyboard.throw = false;
   keyboard.consume = false;
+  keyboard.select = false;
 }
 
 // Requests the map data in case we didn't get it
@@ -197,6 +202,14 @@ function setPlayers(data, players, inventory, bullets, throwables, cam){
     throwable.height = 30;
 
     throwables.push(throwable);
+  }
+}
+
+function shopMenu(data, menu){
+  menu.splice(0, menu.length);
+  var ref = {i: 1}; // We want to pass i by reference to readInt can increment it
+  while(data[ref.i]) {
+    menu.push(readInt(data, ref));
   }
 }
 
