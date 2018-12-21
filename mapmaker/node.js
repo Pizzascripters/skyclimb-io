@@ -41,6 +41,6 @@ wss.on('connection', (ws, req) => {
   });
 });
 
-server.listen(9090, () => {
+server.listen(process.env.PORT || 9090, () => {
   console.log('Listening on %d', server.address().port);
 });
