@@ -52,6 +52,10 @@ function draw(Game){
   ctx.fillStyle = bg_gradient;
   ctx.fillRect(0, 0, cvs.width, cvs.height);
 
+  // Draw Shops
+  for(var i in map.shops)
+    drawShop(ctx, cam, map.shops[i], images.shops);
+
   // Draw bullets
   for (var i in bullets) {
     const b = bullets[i];
@@ -71,8 +75,6 @@ function draw(Game){
   ctx.fillStyle = OBJECT_COLOR;
   for(var i in map.objects)
     drawObject(ctx, cam, map.objects[i], OBJECT_OUTLINE);
-  for(var i in map.shops)
-    drawShop(ctx, cam, map.shops[i], images.shops);
 
   // Draw the players
   ctx.strokeStyle = PLAYER_OUTLINE_COLOR;
