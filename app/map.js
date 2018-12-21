@@ -1,7 +1,7 @@
 const fs = require('fs');
 
 const Matter = require('./lib/matter');
-const Shop = require('./constructors/shop')
+const Shop = require('./constructors/Shop')
 
 const Vertices = Matter.Vertices,
       Bodies = Matter.Bodies,

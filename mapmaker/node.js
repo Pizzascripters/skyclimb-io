@@ -25,7 +25,7 @@ wss.on('connection', (ws, req) => {
       try {
         const json = fs.readFileSync("./mapmaker/saves/" + filename + ".json").toString();
         ws.send(json);
-      } catch {
+      } catch (err) {
         console.error(filename + ".json not found");
       }
     } else if (type === "s") {

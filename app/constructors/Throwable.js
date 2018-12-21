@@ -1,6 +1,6 @@
 const Matter = require('../lib/matter');
-const Bullet = require('./Bullet');
 const distance = require('../lib/distance');
+const Bullet = require('./Bullet');
 
 // A constructor for the throwable item
 module.exports = function (world, bullets, p) {
