@@ -1,54 +1,23 @@
 function createWebsocket(Game) {
   const sendKeyboardInterval = setInterval(() => {
-    sendKeyboard(Game.ws, Game.keyboard, Game.inventory.select, Game.hand);
+    sendKeyboard(ws, Game.keyboard, Game.inventory.select, Game.hand);
   }, 1000 / 60);
 
-  let ws;
   if( window.location.href.startsWith("https") ) {
-    ws = new WebSocket("wss://" + window.location.href.substring(6));
+    var ws = new WebSocket("wss://" + window.location.href.substring(6));
   } else {
-    ws = new WebSocket("ws://" + window.location.href.substring(5));
+    var ws = new WebSocket("ws://" + window.location.href.substring(5));
   }
   ws.binaryType = "arraybuffer"; // Allows us to recieve byte strings from the server
 
-  ws.onmessage = (packet) => {
+  ws.onmessage = packet => {
     handleMessage(packet, Game);
   };
   ws.onclose = () => {
     console.error("Socket closed");
     clearInterval(sendKeyboardInterval);
   };
-
   return ws;
-}
-
-// Given a packet, reads the first byte, sends it to a more specific function
-function handleMessage(packet, Game){
-  var data = new Uint8Array(packet.data);
-
-  switch(data[0]){
-    case 0: // Ping
-      pong(packet);
-      break;
-    case 1: // Map data
-      setMap(new Uint8Array(packet.data), Game.map);
-      break;
-    case 2: // Player data
-      setPlayers(new Uint8Array(packet.data), Game.players, Game.inventory, Game.bullets, Game.throwables, Game.cam);
-      break;
-    case 3: // Shop data
-      shopMenu(new Uint8Array(packet.data), Game.shopMenu);
-      break;
-  }
-}
-
-// Sends a 1 byte packet to the server
-function ping(){
-  if(ws.readyState != ws.OPEN)
-    return 1;
-
-  pingStart = window.performance.now();
-  ws.send(new Uint8Array(1));
 }
 
 // Sends keyboard input to server
@@ -74,21 +43,29 @@ function sendKeyboard(ws, keyboard, select, hand){
   keyboard.select = false;
 }
 
-// Requests the map data in case we didn't get it
-function requestMapData(ws){
-  if(ws.readyState != ws.OPEN)
-    return 1;
+// Given a packet, reads the first byte, sends it to a more specific function
+function handleMessage(packet, Game){
+  var data = new Uint8Array(packet.data);
 
-  ws.send(new Uint8Array(2));
-}
-
-// Called when client recieves pong packet
-function pong(packet){
-  console.log("Ping to %s took " + Math.round(window.performance.now() - pingStart) + " ms", packet.origin);
+  switch(data[0]){
+    case 0: // Ping
+      pong(packet.origin);
+      break;
+    case 1: // Map data
+      setMap(data, Game.map);
+      break;
+    case 2: // Player data
+      setPlayers(data, Game);
+      break;
+    case 3: // Shop data
+      shopMenu(data, Game.shopMenu);
+      break;
+  }
 }
 
 // Called when client recieves map data
 function setMap(data, map){
+  // Clear out the map to load in a new one
   for(var i in map)
     delete map[i];
 
@@ -96,26 +73,21 @@ function setMap(data, map){
 
   map.objects = [];
   const numObjects = readInt(data, ref);
-  var count = 0;
-  while(count < numObjects){
+  while(map.objects.length < numObjects){
     const numVertices = readInt(data, ref);
-
     let object = {};
     object.vertices = [];
-    for(var n = 0; n < numVertices; n++) {
-      object.vertices[n] = {};
-      object.vertices[n].x = readInt(data, ref);
-      object.vertices[n].y = readInt(data, ref);
+    for(var i = 0; i < numVertices; i++) {
+      object.vertices[i] = {};
+      object.vertices[i].x = readInt(data, ref);
+      object.vertices[i].y = readInt(data, ref);
     }
-
     map.objects.push(object);
-    count++;
   }
 
   map.shops = [];
   const numShops = readInt(data, ref);
-  count = 0;
-  while(count < numShops) {
+  while(map.shops.length < numShops) {
     let shop = {};
     switch(readInt(data, ref)) {
       default:
@@ -126,14 +98,18 @@ function setMap(data, map){
     shop.y = readInt(data, ref);
     shop.width = readInt(data, ref);
     shop.height = readInt(data, ref);
-
     map.shops.push(shop);
-    count++;
   }
 }
 
 // Called when client recieves player information
-function setPlayers(data, players, inventory, bullets, throwables, cam){
+function setPlayers(data, Game){
+  let players = Game.players,
+      inventory = Game.inventory,
+      bullets = Game.bullets,
+      throwables = Game.throwables,
+      cam = Game.cam;
+
   // Clear the arrays
   players.splice(0, players.length);
   bullets.splice(0, bullets.length);
@@ -171,30 +147,24 @@ function setPlayers(data, players, inventory, bullets, throwables, cam){
 
     players.push(player);
 
-    if(players.length === 1) {
+    if(players.length === 1) { // If we're loading yourself
       cam.x = player.x;
       cam.y = player.y;
     }
   }
 
+  // Load the bullets
   while(bullets.length < numBullets){
     let bullet = {};
-    bullet.vertices = [];
-    for(var n = 0; n < VERTICES_PER_BULLET; n++) {
-      bullet.vertices[n] = {};
-      bullet.vertices[n].x = readInt(data, ref);
-      bullet.vertices[n].y = readInt(data, ref);
-    }
-
+    bullet.x = readInt(data, ref);
+    bullet.y = readInt(data, ref);
     bullet.angle = readInt(data, ref);
-
     bullets.push(bullet);
   }
 
+  // Load the throwables
   while(throwables.length < numThrowables){
     let throwable = {};
-    throwable.vertices = [];
-    throwable.vertices[n] = {};
     throwable.x = readInt(data, ref);
     throwable.y = readInt(data, ref);
     throwable.angle = readInt(data, ref);
@@ -211,6 +181,28 @@ function shopMenu(data, menu){
   while(data[ref.i]) {
     menu.push(readInt(data, ref));
   }
+}
+
+// Sends a 1 byte packet to the server
+function ping(ws){
+  if(ws.readyState != ws.OPEN)
+    return 1;
+
+  pingStart = window.performance.now();
+  ws.send(new Uint8Array(1));
+}
+
+// Called when client recieves pong packet
+function pong(origin){
+  console.log("Ping to %s took " + Math.round(window.performance.now() - pingStart) + " ms", origin);
+}
+
+// Requests the map data in case we didn't get it
+function requestMapData(ws){
+  if(ws.readyState != ws.OPEN)
+    return 1;
+
+  ws.send(new Uint8Array(2));
 }
 
 // Reads a four byte intereger from an index in a byte array

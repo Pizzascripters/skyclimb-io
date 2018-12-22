@@ -5,17 +5,20 @@ function Item(id, name, image, w, h, radialShift) {
   this.height = 50;
   this.radialShift = 0;
 
-  if(w)
-    this.width = w;
-  if(h)
-    this.height = h;
-  if(radialShift)
-    this.radialShift = radialShift;
-
-  if(image)
+  if(image) {
     this.image = image;
-  else
+  } else {
     this.image = null;
+  }
+
+  if(w) {
+    this.width = w;
+  } else if(h) {
+    this.height = h;
+  }
+  if(radialShift) {
+    this.radialShift = radialShift;
+  }
 }
 
 function initItems(items, images) {

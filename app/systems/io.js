@@ -137,10 +137,8 @@ module.exports = {
     }
 
     function addBullet(b) {
-      for(var i in b.body.vertices){
-        packet.push( b.body.vertices[i].x );
-        packet.push( b.body.vertices[i].y );
-      }
+      packet.push( b.body.position.x );
+      packet.push( b.body.position.y );
       packet.push( b.angle );
     }
 
