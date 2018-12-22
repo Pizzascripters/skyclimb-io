@@ -45,6 +45,7 @@ function keyup(e, keyboard){
 }
 
 function mousemove(e) {
+  // Do some quick maths to convert the hand angle to number between 0 and 256
   let hand_angle = Math.atan2(cvs.height / 2 - e.clientY, e.clientX - cvs.width / 2);
   hand = Math.floor(256 * hand_angle / (2*Math.PI));
   if(hand < 0) hand += 256;
@@ -53,9 +54,13 @@ function mousemove(e) {
 }
 
 function mousedown (e, keyboard) {
-  keyboard.shoot = true;
+  if(e.button === 0) {
+    keyboard.shoot = true;
+  }
 }
 
 function mouseup (e, keyboard) {
-  keyboard.shoot = false;
+  if(e.button === 0) {
+    keyboard.shoot = false;
+  }
 }

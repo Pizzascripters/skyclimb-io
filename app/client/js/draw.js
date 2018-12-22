@@ -11,69 +11,26 @@ function draw(Game){
         shopMenu = Game.shopMenu,
         images = Game.images;
 
-  // Background gradient
-  const range = GREATEST_Y_VALUE - LEAST_Y_VALUE;
-  const scale = (GREATEST_Y_VALUE - cam.y) / range;
-  const bg_gradient = ctx.createLinearGradient(
-    0, scale * cvs.height * 5 - cvs.height * 5,
-    0, scale * cvs.height * 5 - cvs.height * 5 + cvs.height * 5
-  );
-  bg_gradient.addColorStop(0, "#000");
-  bg_gradient.addColorStop(0.1, "#206");
-  bg_gradient.addColorStop(0.2, "#d22");
-  bg_gradient.addColorStop(0.4, "#fb2");
-  bg_gradient.addColorStop(0.6, "#4cf");
-  bg_gradient.addColorStop(1, "#09f");
-
-  // Healthbar gradient
-  const healthbar = {};
-  healthbar.image = images.healthbar;
-  healthbar.x = cvs.width / 2 - images.healthbar.width / 2;
-  healthbar.y = 80;
-  healthbar.gradient = ctx.createLinearGradient(
-    healthbar.x, 0,
-    healthbar.x + healthbar.image.width, 0
-  );
-  healthbar.gradient.addColorStop(0, "#f00");
-  healthbar.gradient.addColorStop(1, "#a00");
-
-  // Energybar gradient
-  const energybar = {};
-  energybar.image = images.energybar;
-  energybar.x = cvs.width / 2 - images.energybar.width / 2;
-  energybar.y = 130;
-  energybar.gradient = ctx.createLinearGradient(
-    energybar.x, 0,
-    energybar.x + energybar.image.width, 0
-  );
-  energybar.gradient.addColorStop(0, "#fd0");
-  energybar.gradient.addColorStop(1, "#b90");
+  const bg_gradient = getBackgroundGradient(ctx, cam);
+  const healthbar = createHealthbar(ctx, images.healthbar);
+  const energybar = createEnergybar(ctx, images.energybar);
 
   // Fill the background
   ctx.fillStyle = bg_gradient;
   ctx.fillRect(0, 0, cvs.width, cvs.height);
 
-  // Draw Shops
   for(var i in map.shops)
-    drawShop(ctx, cam, map.shops[i], images.shops);
-
-  // Draw bullets
+    drawShop(ctx, map.shops[i], images.shops, cam);
   for (var i in bullets) {
-    const b = bullets[i];
-    drawBullet(ctx, b, images.bullet, cam);
+    drawBullet(ctx, bullets[i], images.bullet, cam);
   }
-
-  // Draw Throwables
   ctx.fillStyle = "#040"
-  for (var i in throwables) {
-    const t = throwables[i];
-    drawThrowable(ctx, t, images.nade, cam);
-  }
+  for (var i in throwables)
+    drawThrowable(ctx, throwables[i], images.nade, cam);
 
   // Draw the map
   ctx.fillStyle = OBJECT_COLOR;
   ctx.lineWidth = OBJECT_OUTLINE_WIDTH;
-  ctx.fillStyle = OBJECT_COLOR;
   for(var i in map.objects)
     drawObject(ctx, cam, map.objects[i], OBJECT_OUTLINE);
 
@@ -81,12 +38,8 @@ function draw(Game){
   ctx.strokeStyle = PLAYER_OUTLINE_COLOR;
   ctx.lineWidth = PLAYER_OUTLINE_WIDTH * (cvs.width / 1920);
   ctx.fillStyle = PLAYER_COLOR;
-  for(var i in players) {
-    const p = players[i];
-    drawPlayer(ctx, cam, p, PLAYER_OUTLINE, images.eyes, items[p.weapon]);
-
-    const v = getVertexPosition(p, cam);
-  }
+  for(var i in players)
+    drawPlayer(ctx, cam, players[i], PLAYER_OUTLINE, images.eyes, items[players[i].weapon]);
 
   if(players.length > 0) {
     drawHealthbar(ctx, players[0].health, healthbar);
@@ -98,6 +51,50 @@ function draw(Game){
   if(shopMenu.length > 0) {
     drawShopMenu(ctx, shopMenu);
   }
+}
+
+function getBackgroundGradient(ctx, cam) {
+  const range = GREATEST_Y_VALUE - LEAST_Y_VALUE;
+  const scale = (GREATEST_Y_VALUE - cam.y) / range;
+  const bg_gradient = ctx.createLinearGradient(
+    0, scale * range - range,
+    0, scale * range - range + range
+  );
+  bg_gradient.addColorStop(0, "#000");
+  bg_gradient.addColorStop(0.1, "#206");
+  bg_gradient.addColorStop(0.2, "#d22");
+  bg_gradient.addColorStop(0.4, "#fb2");
+  bg_gradient.addColorStop(0.6, "#4cf");
+  bg_gradient.addColorStop(1, "#09f");
+  return bg_gradient;
+}
+
+function createHealthbar(ctx, image) {
+  const healthbar = {};
+  healthbar.image = image;
+  healthbar.x = cvs.width / 2 - image.width / 2;
+  healthbar.y = 80;
+  healthbar.gradient = ctx.createLinearGradient(
+    healthbar.x, 0,
+    healthbar.x + image.width, 0
+  );
+  healthbar.gradient.addColorStop(0, "#f00");
+  healthbar.gradient.addColorStop(1, "#a00");
+  return healthbar;
+}
+
+function createEnergybar(ctx, image) {
+  const energybar = {};
+  energybar.image = image;
+  energybar.x = cvs.width / 2 - image.width / 2;
+  energybar.y = 130;
+  energybar.gradient = ctx.createLinearGradient(
+    energybar.x, 0,
+    energybar.x + image.width, 0
+  );
+  energybar.gradient.addColorStop(0, "#fd0");
+  energybar.gradient.addColorStop(1, "#b90");
+  return energybar;
 }
 
 function drawWeapon(ctx, player, item, radius){
@@ -118,7 +115,7 @@ function drawWeapon(ctx, player, item, radius){
 
 function drawBullet(ctx, b, image, cam) {
   const bullet_angle = 2 * Math.PI * b.angle / 256;
-  const v = getVertexPosition(b.vertices[0], cam);
+  const v = getVertexPosition(b, cam);
   const zoom = cvs.width / 1920;
 
   ctx.save();
@@ -184,7 +181,7 @@ function drawObject(ctx, cam, p, outline) {
     ctx.stroke();
 }
 
-function drawShop(ctx, cam, shop, shopImages) {
+function drawShop(ctx, shop, shopImages, cam) {
   const v = getVertexPosition({x: shop.x, y: shop.y}, cam);
 
   ctx.drawImage(shopImages[shop.type], v.x, v.y, shop.width, shop.height);
