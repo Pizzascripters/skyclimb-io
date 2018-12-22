@@ -196,6 +196,7 @@ module.exports = {
     let packet = [shop.type];
     for(var i in shop.items) {
       packet.push(shop.items[i].id);
+      packet.push(shop.items[i].price);
     }
 
     sendArray(p.ws, Buffer.from(new Uint8Array([3])), packet);

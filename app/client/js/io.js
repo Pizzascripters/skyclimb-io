@@ -58,7 +58,7 @@ function handleMessage(packet, Game){
       setPlayers(data, Game);
       break;
     case 3: // Shop data
-      shopMenu(data, Game.shopMenu);
+      shopMenu(data, Game.shopMenu, Game.items);
       break;
   }
 }
@@ -89,11 +89,7 @@ function setMap(data, map){
   const numShops = readInt(data, ref);
   while(map.shops.length < numShops) {
     let shop = {};
-    switch(readInt(data, ref)) {
-      default:
-        shop.type = "generic";
-        break;
-    }
+    shop.type = shopIdToName(readInt(data, ref));
     shop.x = readInt(data, ref);
     shop.y = readInt(data, ref);
     shop.width = readInt(data, ref);
@@ -175,11 +171,17 @@ function setPlayers(data, Game){
   }
 }
 
-function shopMenu(data, menu){
+function shopMenu(data, menu, items){
   menu.splice(0, menu.length);
   var ref = {i: 1}; // We want to pass i by reference to readInt can increment it
   while(data[ref.i]) {
-    menu.push(readInt(data, ref));
+    if(ref.i === 1) {
+      menu.push(shopIdToName(readInt(data, ref)));
+    } else {
+      let item = items[readInt(data, ref)];
+      item.price = readInt(data, ref);
+      menu.push(item);
+    }
   }
 }
 
@@ -203,6 +205,14 @@ function requestMapData(ws){
     return 1;
 
   ws.send(new Uint8Array(2));
+}
+
+function shopIdToName(id) {
+  switch(id) {
+    default:
+      return "generic";
+      break;
+  }
 }
 
 // Reads a four byte intereger from an index in a byte array

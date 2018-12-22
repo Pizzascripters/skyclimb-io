@@ -49,7 +49,14 @@ function loadImages(images, callback) {
   }
 
   images.shops = {};
-  images.shops.generic = loadImage("shops/generic", onload);
+  let shopNames = ["generic"];
+  imageNames = ["inside", "outside", "shelf"];
+  for(var i1 in shopNames) {
+    images.shops[shopNames[i1]] = {};
+    for(var i2 in imageNames) {
+      images.shops[shopNames[i1]][imageNames[i2]] = loadImage("shops/" + shopNames[i1] + "/" + imageNames[i2], onload);
+    }
+  }
 
   images.textures = {};
   imageNames = ["rock"];

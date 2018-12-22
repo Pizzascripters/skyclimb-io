@@ -1,3 +1,8 @@
+var mouse = {
+  x: 0,
+  y: 0
+}
+
 function keydown(e, keyboard, inventory){
   switch ( e.keyCode ) {
     case 49:  // 1
@@ -45,6 +50,9 @@ function keyup(e, keyboard){
 }
 
 function mousemove(e) {
+  mouse.x = e.clientX;
+  mouse.y = e.clientY;
+
   // Do some quick maths to convert the hand angle to number between 0 and 256
   let hand_angle = Math.atan2(cvs.height / 2 - e.clientY, e.clientX - cvs.width / 2);
   hand = Math.floor(256 * hand_angle / (2*Math.PI));

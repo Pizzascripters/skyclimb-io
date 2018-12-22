@@ -49,7 +49,7 @@ function draw(Game){
   }
 
   if(shopMenu.length > 0) {
-    drawShopMenu(ctx, shopMenu);
+    drawShopMenu(ctx, shopMenu, images.shops[shopMenu[0]]);
   }
 }
 
@@ -211,7 +211,7 @@ function drawObject(ctx, cam, p, outline) {
 function drawShop(ctx, shop, shopImages, cam) {
   const v = getVertexPosition({x: shop.x, y: shop.y}, cam);
 
-  ctx.drawImage(shopImages[shop.type], v.x, v.y, shop.width * cvs.width / FRAME_WIDTH, shop.height * cvs.width / FRAME_WIDTH);
+  ctx.drawImage(shopImages[shop.type].outside, v.x, v.y, shop.width * cvs.width / FRAME_WIDTH, shop.height * cvs.width / FRAME_WIDTH);
 }
 
 function drawHealthbar(ctx, health, healthbar){
@@ -359,16 +359,74 @@ function drawStats(ctx, gold, kills, score) {
   );
 }
 
-function drawShopMenu(ctx, shopMenu) {
+function drawShopMenu(ctx, shopMenu, shopImages) {
+  const width = cvs.width / 2;
+  const height = 9 * width / 16;
+
+  // Draw shop backgrounds
+  ctx.drawImage(shopImages.inside, (cvs.width - width) / 2, (cvs.height - height) / 2, width / 2, height);
+  ctx.drawImage(shopImages.shelf, cvs.width / 2, (cvs.height - height) / 2, width / 2, height);
+
+  // Draw Shelf
+  cvs.style.cursor = "default";
+  for(var i = 1; i < shopMenu.length; i++) {
+    const item = shopMenu[i];
+    const size = width / 8
+    const pos = {
+      x: width + ((i-1) % 4) * size,
+      y: (cvs.height / 2 - height / 2) + Math.floor((i-1) / 4) * size
+    }
+    const textHeight = 18;
+    const margin = 5;
+
+    // Draw Hover Effect
+    const rect = {
+      x: pos.x,
+      y: pos.y,
+      width: size,
+      height: size
+    }
+    if(insideRect(mouse, rect)) {
+      ctx.fillStyle = "#aaa";
+      ctx.globalAlpha = 0.4;
+      ctx.fillRect(rect.x, rect.y, rect.width, rect.height);
+      ctx.globalAlpha = 1;
+      cvs.style.cursor = "pointer";
+    }
+
+    const scale = (size / 2) / item.image.width;
+    ctx.drawImage(
+      item.image,
+      pos.x + size / 2 - scale * item.image.width / 2,
+      pos.y + size / 2 - scale * item.image.height / 2,
+      scale * item.image.width,
+      scale * item.image.height
+    );
+
+    ctx.fillStyle = "#000";
+    ctx.font = textHeight + "px Arial";
+    ctx.fillText(
+      item.name,
+      pos.x + (size - ctx.measureText(item.name).width) / 2,
+      pos.y + textHeight + margin
+    );
+    const price = item.price + " gold";
+    ctx.fillText(
+      price,
+      pos.x + (size - ctx.measureText(price).width) / 2,
+      pos.y + size - margin
+    );
+  }
+
   // Outline
   ctx.strokeStyle = "#000";
   ctx.lineWidth = 4;
   ctx.beginPath();
-  ctx.moveTo(cvs.width / 4, cvs.height / 4);
-  ctx.lineTo(3 * cvs.width / 4, cvs.height / 4);
-  ctx.lineTo(3 * cvs.width / 4, 3 * cvs.height / 4);
-  ctx.lineTo(cvs.width / 4, 3 * cvs.height / 4);
-  ctx.lineTo(cvs.width / 4, cvs.height / 4);
+  ctx.moveTo((cvs.width - width) / 2, (cvs.height - height) / 2);
+  ctx.lineTo((cvs.width + width) / 2, (cvs.height - height) / 2);
+  ctx.lineTo((cvs.width + width) / 2, (cvs.height + height) / 2);
+  ctx.lineTo((cvs.width - width) / 2, (cvs.height + height) / 2);
+  ctx.lineTo((cvs.width - width) / 2, (cvs.height - height) / 2);
   ctx.stroke();
 }
 

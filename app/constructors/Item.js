@@ -67,6 +67,7 @@ class Bandage extends Item {
   constructor() {
     super();
     this.id = 192;
+    this.price = 50;
     this.consumable = true;
 
     this.canConsume = p => {
