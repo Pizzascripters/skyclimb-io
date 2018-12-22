@@ -50,6 +50,12 @@ function loadImages(images, callback) {
 
   images.shops = {};
   images.shops.generic = loadImage("shops/generic", onload);
+
+  images.textures = {};
+  imageNames = ["rock"];
+  for(var i in imageNames) {
+    images.textures[imageNames[i]] = loadImage("textures/" + imageNames[i], onload);
+  }
 }
 
 // Load a specific image for the game

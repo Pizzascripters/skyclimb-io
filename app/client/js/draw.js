@@ -29,14 +29,14 @@ function draw(Game){
     drawThrowable(ctx, throwables[i], images.nade, cam);
 
   // Draw the map
-  ctx.fillStyle = OBJECT_COLOR;
+  ctx.fillStyle = ctx.createPattern(images.textures.rock, "repeat");
   ctx.lineWidth = OBJECT_OUTLINE_WIDTH;
   for(var i in map.objects)
     drawObject(ctx, cam, map.objects[i], OBJECT_OUTLINE);
 
   // Draw the players
   ctx.strokeStyle = PLAYER_OUTLINE_COLOR;
-  ctx.lineWidth = PLAYER_OUTLINE_WIDTH * (cvs.width / 1920);
+  ctx.lineWidth = PLAYER_OUTLINE_WIDTH * (cvs.width / FRAME_WIDTH);
   ctx.fillStyle = PLAYER_COLOR;
   for(var i in players)
     drawPlayer(ctx, cam, players[i], PLAYER_OUTLINE, images.eyes, items[players[i].weapon]);
@@ -104,11 +104,23 @@ function drawWeapon(ctx, player, item, radius){
   ctx.translate(player.x, player.y);
   if(player.hand < Math.PI / 2 || player.hand > 3 * Math.PI / 2) {
     ctx.rotate(-player.hand - 0.15);
-    ctx.drawImage(item.image, radius + item.radialShift, 0, item.width * (radius / 50), item.height * (radius / 50));
+    ctx.drawImage(
+      item.image,
+      radius + item.radialShift,
+      0,
+      item.width * (radius / 50) / (cvs.width / FRAME_WIDTH),
+      item.height * (radius / 50) / (cvs.width / FRAME_WIDTH)
+    );
   } else {
-    ctx.rotate(0.15 - Math.PI - player.hand);
+    ctx.rotate(-player.hand - Math.PI + 0.15);
     ctx.scale(-1, 1);
-    ctx.drawImage(item.image, radius + item.radialShift, 42, item.width * (radius / 50), -item.height * (radius / 50));
+    ctx.drawImage(
+      item.image,
+      radius + item.radialShift,
+      42,
+      item.width * (radius / 50) / (cvs.width / FRAME_WIDTH),
+      -item.height * (radius / 50) / (cvs.width / FRAME_WIDTH)
+    );
   }
   ctx.restore();
 }
@@ -116,7 +128,7 @@ function drawWeapon(ctx, player, item, radius){
 function drawBullet(ctx, b, image, cam) {
   const bullet_angle = 2 * Math.PI * b.angle / 256;
   const v = getVertexPosition(b, cam);
-  const zoom = cvs.width / 1920;
+  const zoom = cvs.width / FRAME_WIDTH;
 
   ctx.save();
   ctx.translate(v.x, v.y);
@@ -139,7 +151,7 @@ function drawThrowable(ctx, t, image, cam) {
 function drawPlayer(ctx, cam, p, outline, eyes, weapon) {
   const v = getVertexPosition(p, cam),
         handAngle = 2 * Math.PI * p.hand / 256,
-        radius = p.radius * cvs.width / 1920;
+        radius = p.radius * cvs.width / FRAME_WIDTH;
 
   ctx.beginPath();
   ctx.arc(v.x, v.y, radius, 0, 2 * Math.PI);
@@ -165,26 +177,41 @@ function drawPlayer(ctx, cam, p, outline, eyes, weapon) {
 }
 
 function drawObject(ctx, cam, p, outline) {
-  const v0 = getVertexPosition(p.vertices[0], cam);
+  const zoom = cvs.width / FRAME_WIDTH;
+  const size = 3 * zoom;
 
+  const offset = {
+    x: -(zoom * cam.x % (size * MOUNTAIN_TEXURE_WIDTH)),
+    y: -(zoom * cam.y % (size * MOUNTAIN_TEXURE_HEIGHT))
+  }
+
+  ctx.save();
+  ctx.translate(offset.x, offset.y);
+  ctx.scale(size, size);
+
+  var v0 = getVertexPosition(p.vertices[0], cam);
   ctx.beginPath();
+  v0.x = (v0.x - offset.x) / size;
+  v0.y = (v0.y - offset.y) / size;
   ctx.moveTo(v0.x, v0.y);
-
   for(var i = 1; i < p.vertices.length; i++) {
-    const v = getVertexPosition(p.vertices[i], cam);
+    var v = getVertexPosition(p.vertices[i], cam);
+    v.x = (v.x - offset.x) / size;
+    v.y = (v.y - offset.y) / size;
     ctx.lineTo(v.x, v.y);
   }
   ctx.lineTo(v0.x, v0.y);
-
   ctx.fill();
   if(outline)
     ctx.stroke();
+
+  ctx.restore();
 }
 
 function drawShop(ctx, shop, shopImages, cam) {
   const v = getVertexPosition({x: shop.x, y: shop.y}, cam);
 
-  ctx.drawImage(shopImages[shop.type], v.x, v.y, shop.width, shop.height);
+  ctx.drawImage(shopImages[shop.type], v.x, v.y, shop.width * cvs.width / FRAME_WIDTH, shop.height * cvs.width / FRAME_WIDTH);
 }
 
 function drawHealthbar(ctx, health, healthbar){
@@ -367,7 +394,7 @@ function roundRect(ctx, x, y, width, height, radius, fill, stroke) {
 }
 
 function getVertexPosition(v, cam) {
-  const zoom = cvs.width / 1920;
+  const zoom = cvs.width / FRAME_WIDTH;
 
   return {
     x: (v.x - cam.x) * zoom + cvs.width / 2,

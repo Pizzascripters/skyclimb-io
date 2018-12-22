@@ -8,13 +8,15 @@ const STATS_WIDTH = 200;
 const STATS_HEIGHT = 300;
 
 const PLAYER_COLOR = "#fc7";
-const OBJECT_COLOR = "#655";
 const PLAYER_OUTLINE = true;
 const PLAYER_OUTLINE_COLOR = "#000";
 const PLAYER_OUTLINE_WIDTH = 3;
+const MOUNTAIN_TEXURE_WIDTH = 200;
+const MOUNTAIN_TEXURE_HEIGHT = 200;
 const OBJECT_OUTLINE = true;
 const OBJECT_OUTLINE_COLOR = "#000";
 const OBJECT_OUTLINE_WIDTH = 2;
+const FRAME_WIDTH = 2000;
 
 // For the background gradient
 const GREATEST_Y_VALUE = 8000;
