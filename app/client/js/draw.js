@@ -39,7 +39,7 @@ function draw(Game){
   ctx.lineWidth = PLAYER_OUTLINE_WIDTH * (cvs.width / FRAME_WIDTH);
   ctx.fillStyle = PLAYER_COLOR;
   for(var i in players)
-    drawPlayer(ctx, cam, players[i], PLAYER_OUTLINE, images.eyes, items[players[i].weapon]);
+    drawPlayer(ctx, cam, players[i], PLAYER_OUTLINE, images.eyes.generic, items[players[i].weapon]);
 
   if(players.length > 0) {
     drawHealthbar(ctx, players[0].health, healthbar);

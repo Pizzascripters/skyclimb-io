@@ -43,11 +43,45 @@ function loadImages(images, callback) {
     if(count === Object.keys(images).length) callback();
   }
 
-  let imageNames = ["eyes", "pistol", "ak47", "shotgun", "nade", "bandage", "bullet", "healthbar", "energybar"];
+  // Misc Images
+  let imageNames = ["bullet", "energybar", "flash", "healthbar", "pellet"];
   for(var i in imageNames) {
     images[imageNames[i]] = loadImage(imageNames[i], onload);
   }
 
+  // Shrapnel
+  imageNames = ["1", "2", "3"];
+  images.shrapnel = {};
+  for(var i in imageNames) {
+    images.shrapnel[Number(imageNames[i])] = loadImage("shrapnel/" + imageNames[i], onload);
+  }
+
+  // Eyes
+  imageNames = ["generic", "sans"];
+  images.eyes = {};
+  for(var i in imageNames) {
+    images.eyes[imageNames[i]] = loadImage("eyes/" + imageNames[i], onload);
+  }
+
+  // Items
+  let itemNames = ["bandage", "nade"];
+  images.items = {};
+  for(var i in itemNames) {
+    images.items[itemNames[i]] = loadImage("items/" + itemNames[i], onload);
+  }
+
+  // Weapons
+  let weaponNames = ["ak47", "glock", "pump", "sniper"];
+  let weaponImageNames = ["fire", "l", "ul"];
+  images.weapons = {};
+  for(var i1 in weaponNames) {
+    images.weapons[weaponNames[i1]] = {};
+    for(var i2 in weaponImageNames) {
+      images.weapons[weaponNames[i1]][weaponImageNames[i2]] = loadImage("weapons/" + weaponNames[i1] + "/" + weaponImageNames[i2], onload);
+    }
+  }
+
+  // Shops
   images.shops = {};
   let shopNames = ["generic"];
   imageNames = ["inside", "outside", "shelf"];
@@ -58,6 +92,7 @@ function loadImages(images, callback) {
     }
   }
 
+  // Textures
   images.textures = {};
   imageNames = ["rock"];
   for(var i in imageNames) {
@@ -66,11 +101,20 @@ function loadImages(images, callback) {
 }
 
 // Load a specific image for the game
-function loadImage(src, callback) {
+function loadImage(path, callback) {
   let img = new Image();
-  img.src = "img/" + src + ".png";
+  let src = "img/" + path + ".png";
+  img.src = src;
   img.onload = callback;
   return img;
+}
+
+// Check if an image exists
+function imageExists(url){
+    var http = new XMLHttpRequest();
+    http.open('HEAD', url, false);
+    http.send();
+    return http.status != 404;
 }
 
 // Adds a script to the html document

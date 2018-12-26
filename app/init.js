@@ -1,5 +1,6 @@
 // Load Modules
 const express = require('express');
+const fs = require('fs');
 const http = require('http');
 const path = require('path');
 const WebSocket = require('ws');
@@ -49,6 +50,15 @@ const wss = new WebSocket.Server({ "server" : server });
 app.get('/', (req, res) => {
   res.sendFile(__dirname + '/client/index.html');
 });
+app.use('/img', (req, res, next) => {
+  fs.access(__dirname + '/client/img' + req.url, err => {
+    if(err) {
+      res.sendFile(__dirname + '/client/img/notexture.png');
+    } else {
+      res.sendFile(__dirname + '/client/img' + req.url);
+    }
+  });
+});
 app.use('/', express.static(__dirname + '/client'));
 
 // User initial connection
@@ -81,7 +91,19 @@ wss.on('connection', (ws, req) => {
   io.mapData(ws, map); // Send map data
 });
 
-setInterval(() => { // Send all players the player data
+setInterval(() => {
+  // Remove deleted players
+  for(var i in players)
+    if(players[i].deleted)
+      delete players[i];
+  for(var i in bullets)
+    if(bullets[i].deleted)
+      delete bullets[i];
+  for(var i in throwables)
+    if(throwables[i].deleted)
+      delete throwables[i];
+
+  // Send all players the player data
   for(var i in players){
     const p = players[i];
     if(!p.disconnected && !p.deleted)
