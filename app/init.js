@@ -85,6 +85,9 @@ wss.on('connection', (ws, req) => {
       case 2: // Request Map Data
         io.mapData(ws, map);
         break;
+      case 3: // Buy Item
+        io.buyItem(ws, player, Game.map.shops, packet[1]);
+        break;
     }
   });
 

@@ -26,7 +26,7 @@ function draw(Game){
   }
   ctx.fillStyle = "#040"
   for (var i in throwables)
-    drawThrowable(ctx, throwables[i], images.nade, cam);
+    drawThrowable(ctx, throwables[i], images.items.nade, cam);
 
   // Draw the map
   ctx.fillStyle = ctx.createPattern(images.textures.rock, "repeat");
@@ -303,7 +303,7 @@ function drawItem(ctx, cvswidth, slot, item, anim, amt) {
     var savedStyle = ctx.fillStyle;
     var savedOpacity = ctx.globalAlpha;
     ctx.fillStyle = "#fff";
-    ctx.font = "24px Arial";
+    ctx.font = "24px Play";
     ctx.globalAlpha = 1;
     ctx.fillText(amt, x + 30, y + 18)
     ctx.fillStyle = savedStyle;
@@ -318,14 +318,14 @@ function drawStats(ctx, gold, kills, score) {
   ctx.globalAlpha = 1;
 
   ctx.fillStyle = "#fff";
-  ctx.font = "50px Arial";
+  ctx.font = "50px Play";
   ctx.fillText(
     "Stats",
     cvs.width - 20 - STATS_WIDTH/2 - ctx.measureText("Stats").width/2,
     cvs.height - STATS_HEIGHT + 30
   );
 
-  ctx.font = "30px Arial";
+  ctx.font = "30px Play";
   ctx.fillText(
     "Kills",
     cvs.width - STATS_WIDTH,
@@ -346,7 +346,7 @@ function drawStats(ctx, gold, kills, score) {
     cvs.width - 40 - ctx.measureText(gold).width,
     cvs.height - STATS_HEIGHT + 120
   );
-  ctx.font = "30px Arial";
+  ctx.font = "30px Play";
   ctx.fillText(
     "Score",
     cvs.width - STATS_WIDTH,
@@ -369,32 +369,29 @@ function drawShopMenu(ctx, shopMenu, shopImages) {
 
   // Draw Shelf
   cvs.style.cursor = "default";
-  for(var i = 1; i < shopMenu.length; i++) {
-    const item = shopMenu[i];
-    const size = width / 8
+  shopMenuApply(shopMenu, (item, rect) => {
+    const size = width / 8;
+    const margin = SHOP_MENU_MARGIN;
+    const padding = SHOP_MENU_PADDING;
+    const textHeight = SHOP_MENU_TEXT_HEIGHT;
     const pos = {
-      x: width + ((i-1) % 4) * size,
-      y: (cvs.height / 2 - height / 2) + Math.floor((i-1) / 4) * size
+      x: rect.x - margin,
+      y: rect.y - margin
     }
-    const textHeight = 18;
-    const margin = 5;
 
-    // Draw Hover Effect
-    const rect = {
-      x: pos.x,
-      y: pos.y,
-      width: size,
-      height: size
-    }
     if(insideRect(mouse, rect)) {
-      ctx.fillStyle = "#aaa";
-      ctx.globalAlpha = 0.4;
+      ctx.globalAlpha = 0.6;
+      if(mouse.down) {
+        ctx.fillStyle = "#999";
+      } else {
+        ctx.fillStyle = "#aaa";
+      }
       ctx.fillRect(rect.x, rect.y, rect.width, rect.height);
       ctx.globalAlpha = 1;
       cvs.style.cursor = "pointer";
     }
 
-    const scale = (size / 2) / item.image.width;
+    const scale = (size / 3) / item.image.width;
     ctx.drawImage(
       item.image,
       pos.x + size / 2 - scale * item.image.width / 2,
@@ -403,20 +400,20 @@ function drawShopMenu(ctx, shopMenu, shopImages) {
       scale * item.image.height
     );
 
-    ctx.fillStyle = "#000";
-    ctx.font = textHeight + "px Arial";
+    ctx.fillStyle = "#fff";
+    ctx.font = textHeight + "px Play";
     ctx.fillText(
       item.name,
       pos.x + (size - ctx.measureText(item.name).width) / 2,
-      pos.y + textHeight + margin
+      pos.y + textHeight + margin + padding
     );
     const price = item.price + " gold";
     ctx.fillText(
       price,
       pos.x + (size - ctx.measureText(price).width) / 2,
-      pos.y + size - margin
+      pos.y + size - margin - padding
     );
-  }
+  });
 
   // Outline
   ctx.strokeStyle = "#000";

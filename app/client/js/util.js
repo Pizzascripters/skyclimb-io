@@ -21,6 +21,31 @@ function checkShopExit(shopMenu) {
   }
 }
 
+// Applys a function to each item in the shop menu
+function shopMenuApply(shopMenu, f) {
+  const width = cvs.width / 2;
+  const height = 9 * width / 16;
+
+  for(var i = 1; i < shopMenu.length; i++) {
+    const item = shopMenu[i];
+    const size = width / 8;
+    const margin = SHOP_MENU_MARGIN;
+    const padding = SHOP_MENU_PADDING;
+    const textHeight = SHOP_MENU_TEXT_HEIGHT;
+    const pos = {
+      x: width + ((i-1) % 4) * size,
+      y: (cvs.height / 2 - height / 2) + Math.floor((i-1) / 4) * size
+    }
+
+    f(item, {
+      x: pos.x + margin,
+      y: pos.y + margin,
+      width: size - margin * 2,
+      height: size - margin * 2
+    }, i-1);
+  }
+}
+
 // Check if point p is inside a rectangle
 function insideRect(p, rect) {
   if(

@@ -1,6 +1,7 @@
 var mouse = {
   x: 0,
-  y: 0
+  y: 0,
+  down: false
 }
 
 function keydown(e, keyboard, inventory){
@@ -69,6 +70,7 @@ function mousedown (e, keyboard) {
 
 function mouseup (e, keyboard) {
   if(e.button === 0) {
+    mouse.down = false;
     keyboard.shoot = false;
   }
 }

@@ -9,6 +9,16 @@ class Item {
     this.accuracy = 0;             // The error in the angle the bullets can spawn
     this.cooldownTime = 0;         // The # of frames it takes before the player can fire again
     this.shootingCooldown = this.cooldownTime;
+
+    this.buy = p => {
+      if(this.price){
+        if(p.gold >= this.price) {
+          if(p.acquire(this)) {
+            p.gold -= this.price;
+          }
+        }
+      }
+    }
   }
 }
 

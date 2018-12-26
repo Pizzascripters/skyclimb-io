@@ -43,6 +43,16 @@ function sendKeyboard(ws, keyboard, select, hand){
   keyboard.select = false;
 }
 
+function buyItem(ws, slot) {
+  if(ws.readyState != ws.OPEN)
+    return 1;
+
+  let packet = [];
+  packet.push(3);
+  packet.push(slot);
+  ws.send( new Uint8Array(packet) );
+}
+
 // Given a packet, reads the first byte, sends it to a more specific function
 function handleMessage(packet, Game){
   var data = new Uint8Array(packet.data);

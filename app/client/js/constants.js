@@ -7,6 +7,10 @@ const INVENTORY_ANIMATION_SPEED = 80; // px / sec
 const STATS_WIDTH = 200;
 const STATS_HEIGHT = 300;
 
+const SHOP_MENU_MARGIN = 10;
+const SHOP_MENU_PADDING = 5;
+const SHOP_MENU_TEXT_HEIGHT = 18;
+
 const PLAYER_COLOR = "#fc7";
 const PLAYER_OUTLINE = true;
 const PLAYER_OUTLINE_COLOR = "#000";

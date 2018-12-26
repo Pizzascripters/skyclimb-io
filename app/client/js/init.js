@@ -52,11 +52,19 @@ function init(e){
     Game.hand = mousemove(e);
   });
   window.addEventListener("mousedown", e => {
+    mouse.down = true;
     if(Game.shopMenu.length === 0) {
         mousedown(e, Game.keyboard);
+    } else {
+      shopMenuApply(Game.shopMenu, (item, rect, slot) => {
+        if(insideRect(mouse, rect)) {
+          buyItem(Game.ws, slot);
+        }
+      })
     }
   });
   window.addEventListener("mouseup", e => {
+    mouse.down = false;
     mouseup(e, Game.keyboard)
   });
   window.addEventListener("keydown", e => {
@@ -84,6 +92,15 @@ function update(Game, time){
   prevTime = time;
 
   checkShopExit(Game.shopMenu);
+
+  // Debug only shop menu
+  /*Game.items[1].price = 100;
+  Game.items[32].price = 250;
+  Game.items[64].price = 400;
+  Game.items[128].price = 20;
+  Game.items[192].price = 50;
+  Game.shopMenu = ["generic", Game.items[1], Game.items[32], Game.items[64], Game.items[128], Game.items[192]];*/
+
   draw(Game);
   anim.main(delta, Game.inventory);
 

@@ -1,4 +1,5 @@
 const distance = require('../lib/distance');
+const insideRect = require('../lib/insideRect');
 
 const VISIBILITY = 1100; // Any objectect at a greater distance will not be sent to client
 
@@ -87,6 +88,22 @@ module.exports = {
     ws.send( Buffer.concat([header, packet]) );
 
     return 0;
+  },
+
+  buyItem: (ws, p, shops, slot) => {
+    for(var i in shops) {
+      const rect = {
+        x: shops[i].x - p.radius,
+        y: shops[i].y - p.radius,
+        width: shops[i].width + p.radius * 2,
+        height: shops[i].height + p.radius * 2
+      }
+      if(insideRect(p.body.position, rect)) {
+        const shop = shops[i];
+        if(shop.items[slot])
+          shop.items[slot].buy(p);
+      }
+    }
   },
 
   playerData: (p, Game) => { // Send player and bullet data

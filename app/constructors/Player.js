@@ -50,9 +50,21 @@ module.exports = function(ws, id){
 
   this.deleted = false;
 
+  // Player gets an item
+  this.acquire = item => {
+    if(item.id < 128) return false;
+    for(var i in this.inventory.items) {
+      if(this.inventory.items[i].id === item.id) {
+        this.inventory.amt[i]++;
+        return true;
+      }
+    }
+    return false;
+  }
+
   this.kill = (world, p) => {
     this.kills++;
-    economy.addGold(this, Math.round(p.gold / 2));
+    economy.addGold(this, Math.round(p.score / 2));
     p.apoptosis(world);
   }
 

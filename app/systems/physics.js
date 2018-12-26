@@ -1,4 +1,5 @@
 const Matter = require('../lib/matter');
+const insideRect = require('../lib/insideRect');
 const Bullet = require('../constructors/Bullet');
 const Throwable = require('../constructors/Throwable');
 const io = require('./io');
@@ -205,19 +206,5 @@ function sendShopData(p, shops) {
     if(insideRect(p.body.position, rect) && p.keyboard.select) {
       io.shopData(p, shops[i]);
     }
-  }
-}
-
-// Check if point p is inside a rectangle
-function insideRect(p, rect) {
-  if(
-    p.x < rect.x ||
-    p.x > rect.x + rect.width ||
-    p.y < rect.y ||
-    p.y > rect.y + rect.height
-  ) {
-    return false;
-  } else {
-    return true;
   }
 }
