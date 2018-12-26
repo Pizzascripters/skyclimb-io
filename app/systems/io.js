@@ -154,6 +154,7 @@ module.exports = {
     }
 
     function addBullet(b) {
+      packet.push( b.type );
       packet.push( b.body.position.x );
       packet.push( b.body.position.y );
       packet.push( b.angle );

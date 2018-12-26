@@ -111,6 +111,7 @@ function setMap(data, map){
 // Called when client recieves player information
 function setPlayers(data, Game){
   let players = Game.players,
+      images = Game.images,
       inventory = Game.inventory,
       bullets = Game.bullets,
       throwables = Game.throwables,
@@ -162,10 +163,17 @@ function setPlayers(data, Game){
   // Load the bullets
   while(bullets.length < numBullets){
     let bullet = {};
+    bullet.type = readInt(data, ref);
     bullet.x = readInt(data, ref);
     bullet.y = readInt(data, ref);
     bullet.angle = readInt(data, ref);
     bullets.push(bullet);
+
+    if(bullet.type === 0){
+      bullet.image = images.bullet;
+    } else if(bullet.type === 1) {
+      bullet.image = images.shrapnel[Math.floor(Math.random() * 3) + 1];
+    }
   }
 
   // Load the throwables

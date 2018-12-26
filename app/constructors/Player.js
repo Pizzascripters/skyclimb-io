@@ -64,7 +64,7 @@ module.exports = function(ws, id){
 
   this.kill = (world, p) => {
     this.kills++;
-    economy.addGold(this, Math.round(p.score / 2));
+    economy.addGold(this, Math.round(p.gold / 2));
     p.apoptosis(world);
   }
 

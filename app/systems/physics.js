@@ -175,14 +175,7 @@ function bulletCollisions(players, bullets, map){
           {x: KNOCKBACK * b.body.velocity.x, y: KNOCKBACK * b.body.velocity.y}
         );
 
-        p.health -= 0.1;
-        if(p.health <= 0)
-          if(b.player.kill)
-            b.player.kill(world, p);
-          else // It's a nade kill
-            b.player.player.kill(world, p);
-
-        b.apoptosis();
+        b.hit(p);
       }
     }
 

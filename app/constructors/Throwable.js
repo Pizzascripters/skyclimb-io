@@ -1,6 +1,6 @@
 const Matter = require('../lib/matter');
 const distance = require('../lib/distance');
-const Bullet = require('./Bullet');
+const Shrapnel = require('./Shrapnel');
 
 // A constructor for the throwable item
 module.exports = function (world, bullets, p) {
@@ -24,7 +24,7 @@ module.exports = function (world, bullets, p) {
   setTimeout(this.apoptosis = () => { // Explode
     this.deleted = true;
     for(i = 0; i < 20; i++)
-      bullets.push(new Bullet(world, this, Math.PI*2));
+      bullets.push(new Shrapnel(world, this, Math.PI*2));
     Matter.Composite.remove(world, body);
   }, 5000);
 

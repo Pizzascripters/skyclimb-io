@@ -22,7 +22,7 @@ function draw(Game){
   for(var i in map.shops)
     drawShop(ctx, map.shops[i], images.shops, cam);
   for (var i in bullets) {
-    drawBullet(ctx, bullets[i], images.bullet, cam);
+    drawBullet(ctx, bullets[i], cam);
   }
   ctx.fillStyle = "#040"
   for (var i in throwables)
@@ -125,7 +125,7 @@ function drawWeapon(ctx, player, item, radius){
   ctx.restore();
 }
 
-function drawBullet(ctx, b, image, cam) {
+function drawBullet(ctx, b, cam) {
   const bullet_angle = 2 * Math.PI * b.angle / 256;
   const v = getVertexPosition(b, cam);
   const zoom = cvs.width / FRAME_WIDTH;
@@ -133,7 +133,7 @@ function drawBullet(ctx, b, image, cam) {
   ctx.save();
   ctx.translate(v.x, v.y);
   ctx.rotate(-bullet_angle);
-  ctx.drawImage(image, 0, 0, 20 * zoom, 10 * zoom);
+  ctx.drawImage(b.image, 0, 0, 20 * zoom, 10 * zoom);
   ctx.restore();
 }
 
