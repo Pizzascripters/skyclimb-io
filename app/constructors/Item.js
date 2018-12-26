@@ -30,7 +30,7 @@ class Pistol extends Item {
     this.spawnDistance = 40;
     this.numBullets = 1;
     this.accuracy = Math.PI / 20;
-    this.cooldownTime = 10;
+    this.cooldownTime = 5;
     this.shootingCooldown = this.cooldownTime;
   }
 }
@@ -43,7 +43,7 @@ class Ak47 extends Item {
     this.spawnDistance = 50;
     this.numBullets = 1;
     this.accuracy = Math.PI / 10;
-    this.cooldownTime = 5;
+    this.cooldownTime = 3;
     this.shootingCooldown = this.cooldownTime;
   }
 }
@@ -56,7 +56,7 @@ class Shotgun extends Item {
     this.spawnDistance = 40;
     this.numBullets = 10;
     this.accuracy = Math.PI / 6;
-    this.cooldownTime = 30;
+    this.cooldownTime = 20;
     this.shootingCooldown = this.cooldownTime;
   }
 }

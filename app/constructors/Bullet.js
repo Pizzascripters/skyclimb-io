@@ -4,13 +4,14 @@ const distance = require('../lib/distance');
 const BULLET_WIDTH = 20;
 const BULLET_HEIGHT = 10;
 const BULLET_SPEED = 40;
+const BULLET_DAMAGE = 0.15;
 
 // A constructor for the bullet
 module.exports = function (world, p, accuracy, speed, lifespan, damage) {
   if(!accuracy) accuracy = 0; // Counterintuitively, 0 accuracy means no deviation
   if(!speed) speed = BULLET_SPEED;
   if(!lifespan) lifespan = 5000;
-  if(!damage) damage = 0.1;
+  if(!damage) damage = BULLET_DAMAGE;
 
   this.deleted = false;
   this.player = p;

@@ -23,7 +23,7 @@ module.exports = function (world, bullets, p) {
 
   setTimeout(this.apoptosis = () => { // Explode
     this.deleted = true;
-    for(i = 0; i < 20; i++)
+    for(i = 0; i < 30; i++)
       bullets.push(new Shrapnel(world, this, Math.PI*2));
     Matter.Composite.remove(world, body);
   }, 5000);
