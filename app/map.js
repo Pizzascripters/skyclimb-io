@@ -1,7 +1,8 @@
 const fs = require('fs');
 
 const Matter = require('./lib/matter');
-const Shop = require('./constructors/Shop')
+const Shop = require('./constructors/Shop');
+const distance = require('./util/distance');
 
 const Vertices = Matter.Vertices,
       Bodies = Matter.Bodies,
@@ -127,12 +128,4 @@ function midangle(a, b) {
     i++;
   }
   return (a + b) / 2;
-}
-
-// Finds the distance between two points
-function distance(p1, p2) {
-  return Math.sqrt(
-    Math.pow(p2.x - p1.x, 2) +
-    Math.pow(p2.y - p1.y, 2)
-  );
 }

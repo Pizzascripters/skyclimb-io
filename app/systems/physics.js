@@ -1,9 +1,9 @@
 const Matter = require('../lib/matter');
-const insideRect = require('../lib/insideRect');
 const Bullet = require('../constructors/Bullet');
 const Item = require('../constructors/Item');
 const Loot = require('../constructors/Loot');
 const Throwable = require('../constructors/Throwable');
+const insideRect = require('../util/insideRect');
 const io = require('./io');
 
 const RECOIL = 0.0005;

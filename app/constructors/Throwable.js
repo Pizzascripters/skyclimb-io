@@ -1,5 +1,5 @@
 const Matter = require('../lib/matter');
-const distance = require('../lib/distance');
+const distance = require('../util/distance');
 const Shrapnel = require('./Shrapnel');
 
 // A constructor for the throwable item

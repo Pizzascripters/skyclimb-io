@@ -1,5 +1,5 @@
 const Matter = require('../lib/matter');
-const distance = require('../lib/distance');
+const distance = require('../util/distance');
 
 const BULLET_WIDTH = 20;
 const BULLET_HEIGHT = 10;

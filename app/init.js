@@ -6,9 +6,9 @@ const path = require('path');
 const WebSocket = require('ws');
 
 const Matter = require('./lib/matter');
-const map = require('./map');
 const Player = require('./constructors/Player');
 const Bullet = require('./constructors/Bullet');
+const map = require('./map');
 const io = require('./systems/io');
 const physics = require('./systems/physics');
 const economy = require('./systems/economy');
@@ -25,7 +25,8 @@ cli(Game);
 
 var players = Game.players, // Holds the player body and a virtual keyboard
     bullets = Game.bullets, // Holds all of the bullet objects
-    throwables = Game.throwables; // Holds all of the throwable objects (nades, smokes, nukes?)
+    throwables = Game.throwables, // Holds all of the throwable objects (nades, smokes, nukes?)
+    loot = Game.loot;
 
 // Configure matter js
 // Module Aliases
@@ -56,7 +57,7 @@ app.get('/', (req, res) => {
 app.use('/img', (req, res, next) => {
   fs.access(__dirname + '/client/img' + req.url, err => {
     if(err) {
-      res.sendFile(__dirname + '/client/img/notexture.png');
+      res.sendFile(__dirname + '/client/img/notexture.png'); // 404 -> No texture image
     } else {
       res.sendFile(__dirname + '/client/img' + req.url);
     }
@@ -66,7 +67,6 @@ app.use('/', express.static(__dirname + '/client'));
 
 // User initial connection
 wss.on('connection', (ws, req) => {
-
   // Create the player
   const playerId = players.length;
   let player = new Player(ws, playerId);
@@ -76,22 +76,8 @@ wss.on('connection', (ws, req) => {
   World.addBody(world, player.body);
 
   // On user message
-  ws.on('message', (packet) => {
-    const data = new Uint8Array(packet);
-    switch( data[0] ){
-      case 0: // Ping
-        io.pong(ws);
-        break;
-      case 1: // Keyboard Input
-        io.setKeyboard(ws, packet.slice(1), player);
-        break;
-      case 2: // Request Map Data
-        io.mapData(ws, map);
-        break;
-      case 3: // Buy Item
-        io.buyItem(ws, player, Game.map.shops, packet[1]);
-        break;
-    }
+  ws.on('message', packet => {
+    io.handle(ws, player, Game, packet);
   });
 
   io.mapData(ws, map); // Send map data
@@ -108,11 +94,14 @@ setInterval(() => {
   for(var i in throwables)
     if(throwables[i].deleted)
       delete throwables[i];
+  for(var i in loot)
+    if(loot[i].deleted)
+      delete loot[i];
 
   // Send all players the player data
   for(var i in players){
     const p = players[i];
-    if(!p.disconnected && !p.deleted)
+    if(!p.disconnected)
       io.playerData(p, Game, p.id);
   }
 }, 1000 / 60);

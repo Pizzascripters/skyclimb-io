@@ -1,13 +1,31 @@
-const distance = require('../lib/distance');
-const insideRect = require('../lib/insideRect');
+const distance = require('../util/distance');
+const insideRect = require('../util/insideRect');
 
 const VISIBILITY = 1100; // Any objectect at a greater distance will not be sent to client
 
-module.exports = {
+const io = module.exports = {
+  handle: (ws, p, Game, packet) => {
+    const data = new Uint8Array(packet);
+    switch( data[0] ){
+      case 0: // Ping
+        io.pong(ws);
+        break;
+      case 1: // Keyboard Input
+        io.setKeyboard(ws, packet.slice(1), p);
+        break;
+      case 2: // Request Map Data
+        io.mapData(ws, Game.map);
+        break;
+      case 3: // Buy Item
+        io.buyItem(ws, p, Game.map.shops, packet[1]);
+        break;
+    }
+  },
+
   /*  Following are a series of functions that send a packet to the client
       Each has a 1 byte header to identify its purpose */
 
-  pong: (ws) => { // 0 - Return ping
+  pong: ws => { // 0 - Return ping
     if(ws.readyState === ws.CLOSED)
       return 1;
 
