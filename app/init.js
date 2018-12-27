@@ -12,6 +12,7 @@ const Bullet = require('./constructors/Bullet');
 const io = require('./systems/io');
 const physics = require('./systems/physics');
 const economy = require('./systems/economy');
+const cli = require('./systems/cli');
 
 var Game = {
   players: [],
@@ -19,6 +20,7 @@ var Game = {
   throwables: [],
   map: map
 }
+cli(Game);
 
 var players = Game.players, // Holds the player body and a virtual keyboard
     bullets = Game.bullets, // Holds all of the bullet objects

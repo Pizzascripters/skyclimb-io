@@ -1,5 +1,7 @@
 class Item {
   constructor() {
+    this.name = "Empty";
+    this.plural = "Empties";
     this.id = 0;
     this.canShoot = false;         // Whether or not the item can fire
     this.throwable = false;        // Whether or not the item can be thrown
@@ -25,6 +27,8 @@ class Item {
 class Pistol extends Item {
   constructor() {
     super();
+    this.name = "Glock";
+    this.plural = "Glocks";
     this.id = 1;
     this.canShoot = true;
     this.spawnDistance = 40;
@@ -38,6 +42,8 @@ class Pistol extends Item {
 class Ak47 extends Item {
   constructor() {
     super();
+    this.name = "Ak47";
+    this.plural = "Ak47s";
     this.id = 32;
     this.canShoot = true;
     this.spawnDistance = 50;
@@ -51,6 +57,8 @@ class Ak47 extends Item {
 class Shotgun extends Item {
   constructor() {
     super();
+    this.name = "Pump";
+    this.plural = "Pumps";
     this.id = 64;
     this.canShoot = true;
     this.spawnDistance = 40;
@@ -64,6 +72,8 @@ class Shotgun extends Item {
 class Nade extends Item {
   constructor() {
     super();
+    this.name = "Nade";
+    this.plural = "Nades";
     this.id = 128;
     this.price = 20;
     this.throwable = true;
@@ -76,6 +86,8 @@ class Nade extends Item {
 class Bandage extends Item {
   constructor() {
     super();
+    this.name = "Bandage";
+    this.plural = "Bandages";
     this.id = 192;
     this.price = 50;
     this.consumable = true;
@@ -99,21 +111,27 @@ module.exports = function(id) {
   let item;
   switch(id) {
     case 1:
+    case "glock":
       item = new Pistol();
       break;
     case 32:
+    case "ak47":
       item = new Ak47();
       break;
     case 64:
+    case "pump":
       item = new Shotgun();
       break;
     case 128:
+    case "nade":
       item = new Nade();
       break;
     case 192:
+    case "bandage":
       item = new Bandage();
       break;
     default:
+    case "item":
       item = new Item();
       break;
   }

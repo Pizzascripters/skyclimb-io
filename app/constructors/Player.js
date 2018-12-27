@@ -51,11 +51,13 @@ module.exports = function(ws, id){
   this.deleted = false;
 
   // Player gets an item
-  this.acquire = item => {
+  this.acquire = (item, number) => {
+    if(!number) number = 1;
+
     if(item.id < 128) return false;
     for(var i in this.inventory.items) {
       if(this.inventory.items[i].id === item.id) {
-        this.inventory.amt[i]++;
+        this.inventory.amt[i] += number;
         return true;
       }
     }
