@@ -3,6 +3,7 @@ const Bullet = require('../constructors/Bullet');
 const Item = require('../constructors/Item');
 const Loot = require('../constructors/Loot');
 const Throwable = require('../constructors/Throwable');
+const distance = require('../util/distance');
 const insideRect = require('../util/insideRect');
 const io = require('./io');
 
@@ -39,6 +40,7 @@ module.exports = function(Game){
     chargeJetpack(p);
     sendShopData(p, Game.map.shops);
     if(p.keyboard.drop) dropWeapon(p, Game.world, Game.loot);
+    if(p.keyboard.loot) handleLooting(p, Game.world, Game.loot);
   }
 
   for(var i in Game.throwables){
@@ -220,4 +222,25 @@ function dropWeapon(p, world, loot){
   const src = new Item(0);
   for(var i in src)
     dest[i] = src[i];
+}
+
+// Called when player tries to loot
+function handleLooting(p, world, loot) {
+  // Find the closest loot
+  let minDistance = Infinity;
+  let closest = null; // The index of the nearest loot
+  for(var i in loot) {
+    const dist = distance(p.body.position, loot[i].body.position);
+    if(dist < minDistance && dist < p.radius + loot[i].radius) {
+      minDistance = dist;
+      closest = loot[i];
+    }
+  }
+
+  // If there is attainable loot and we can acquire it, acquire it and delete
+  if(closest !== null) {
+    if(p.acquire(closest.item)) {
+      closest.apoptosis();
+    }
+  }
 }

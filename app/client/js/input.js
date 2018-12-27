@@ -24,6 +24,9 @@ function keydown(e, keyboard, inventory){
     case 69:  // E
       keyboard.select = true;
       break;
+    case 70:  // F
+      keyboard.loot = true;
+      break;
     case 81:  // Q
       keyboard.drop = true;
       break;

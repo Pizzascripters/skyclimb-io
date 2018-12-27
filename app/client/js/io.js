@@ -36,12 +36,14 @@ function sendKeyboard(ws, keyboard, select, hand){
   packet.push(keyboard.consume);
   packet.push(keyboard.select);
   packet.push(keyboard.drop);
+  packet.push(keyboard.loot);
   packet.push(select);
   ws.send( new Uint8Array(packet) );
 
   keyboard.throw = false;
   keyboard.consume = false;
   keyboard.select = false;
+  keyboard.loot = false;
   keyboard.drop = false;
 }
 

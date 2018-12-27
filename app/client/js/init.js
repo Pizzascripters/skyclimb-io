@@ -25,6 +25,7 @@ function init(e){
     jump: false,
     shoot: false,
     select: false,
+    loot: false,
     consume: false,
     cook: false,
     throw: false

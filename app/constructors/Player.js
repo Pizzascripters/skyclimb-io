@@ -31,7 +31,8 @@ module.exports = function(ws, id){
     shoot: false,
     throw: false,
     consume: false,
-    select: false
+    select: false,
+    loot: false
   }
   this.hand = 0;
   this.health = 1;
@@ -54,11 +55,20 @@ module.exports = function(ws, id){
   this.acquire = (item, number) => {
     if(!number) number = 1;
 
-    if(item.id < 128) return false;
-    for(var i in this.inventory.items) {
-      if(this.inventory.items[i].id === item.id) {
-        this.inventory.amt[i] += number;
-        return true;
+    if(item.id < 128) {
+      for(var i = 2; i < 5; i++) {
+        if(this.inventory.items[i].id === 0) {
+          this.inventory.items[i] = new Item(item.id);
+          return true;
+          break;
+        }
+      }
+    } else {
+      for(var i in this.inventory.items) {
+        if(this.inventory.items[i].id === item.id) {
+          this.inventory.amt[i] += number;
+          return true;
+        }
       }
     }
     return false;
