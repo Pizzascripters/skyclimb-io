@@ -445,9 +445,12 @@ function drawLoot(ctx, loot, cam) {
     ctx.stroke();
     ctx.fill();
 
-    const width = (cvs.width / FRAME_WIDTH) * (l.radius * 2 - 10);
-    const height = l.item.image.height * width / l.item.image.width;
-    ctx.drawImage(l.item.image, -width/2, -height/2, width, height);
+    if(l.item.image !== null) {
+      const width = (cvs.width / FRAME_WIDTH) * (l.radius * 2 - 10);
+      const height = l.item.image.height * width / l.item.image.width;
+      ctx.drawImage(l.item.image, -width/2, -height/2, width, height);
+    }
+
     ctx.restore();
   }
 }
