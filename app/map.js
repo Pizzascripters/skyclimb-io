@@ -71,6 +71,7 @@ for(var i in objects){
       position: Vertices.centre(v),
       isStatic: true
     });
+    body.collisionFilter.group = 1;
     Body.setVertices(body, v);
     map.push(body);
   }

@@ -114,6 +114,7 @@ module.exports = {
     var players = Game.players,
         bullets = Game.bullets,
         throwables = Game.throwables,
+        loot = Game.loot,
         world = Game.world;
 
     if(ws.readyState === ws.CLOSED || ws.readyState === ws.CLOSING) {
@@ -125,9 +126,7 @@ module.exports = {
     const header = Buffer.from( new Uint8Array([2]) );
     let packet = [];
 
-    packet[0] = 0; // For counting players
-    packet[1] = 0; // For counting bullets
-    packet[2] = 0; // For counting throwables
+    packet.push(0, 0, 0, 0); // For counting players, bullets, throwables, and loot
 
     // Adds a player to the packet
     function addPlayer(p) {
@@ -167,9 +166,19 @@ module.exports = {
       packet.push( Math.floor(255*(b.body.angle % (Math.PI*2)) / (Math.PI*2)) );
     }
 
+    // Adds a loot object to the packet
+    function gimmeTheLoot(b) {
+      packet.push( b.item.id );
+      packet.push( b.body.position.x );
+      packet.push( b.body.position.y );
+      packet.push( b.radius );
+      packet.push( Math.floor(255*(b.body.angle % (Math.PI*2)) / (Math.PI*2)) );
+    }
+
     let numPlayers = 1;
     let numBullets = 0;
     let numThrowables = 0;
+    let numLoot = 0;
 
     addPlayer(players[id]); // Add yourself to the player packet
 
@@ -204,9 +213,20 @@ module.exports = {
       }
     }
 
+    for(var i in loot){
+      if(
+        !loot[i].deleted &&
+        distance(p.body.position, loot[i].body.position) < VISIBILITY
+      ) {
+        gimmeTheLoot(loot[i]); // Gimme the loot!
+        numLoot++; // Count the loot
+      }
+    }
+
     packet[0] = numPlayers;
     packet[1] = numBullets;
     packet[2] = numThrowables;
+    packet[3] = numLoot;
 
     sendArray(ws, header, packet);
   },

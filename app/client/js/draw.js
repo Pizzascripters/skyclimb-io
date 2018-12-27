@@ -6,6 +6,7 @@ function draw(Game){
         map = Game.map,
         bullets = Game.bullets,
         throwables = Game.throwables,
+        loot = Game.loot,
         inventory = Game.inventory,
         items = Game.items,
         shopMenu = Game.shopMenu,
@@ -46,6 +47,7 @@ function draw(Game){
     drawEnergyBar(ctx, players[0].energy, energybar);
     drawInventory(ctx, inventory, items);
     drawStats(ctx, players[0].gold, players[0].kills, players[0].score);
+    drawLoot(ctx, loot, cam);
   }
 
   if(shopMenu.length > 0) {
@@ -424,6 +426,30 @@ function drawShopMenu(ctx, shopMenu, shopImages) {
   ctx.lineTo((cvs.width - width) / 2, (cvs.height + height) / 2);
   ctx.lineTo((cvs.width - width) / 2, (cvs.height - height) / 2);
   ctx.stroke();
+}
+
+function drawLoot(ctx, loot, cam) {
+  ctx.fillStyle = "rgba(100, 100, 100, 0.8)";
+  ctx.strokeStyle = "2px solid black";
+  ctx.lineWidth = 2;
+
+  for(var i in loot) {
+    const l = loot[i];
+    const v = getVertexPosition(l, cam)
+
+    ctx.save();
+    ctx.translate(v.x, v.y);
+    ctx.rotate(2 * Math.PI * l.angle / 255);
+    ctx.beginPath();
+    ctx.arc(0, 0, (cvs.width / FRAME_WIDTH) * l.radius, 0, 2 * Math.PI);
+    ctx.stroke();
+    ctx.fill();
+
+    const width = (cvs.width / FRAME_WIDTH) * (l.radius * 2 - 10);
+    const height = l.item.image.height * width / l.item.image.width;
+    ctx.drawImage(l.item.image, -width/2, -height/2, width, height);
+    ctx.restore();
+  }
 }
 
 function roundRect(ctx, x, y, width, height, radius, fill, stroke) {

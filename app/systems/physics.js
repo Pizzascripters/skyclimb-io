@@ -2,6 +2,7 @@ const Matter = require('../lib/matter');
 const insideRect = require('../lib/insideRect');
 const Bullet = require('../constructors/Bullet');
 const Item = require('../constructors/Item');
+const Loot = require('../constructors/Loot');
 const Throwable = require('../constructors/Throwable');
 const io = require('./io');
 
@@ -37,12 +38,17 @@ module.exports = function(Game){
     terminalVelocity(p.body);
     chargeJetpack(p);
     sendShopData(p, Game.map.shops);
-    if(p.keyboard.drop) dropWeapon(p);
+    if(p.keyboard.drop) dropWeapon(p, Game.world, Game.loot);
   }
 
   for(var i in Game.throwables){
     let t = Game.throwables[i];
     doGravity(t.body);
+  }
+
+  for(var i in Game.loot){
+    let l = Game.loot[i];
+    doGravity(l.body);
   }
 
   bulletCollisions(Game.players, Game.bullets, Game.map.bodies);
@@ -204,8 +210,12 @@ function sendShopData(p, shops) {
   }
 }
 
-// Copy an empty item into the player's selected slot
-function dropWeapon(p){
+// Called when player drops a weapon
+function dropWeapon(p, world, loot){
+  // Spawn a new item
+  loot.push(new Loot(world, p.getItem().id, p.body.position));
+
+  // Copy an empty item into the player's selected slot
   let dest = p.getItem();
   const src = new Item(0);
   for(var i in src)

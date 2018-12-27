@@ -18,6 +18,7 @@ var Game = {
   players: [],
   bullets: [],
   throwables: [],
+  loot: [],
   map: map
 }
 cli(Game);

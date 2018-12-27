@@ -115,20 +115,24 @@ function setPlayers(data, Game){
   let players = Game.players,
       images = Game.images,
       inventory = Game.inventory,
+      items = Game.items,
       bullets = Game.bullets,
       throwables = Game.throwables,
+      loot = Game.loot,
       cam = Game.cam;
 
   // Clear the arrays
   players.splice(0, players.length);
   bullets.splice(0, bullets.length);
   throwables.splice(0, throwables.length);
+  loot.splice(0, loot.length);
 
   let ref = {i:1}; // We want to pass i by reference to readInt can increment it
 
   let numPlayers = readInt(data, ref);
   let numBullets = readInt(data, ref);
   let numThrowables = readInt(data, ref);
+  let numLoot = readInt(data, ref);
 
   while(players.length < numPlayers){
     var player = {};
@@ -186,8 +190,18 @@ function setPlayers(data, Game){
     throwable.angle = readInt(data, ref);
     throwable.width = 30;
     throwable.height = 30;
-
     throwables.push(throwable);
+  }
+
+  // Gimme the loot!
+  while(loot.length < numLoot){
+    let l = {};
+    l.item = items[readInt(data, ref)];
+    l.x = readInt(data, ref);
+    l.y = readInt(data, ref);
+    l.radius = readInt(data, ref);
+    l.angle = readInt(data, ref);
+    loot.push(l);
   }
 }
 

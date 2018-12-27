@@ -1,6 +1,6 @@
 const Item = require('../constructors/Item');
 
-module.exports = (Game) => {
+module.exports = Game => {
   var stdin = process.openStdin();
   stdin.addListener("data", data => {
     let args = data.toString().trim().split(" ");
