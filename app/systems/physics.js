@@ -1,6 +1,7 @@
 const Matter = require('../lib/matter');
 const insideRect = require('../lib/insideRect');
 const Bullet = require('../constructors/Bullet');
+const Item = require('../constructors/Item');
 const Throwable = require('../constructors/Throwable');
 const io = require('./io');
 
@@ -36,6 +37,7 @@ module.exports = function(Game){
     terminalVelocity(p.body);
     chargeJetpack(p);
     sendShopData(p, Game.map.shops);
+    if(p.keyboard.drop) dropWeapon(p);
   }
 
   for(var i in Game.throwables){
@@ -200,4 +202,12 @@ function sendShopData(p, shops) {
       io.shopData(p, shops[i]);
     }
   }
+}
+
+// Copy an empty item into the player's selected slot
+function dropWeapon(p){
+  let dest = p.getItem();
+  const src = new Item(0);
+  for(var i in src)
+    dest[i] = src[i];
 }

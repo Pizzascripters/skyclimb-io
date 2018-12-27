@@ -22,17 +22,18 @@ module.exports = {
       player.keyboard[i] = false;
     }
 
-    player.hand = packet[0];
+    let ref = {i:0}; // We want to pass i by reference to readInt can increment it
 
-    if(packet[1]) player.keyboard.left = true;
-    if(packet[2]) player.keyboard.right = true;
-    if(packet[3]) player.keyboard.jump = true;
-    if(packet[4]) player.keyboard.shoot = true;
-    if(packet[5]) player.keyboard.throw = true;
-    if(packet[6]) player.keyboard.consume = true;
-    if(packet[7]) player.keyboard.select = true;
-
-    player.inventory.select = packet[8];
+    player.hand = readInt(packet, ref);
+    if(readInt(packet, ref)) player.keyboard.left = true;
+    if(readInt(packet, ref)) player.keyboard.right = true;
+    if(readInt(packet, ref)) player.keyboard.jump = true;
+    if(readInt(packet, ref)) player.keyboard.shoot = true;
+    if(readInt(packet, ref)) player.keyboard.throw = true;
+    if(readInt(packet, ref)) player.keyboard.consume = true;
+    if(readInt(packet, ref)) player.keyboard.select = true;
+    if(readInt(packet, ref)) player.keyboard.drop = true;
+    player.inventory.select = readInt(packet, ref);
   },
 
   mapData: (ws, map) => { // Send map data
@@ -228,6 +229,11 @@ function sendArray(ws, header, packet) {
 
   packet = Buffer.concat( packet );
   ws.send(Buffer.concat( [header, packet] ));
+}
+
+// Reads a one byte intereger from an index in a byte array
+function readInt(a, ref) {
+  return a[ref.i++];
 }
 
 // Converts a unit8array to a string

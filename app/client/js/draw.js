@@ -368,7 +368,6 @@ function drawShopMenu(ctx, shopMenu, shopImages) {
   ctx.drawImage(shopImages.shelf, cvs.width / 2, (cvs.height - height) / 2, width / 2, height);
 
   // Draw Shelf
-  cvs.style.cursor = "default";
   shopMenuApply(shopMenu, (item, rect) => {
     const size = width / 8;
     const margin = SHOP_MENU_MARGIN;

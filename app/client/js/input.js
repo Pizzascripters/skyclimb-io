@@ -21,8 +21,11 @@ function keydown(e, keyboard, inventory){
     case 68:  // D
       keyboard.right = true;
       break;
-    case 69:
+    case 69:  // E
       keyboard.select = true;
+      break;
+    case 81:  // Q
+      keyboard.drop = true;
       break;
     case 87:  // W
       keyboard.jump = true;
