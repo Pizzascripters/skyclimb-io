@@ -52,13 +52,13 @@ module.exports = function (world, p, accuracy, speed, lifespan, damage) {
 
   Matter.World.addBody(world, body); // Add yourself to the world
 
-  this.hit = p => {
+  this.hit = (p, loot) => {
     p.health -= damage;
     if(p.health <= 0) {
       if(this.player.kill) {
-        this.player.kill(world, p);
+        this.player.kill(world, p, loot);
       } else { // It's a nade kill
-        this.player.player.kill(world, p);
+        this.player.player.kill(world, p, loot);
       }
     }
     this.apoptosis();
