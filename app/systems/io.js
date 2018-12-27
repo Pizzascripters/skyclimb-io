@@ -36,8 +36,12 @@ const io = module.exports = {
   },
 
   setKeyboard: (ws, packet, player) => { // 1 - Update keyboard object
+    // Sticky buttons only reset on update, not in io
+    let stickyButtons = ["throw", "consume", "select", "drop", "loot"]
     for(var i in player.keyboard) {
-      player.keyboard[i] = false;
+      if(stickyButtons.indexOf(i) === -1) {
+        player.keyboard[i] = false;
+      }
     }
 
     let ref = {i:0}; // We want to pass i by reference to readInt can increment it

@@ -14,6 +14,9 @@ class Generic extends Shop {
   constructor(x, y) {
     super(x, y);
     this.type = 1;
+    this.items.push(new Item(1));
+    this.items.push(new Item(32));
+    this.items.push(new Item(64));
     this.items.push(new Item(128));
     this.items.push(new Item(192));
   }

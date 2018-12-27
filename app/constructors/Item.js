@@ -30,10 +30,11 @@ class Pistol extends Item {
     this.name = "Glock";
     this.plural = "Glocks";
     this.id = 1;
+    this.price = 50;
     this.canShoot = true;
     this.spawnDistance = 40;
     this.numBullets = 1;
-    this.accuracy = Math.PI / 20;
+    this.accuracy = Math.PI / 30;
     this.cooldownTime = 5;
     this.shootingCooldown = this.cooldownTime;
   }
@@ -45,10 +46,11 @@ class Ak47 extends Item {
     this.name = "Ak47";
     this.plural = "Ak47s";
     this.id = 32;
+    this.price = 150;
     this.canShoot = true;
     this.spawnDistance = 50;
     this.numBullets = 1;
-    this.accuracy = Math.PI / 10;
+    this.accuracy = Math.PI / 20;
     this.cooldownTime = 3;
     this.shootingCooldown = this.cooldownTime;
   }
@@ -60,6 +62,7 @@ class Shotgun extends Item {
     this.name = "Pump";
     this.plural = "Pumps";
     this.id = 64;
+    this.price = 300;
     this.canShoot = true;
     this.spawnDistance = 40;
     this.numBullets = 10;

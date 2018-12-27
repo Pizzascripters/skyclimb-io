@@ -41,6 +41,14 @@ module.exports = function(Game){
     sendShopData(p, Game.map.shops);
     if(p.keyboard.drop) dropWeapon(p, Game.world, Game.loot);
     if(p.keyboard.loot) handleLooting(p, Game.world, Game.loot);
+
+    // Sticky buttons only reset on update, not in io
+    let stickyButtons = ["throw", "consume", "select", "drop", "loot"]
+    for(var i in p.keyboard) {
+      if(stickyButtons.indexOf(i) !== -1) {
+        p.keyboard[i] = false;
+      }
+    }
   }
 
   for(var i in Game.throwables){
