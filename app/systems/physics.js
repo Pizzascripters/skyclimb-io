@@ -61,7 +61,7 @@ module.exports = function(Game){
     doGravity(l.body);
   }
 
-  bulletCollisions(Game.players, Game.bullets, Game.map.bodies);
+  bulletCollisions(Game.players, Game.bullets, Game.map.bodies, Game.loot);
 }
 
 function doGravity(body){
@@ -171,7 +171,7 @@ function chargeJetpack(p){
     p.energy = 0;
 }
 
-function bulletCollisions(players, bullets, map){
+function bulletCollisions(players, bullets, map, loot){
   for(var i1 in bullets) {
     let b = bullets[i1];
     if(b.deleted) continue;
@@ -193,7 +193,7 @@ function bulletCollisions(players, bullets, map){
           {x: KNOCKBACK * b.body.velocity.x, y: KNOCKBACK * b.body.velocity.y}
         );
 
-        b.hit(p);
+        b.hit(p, loot);
       }
     }
 
@@ -224,7 +224,7 @@ function sendShopData(p, shops) {
 function dropWeapon(p, world, loot){
   // Spawn a new item
   if(p.getItem().id !== 0)
-    loot.push(new Loot(world, p.getItem().id, p.body.position));
+    loot.push(new Loot(world, p.getItem().id, p.body.position, 2 * Math.PI * p.hand / 256));
 
   // Copy an empty item into the player's selected slot
   let dest = p.getItem();
@@ -248,7 +248,7 @@ function handleLooting(p, world, loot) {
 
   // If there is attainable loot and we can acquire it, acquire it and delete
   if(closest !== null) {
-    if(p.acquire(closest.item)) {
+    if(p.acquire(closest.item, closest.amount)) {
       closest.apoptosis();
     }
   }
