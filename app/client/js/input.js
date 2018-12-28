@@ -7,16 +7,19 @@ var mouse = {
 function keydown(e, keyboard, inventory){
   switch ( e.keyCode ) {
     case 49:  // 1
-      inventory.select = 2;
+      inventory.select = 0;
       break;
     case 50:  // 2
-      inventory.select = 3;
+      inventory.select = 1;
       break;
     case 51:  // 3
-      inventory.select = 4;
+      inventory.select = 2;
       break;
     case 65:  // A
       keyboard.left = true;
+      break;
+    case 67:
+      inventory.select = 5;
       break;
     case 68:  // D
       keyboard.right = true;
@@ -34,10 +37,10 @@ function keydown(e, keyboard, inventory){
       keyboard.jump = true;
       break;
     case 88:  // X
-      keyboard.consume = true;
+      inventory.select = 4;
       break;
     case 90:  // Z
-      keyboard.throw = true;
+      inventory.select = 3;
       break;
   }
 }

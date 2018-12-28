@@ -99,31 +99,25 @@ function createEnergybar(ctx, image) {
   return energybar;
 }
 
-function drawWeapon(ctx, player, item, radius){
+function drawWeapon(ctx, p, item, radius) {
   if(item.image === null) return 1;
 
   ctx.save();
-  ctx.translate(player.x, player.y);
-  if(player.hand < Math.PI / 2 || player.hand > 3 * Math.PI / 2) {
-    ctx.rotate(-player.hand - 0.15);
-    ctx.drawImage(
-      item.image,
-      radius + item.radialShift,
-      0,
-      item.width * (radius / 50) / (cvs.width / FRAME_WIDTH),
-      item.height * (radius / 50) / (cvs.width / FRAME_WIDTH)
-    );
+  ctx.translate(p.x, p.y);
+  if(p.hand < Math.PI / 2 || p.hand > 3 * Math.PI / 2) {
+    ctx.rotate(-p.hand);
   } else {
-    ctx.rotate(-player.hand - Math.PI + 0.15);
+    ctx.rotate(-Math.PI-p.hand);
     ctx.scale(-1, 1);
-    ctx.drawImage(
-      item.image,
-      radius + item.radialShift,
-      42,
-      item.width * (radius / 50) / (cvs.width / FRAME_WIDTH),
-      -item.height * (radius / 50) / (cvs.width / FRAME_WIDTH)
-    );
   }
+  ctx.drawImage(
+    item.image,
+    radius + item.radialShift * (cvs.width / FRAME_WIDTH),
+    -item.height * (cvs.width / FRAME_WIDTH) / 2,
+    item.width * (cvs.width / FRAME_WIDTH),
+    item.height * (cvs.width / FRAME_WIDTH)
+  );
+
   ctx.restore();
 }
 
@@ -232,82 +226,72 @@ function drawInventory(ctx, inventory, items){
   ctx.fillStyle = "#888";
   ctx.globalAlpha = 0.8;
 
-  roundRect(ctx, cvs.width / 2 - 280, 5, 100, 30, 10);
-  roundRect(ctx, cvs.width / 2 - 280, 40, 100, 30, 10);
+  roundRect(ctx, cvs.width / 2 - 340, -10, 100, inventory.anim[0]);
+  roundRect(ctx, cvs.width / 2 - 220, -10, 100, inventory.anim[1]);
+  roundRect(ctx, cvs.width / 2 - 100, -10, 100, inventory.anim[2]);
+  roundRect(ctx, cvs.width / 2 + 100, -10, 100, inventory.anim[3]);
+  roundRect(ctx, cvs.width / 2 + 220, -10, 100, inventory.anim[4]);
+  roundRect(ctx, cvs.width / 2 + 340, -10, 100, inventory.anim[5]);
 
-  roundRect(ctx, cvs.width / 2 - 170, -10, 100, inventory.anim[2]);
-  roundRect(ctx, cvs.width / 2 - 50, -10, 100, inventory.anim[3]);
-  roundRect(ctx, cvs.width / 2 + 70, -10, 100, inventory.anim[4]);
-
-  roundRect(ctx, cvs.width / 2 + 180, 5, 100, 30, 10);
-  roundRect(ctx, cvs.width / 2 + 180, 40, 100, 30, 10);
-
-  drawItem(ctx, cvs.width, 0, items[inventory.items[0]], 0, inventory.amt[0]);
-  drawItem(ctx, cvs.width, 1, items[inventory.items[1]], 0, inventory.amt[1]);
-
-  drawItem(ctx, cvs.width, 2, items[inventory.items[2]], inventory.anim[2]);
-  drawItem(ctx, cvs.width, 3, items[inventory.items[3]], inventory.anim[3]);
-  drawItem(ctx, cvs.width, 4, items[inventory.items[4]], inventory.anim[4]);
-
-  drawItem(ctx, cvs.width, 5, items[inventory.items[5]]);
-  drawItem(ctx, cvs.width, 6, items[inventory.items[6]]);
+  drawItem(ctx, 0, items[inventory.items[0]], inventory.anim[0]);
+  drawItem(ctx, 1, items[inventory.items[1]], inventory.anim[1]);
+  drawItem(ctx, 2, items[inventory.items[2]], inventory.anim[2]);
+  drawItem(ctx, 3, items[inventory.items[3]], inventory.anim[3], inventory.amt[0]);
+  drawItem(ctx, 4, items[inventory.items[4]], inventory.anim[4], inventory.amt[1]);
+  drawItem(ctx, 5, items[inventory.items[5]], inventory.anim[5], inventory.amt[2]);
 
   ctx.globalAlpha = 1;
 }
 
-function drawItem(ctx, cvswidth, slot, item, anim, amt) {
+function drawItem(ctx, slot, item, anim, amt) {
   if(!item.image) return;
 
-  switch(slot) {
-    case 0:
-    case 1:
-      x = cvswidth / 2 - 275;
-      break;
-    case 2:
-      x = cvswidth / 2 - 160;
-      break;
-    case 3:
-      x = cvswidth / 2 - 40;
-      break;
-    case 4:
-      x = cvswidth / 2 + 80;
-      break;
-    case 5:
-    case 6:
-      x = cvswidth / 2 - 185;
-      break;
+  // Find appropraite width and height for drawing
+  const MAXWIDTH = 80;
+  const MAXHEIGHT = slot > 2 ? 30 : 60;
+  const ratio = item.image.width / item.image.height;
+  if(MAXWIDTH / ratio > MAXHEIGHT) {
+    height = MAXHEIGHT;
+    width = height * ratio;
+  } else {
+    width = MAXWIDTH;
+    height = width / ratio;
+  }
+  if(slot <= 2) {
+    y = anim - height - 20;
+  } else {
+    y = anim - height - 40;
   }
 
   switch(slot) {
     case 0:
-    case 5:
-      width = 20;
-      height = width * item.image.height / item.image.width;
-      y = 30 - height;
+      x = cvs.width / 2 - 290 - width / 2;
       break;
     case 1:
-    case 6:
-      width = 20;
-      height = width * item.image.height / item.image.width;
-      y = 65 - height;
+      x = cvs.width / 2 - 170 - width / 2;
       break;
     case 2:
+      x = cvs.width / 2 - 50 - width / 2;
+      break;
     case 3:
+      x = cvs.width / 2 + 150 - width / 2;
+      break;
     case 4:
-      width = 80;
-      height = width * item.image.height / item.image.width;
-      y = anim - height - 20;
+      x = cvs.width / 2 + 270 - width / 2;
+      break;
+    case 5:
+      x = cvs.width / 2 + 390 - width / 2;
       break;
   }
 
   ctx.drawImage(item.image, x, y, width, height);
-  if(slot === 0 || slot === 1) {
+  if(slot > 2) {
     var savedStyle = ctx.fillStyle;
     var savedOpacity = ctx.globalAlpha;
     ctx.fillStyle = "#fff";
     ctx.font = "24px Play";
     ctx.globalAlpha = 1;
-    ctx.fillText(amt, x + 30, y + 18)
+    ctx.fillText(amt, x - ctx.measureText(amt).width / 2 + width / 2, y + 50)
     ctx.fillStyle = savedStyle;
     ctx.globalAlpha = savedOpacity;
   }

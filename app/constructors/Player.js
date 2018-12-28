@@ -45,10 +45,10 @@ module.exports = function(ws, id){
   this.inventory = {};
   this.inventory.select = 4;
   this.inventory.items = [];
-  const itemIds = [128, 192, 64, 32, 1, 0, 0];
+  const itemIds = [64, 32, 1, 128, 192, 0];
   for(var i = 0; i < 7; i++)
     this.inventory.items[i] = new Item( itemIds[i] );
-  this.inventory.amt = [3, 3];
+  this.inventory.amt = [3, 3, 0];
 
   this.deleted = false;
 
@@ -57,17 +57,23 @@ module.exports = function(ws, id){
     if(!number) number = 1;
 
     if(item.id < 128) {
-      for(var i = 2; i < 5; i++) {
+      for(var i = 0; i < 3; i++) {
         if(this.inventory.items[i].id === 0) {
           this.inventory.items[i] = new Item(item.id);
           return true;
-          break;
         }
       }
     } else {
-      for(var i in this.inventory.items) {
+      for(var i = 3; i < 6; i++) {
         if(this.inventory.items[i].id === item.id) {
-          this.inventory.amt[i] += number;
+          this.inventory.amt[i-3] += number;
+          return true;
+        }
+      }
+      for(var i = 3; i < 6; i++) {
+        if(this.inventory.items[i].id === 0) {
+          this.inventory.items[i] = new Item(item.id);
+          this.inventory.amt[i-3] = number;
           return true;
         }
       }
@@ -88,8 +94,8 @@ module.exports = function(ws, id){
 
     for(var i in this.inventory.items) {
       const item = this.inventory.items[i];
-      const amount = this.inventory.amt[i] ? this.inventory.amt[i] : 1;
-      if(item.id !== 0)
+      const amount = this.inventory.amt[i] !== undefined ? this.inventory.amt[i] : 1;
+      if(item.id !== 0 && amount > 0)
         loot.push(new Loot(world, item.id, this.body.position, Math.random() * 2 * Math.PI, amount));
     }
   }

@@ -3,11 +3,10 @@ const distance = require('../util/distance');
 const Shrapnel = require('./Shrapnel');
 
 // A constructor for the throwable item
-module.exports = function (world, bullets, p) {
+module.exports = function (world, bullets, p, item) {
   this.deleted = false;
   this.player = p;
 
-  const item = p.inventory.items[0];
   const angle = 2 * Math.PI * p.hand / 256;
   const radius = distance(p.body.position, p.body.vertices[0]) + item.spawnDistance;
   const throwableX = p.body.position.x + radius * Math.cos(2 * Math.PI * p.hand / 256);
@@ -26,7 +25,7 @@ module.exports = function (world, bullets, p) {
     for(i = 0; i < 30; i++)
       bullets.push(new Shrapnel(world, this, Math.PI*2));
     Matter.Composite.remove(world, body);
-  }, 5000);
+  }, 2000);
 
   Matter.World.addBody(world, body); // Add yourself to the world
 }

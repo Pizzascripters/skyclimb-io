@@ -34,8 +34,8 @@ function init(e){
 
   Game.shopMenu = [];    // When the player opens a shop, this becomes an array of item ids
   Game.inventory = {
-    select: 4,
-    anim: [0, 0, 80, 80, 90, 0, 0],
+    select: 0,
+    anim: [90, 80, 80, 80, 80, 80],
     items: [0, 0, 0, 0, 0, 0, 0],
     amt: [0, 0]
   }

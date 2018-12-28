@@ -1,5 +1,6 @@
 class Item {
   constructor() {
+    this.type = "empty";
     this.name = "Empty";
     this.plural = "Empties";
     this.id = 0;
@@ -27,6 +28,7 @@ class Item {
 class Pistol extends Item {
   constructor() {
     super();
+    this.type = "weapon";
     this.name = "Glock";
     this.plural = "Glocks";
     this.id = 1;
@@ -43,6 +45,7 @@ class Pistol extends Item {
 class Ak47 extends Item {
   constructor() {
     super();
+    this.type = "weapon";
     this.name = "Ak47";
     this.plural = "Ak47s";
     this.id = 32;
@@ -59,6 +62,7 @@ class Ak47 extends Item {
 class Shotgun extends Item {
   constructor() {
     super();
+    this.type = "weapon";
     this.name = "Pump";
     this.plural = "Pumps";
     this.id = 64;
@@ -75,6 +79,7 @@ class Shotgun extends Item {
 class Nade extends Item {
   constructor() {
     super();
+    this.type = "throwable";
     this.name = "Nade";
     this.plural = "Nades";
     this.id = 128;
@@ -83,17 +88,22 @@ class Nade extends Item {
     this.throwSpeed = 20;
     this.spawnDistance = 60;
     this.radius = 10;
+    this.cooldownTime = 20;
+    this.shootingCooldown = 0;
   }
 }
 
 class Bandage extends Item {
   constructor() {
     super();
+    this.type = "consumable";
     this.name = "Bandage";
     this.plural = "Bandages";
     this.id = 192;
     this.price = 50;
     this.consumable = true;
+    this.cooldownTime = 20;
+    this.shootingCooldown = 0;
 
     this.canConsume = p => {
       if(p.health < 1)

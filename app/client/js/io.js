@@ -32,8 +32,6 @@ function sendKeyboard(ws, keyboard, select, hand){
   packet.push(keyboard.right);
   packet.push(keyboard.jump);
   packet.push(keyboard.shoot);
-  packet.push(keyboard.throw);
-  packet.push(keyboard.consume);
   packet.push(keyboard.select);
   packet.push(keyboard.drop);
   packet.push(keyboard.loot);

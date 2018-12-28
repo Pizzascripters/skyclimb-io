@@ -51,8 +51,6 @@ const io = module.exports = {
     if(readInt(packet, ref)) player.keyboard.right = true;
     if(readInt(packet, ref)) player.keyboard.jump = true;
     if(readInt(packet, ref)) player.keyboard.shoot = true;
-    if(readInt(packet, ref)) player.keyboard.throw = true;
-    if(readInt(packet, ref)) player.keyboard.consume = true;
     if(readInt(packet, ref)) player.keyboard.select = true;
     if(readInt(packet, ref)) player.keyboard.drop = true;
     if(readInt(packet, ref)) player.keyboard.loot = true;

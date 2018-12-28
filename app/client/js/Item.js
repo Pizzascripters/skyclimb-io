@@ -19,7 +19,8 @@ function Item(id, name, imageObj, w, h, radialShift) {
 
   if(w) {
     this.width = w;
-  } else if(h) {
+  }
+  if(h) {
     this.height = h;
   }
   if(radialShift) {

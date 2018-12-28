@@ -101,7 +101,7 @@ function handleMovement(p, body) {
 function handleShooting(p, body, bullets) {
   const item = p.getItem();
 
-  if(p.keyboard.shoot && item.shootingCooldown === 0) {
+  if(p.keyboard.shoot && item.shootingCooldown === 0 && item.type === "weapon") {
     const spawnBullet = (accuracy) => {
       const bullet = new Bullet(world, p, accuracy);
       bullets.push(bullet);
@@ -130,23 +130,32 @@ function handleShooting(p, body, bullets) {
 }
 
 function handleThrowing(p, body, bullets, throwables){
-  if(p.keyboard.throw && p.inventory.amt[0] > 0) {
-    const spawnThrowable = () => {
-      const throwable = new Throwable(world, bullets, p);
-      throwables.push(throwable);
-      p.inventory.amt[0]--;
-    }
-
-    spawnThrowable();
+  if(p.getItem().type !== "throwable") return 1;
+  if(
+    p.inventory.amt[p.inventory.select - 3] > 0 &&
+    p.keyboard.shoot &&
+    p.getItem().shootingCooldown === 0
+  ) {
+    const throwable = new Throwable(world, bullets, p, p.getItem());
+    throwables.push(throwable);
+    if(--p.inventory.amt[p.inventory.select - 3] === 0)
+      p.inventory.items[p.inventory.select] = new Item(0);
+    p.getItem().shootingCooldown = p.getItem().cooldownTime;
   }
 }
 
 function handleConsuming(p) {
-  if(p.keyboard.consume && p.inventory.amt[1] > 0) {
-    if(p.inventory.items[1].canConsume(p)) {
-      p.inventory.items[1].consume(p);
-      p.inventory.amt[1]--;
-    }
+  if(p.getItem().type !== "consumable") return 1;
+  if(
+    p.getItem().canConsume(p) &&
+    p.inventory.amt[p.inventory.select - 3] > 0 &&
+    p.keyboard.shoot &&
+    p.getItem().shootingCooldown === 0
+  ) {
+    p.getItem().consume(p);
+    if(--p.inventory.amt[p.inventory.select - 3] === 0)
+      p.inventory.items[p.inventory.select] = new Item(0);
+    p.getItem().shootingCooldown = p.getItem().cooldownTime;
   }
 }
 

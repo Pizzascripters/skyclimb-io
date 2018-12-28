@@ -52,12 +52,19 @@ function give(Game, itemId, amount) {
   const item = new Item(itemId);
   for(var i in Game.players) {
     const p = Game.players[i];
-    p.acquire(item, amount);
-  }
-  if(amount === 1) {
-    console.log('\x1b[35m%s\x1b[0m', 'Gave each player ' + amount + ' ' + item.name);
-  } else {
-    console.log('\x1b[35m%s\x1b[0m', 'Gave each player ' + amount + ' ' + item.plural);
+    if(p.acquire(item, amount)){
+      if(amount === 1) {
+        console.log('\x1b[35m%s\x1b[0m', 'Gave a player ' + amount + ' ' + item.name);
+      } else {
+        console.log('\x1b[35m%s\x1b[0m', 'Gave a player ' + amount + ' ' + item.plural);
+      }
+    } else {
+      if(amount === 1) {
+        console.log('\x1b[31m%s\x1b[0m', 'Failed to give a player ' + amount + ' ' + item.name);
+      } else {
+        console.log('\x1b[31m%s\x1b[0m', 'Failed to give a player ' + amount + ' ' + item.plural);
+      }
+    }
   }
 }
 
