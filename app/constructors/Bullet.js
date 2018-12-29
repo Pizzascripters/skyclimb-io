@@ -7,15 +7,10 @@ const BULLET_SPEED = 40;
 const BULLET_DAMAGE = 0.15;
 
 // A constructor for the bullet
-module.exports = function (world, p, accuracy, speed, lifespan, damage) {
-  if(!accuracy) accuracy = 0; // Counterintuitively, 0 accuracy means no deviation
-  if(!speed) speed = BULLET_SPEED;
-  if(!lifespan) lifespan = 5000;
-  if(!damage) damage = BULLET_DAMAGE;
-
+module.exports = function (world, p, accuracy = 0, type = 0, damage = BULLET_DAMAGE, speed = BULLET_SPEED, lifespan = 5000) {
   this.deleted = false;
   this.player = p;
-  this.type = 0;
+  this.type = type;
 
   if(!p.hand) {
     p.hand = 0;
@@ -23,7 +18,7 @@ module.exports = function (world, p, accuracy, speed, lifespan, damage) {
   if(!p.getItem) {
     spawnDistance = 0;
   } else {
-    spawnDistance = p.getItem().spawnDistance
+    spawnDistance = p.getItem().spawnDistance;
   }
 
   const angle =
@@ -35,7 +30,12 @@ module.exports = function (world, p, accuracy, speed, lifespan, damage) {
   const xVelocity = speed * Math.cos(angle);
   const yVelocity = -speed * Math.sin(angle);
 
-  let body = this.body = Matter.Bodies.rectangle(bulletX, bulletY, 5, 5);
+  let body;
+  if(this.type === 0) {
+    body = this.body = Matter.Bodies.rectangle(bulletX, bulletY, 20, 10);
+  } else if(this.type === 2) {
+    body = this.body = Matter.Bodies.rectangle(bulletX, bulletY, 10, 10);
+  }
   Matter.Body.setVelocity(
     this.body,
     {x: xVelocity, y: yVelocity}

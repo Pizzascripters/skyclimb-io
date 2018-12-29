@@ -41,6 +41,8 @@ module.exports = function(ws, id){
   this.kills = 0;
   this.gold = 0;
   this.score = 0;
+  this.bullets = 50;
+  this.shells = 5;
 
   this.inventory = {};
   this.inventory.select = 4;

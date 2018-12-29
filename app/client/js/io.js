@@ -158,6 +158,8 @@ function setPlayers(data, Game){
       player.kills = readInt(data, ref);
       player.gold = readInt(data, ref);
       player.score = readInt(data, ref);
+      player.bullets = readInt(data, ref);
+      player.shells = readInt(data, ref);
     }
 
     players.push(player);
@@ -176,11 +178,13 @@ function setPlayers(data, Game){
     bullet.y = readInt(data, ref);
     bullet.angle = readInt(data, ref);
     bullets.push(bullet);
-
+    
     if(bullet.type === 0){
-      bullet.image = images.bullet;
+      bullet.image = images.bullets.bullet;
     } else if(bullet.type === 1) {
       bullet.image = images.shrapnel[Math.floor(Math.random() * 3) + 1];
+    } else if(bullet.type === 2) {
+      bullet.image = images.bullets.pellet;
     }
   }
 

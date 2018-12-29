@@ -131,11 +131,34 @@ function handleShooting(p, body, bullets) {
         {x: body.position.x, y: body.position.y},
         {x: -RECOIL * bullet.body.velocity.x, y: -RECOIL * bullet.body.velocity.y}
       );
+      p.bullets--;
+    }
+
+    const spawnPellet = (accuracy) => {
+      const bullet = new Bullet(world, p, accuracy, 2, 0.1);
+      bullets.push(bullet);
+
+      // Recoil
+      Matter.Body.applyForce(
+        body,
+        {x: body.position.x, y: body.position.y},
+        {x: -RECOIL * bullet.body.velocity.x, y: -RECOIL * bullet.body.velocity.y}
+      );
     }
 
     if(item.canShoot) {
-      for(var i = 0; i < item.numBullets; i++)
-        spawnBullet(item.accuracy);
+      if(item.shotgun) {
+        if(p.shells > 0) {
+          for(var i = 0; i < item.numBullets; i++) {
+            spawnPellet(item.accuracy);
+          }
+          p.shells--;
+        }
+      } else {
+        if(p.bullets > 0) {
+          spawnBullet(item.accuracy);
+        }
+      }
     }
 
     item.shootingCooldown = item.cooldownTime;

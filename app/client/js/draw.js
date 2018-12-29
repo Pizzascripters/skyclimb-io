@@ -25,7 +25,7 @@ function draw(Game){
   for (var i in bullets) {
     drawBullet(ctx, bullets[i], cam);
   }
-  ctx.fillStyle = "#040"
+  ctx.fillStyle = "#040";
   for (var i in throwables)
     drawThrowable(ctx, throwables[i], images.items.nade, cam);
 
@@ -47,7 +47,7 @@ function draw(Game){
     drawHealthbar(ctx, players[0].health, healthbar);
     drawEnergyBar(ctx, players[0].energy, energybar);
     drawInventory(ctx, inventory, items);
-    drawStats(ctx, players[0].gold, players[0].kills, players[0].score);
+    drawStats(ctx, images.stats, players[0].gold, players[0].kills, players[0].score, players[0].bullets, players[0].shells);
     drawLoot(ctx, loot, cam);
   }
 
@@ -320,52 +320,32 @@ function drawItem(ctx, slot, item, anim, amt) {
   }
 }
 
-function drawStats(ctx, gold, kills, score) {
+function drawStats(ctx, images, gold, kills, score, bullets, shells) {
   ctx.fillStyle = "#888";
   ctx.globalAlpha = 0.8;
-  roundRect(ctx, cvs.width - 20 - STATS_WIDTH, cvs.height - 20 - STATS_HEIGHT, STATS_WIDTH, STATS_HEIGHT, 10, true, false)
+  roundRect(ctx, 20, 20, STATS_WIDTH, STATS_HEIGHT, 10, true, false)
   ctx.globalAlpha = 1;
 
   ctx.fillStyle = "#fff";
   ctx.font = "50px Play";
   ctx.fillText(
     "Stats",
-    cvs.width - 20 - STATS_WIDTH/2 - ctx.measureText("Stats").width/2,
-    cvs.height - STATS_HEIGHT + 30
+    20 + STATS_WIDTH/2 - ctx.measureText("Stats").width/2,
+    80
   );
 
+  ctx.drawImage(images.kills, 30, 100, 30, 30);
+  ctx.drawImage(images.gold, 30, 140, 30, 30);
+  ctx.drawImage(images.score, 30, 180, 30, 30);
+  ctx.drawImage(images.bullets, 30, 220, 30, 30);
+  ctx.drawImage(images.shells, 30, 260, 30, 30);
+
   ctx.font = "30px Play";
-  ctx.fillText(
-    "Kills",
-    cvs.width - STATS_WIDTH,
-    cvs.height - STATS_HEIGHT + 80
-  );
-  ctx.fillText(
-    kills,
-    cvs.width - 40 - ctx.measureText(kills).width,
-    cvs.height - STATS_HEIGHT + 80
-  );
-  ctx.fillText(
-    "Gold",
-    cvs.width - STATS_WIDTH,
-    cvs.height - STATS_HEIGHT + 120
-  );
-  ctx.fillText(
-    gold,
-    cvs.width - 40 - ctx.measureText(gold).width,
-    cvs.height - STATS_HEIGHT + 120
-  );
-  ctx.font = "30px Play";
-  ctx.fillText(
-    "Score",
-    cvs.width - STATS_WIDTH,
-    cvs.height - STATS_HEIGHT + 160
-  );
-  ctx.fillText(
-    score,
-    cvs.width - 40 - ctx.measureText(score).width,
-    cvs.height - STATS_HEIGHT + 160
-  );
+  ctx.fillText(kills, 80, 130);
+  ctx.fillText(gold, 80, 170);
+  ctx.fillText(score, 80, 210);
+  ctx.fillText(bullets, 80, 250);
+  ctx.fillText(shells, 80, 290);
 }
 
 function drawShopMenu(ctx, shopMenu, shopImages) {

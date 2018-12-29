@@ -69,36 +69,43 @@ function loadImages(images, callback) {
   }
 
   // Misc Images
-  let imageNames = ["bullet", "energybar", "flash", "healthbar", "pellet"];
+  let imageNames = ["energybar", "flash", "healthbar", "pellet"];
   for(var i in imageNames) {
     images[imageNames[i]] = loadImage(imageNames[i], onload);
   }
 
+  // Bullets
+  images.bullets = {};
+  imageNames = ["bullet", "pellet"];
+  for(var i in imageNames) {
+    images.bullets[imageNames[i]] = loadImage("bullets/" + imageNames[i], onload);
+  }
+
   // Shrapnel
-  imageNames = ["1", "2", "3"];
   images.shrapnel = {};
+  imageNames = ["1", "2", "3"];
   for(var i in imageNames) {
     images.shrapnel[Number(imageNames[i])] = loadImage("shrapnel/" + imageNames[i], onload);
   }
 
   // Eyes
-  imageNames = ["generic", "sans"];
   images.eyes = {};
+  imageNames = ["generic", "sans"];
   for(var i in imageNames) {
     images.eyes[imageNames[i]] = loadImage("eyes/" + imageNames[i], onload);
   }
 
   // Items
-  let itemNames = ["bandage", "nade"];
   images.items = {};
+  let itemNames = ["bandage", "nade"];
   for(var i in itemNames) {
     images.items[itemNames[i]] = loadImage("items/" + itemNames[i], onload);
   }
 
   // Weapons
+  images.weapons = {};
   let weaponNames = ["ak47", "glock", "pump", "sniper"];
   let weaponImageNames = ["fire", "l", "ul"];
-  images.weapons = {};
   for(var i1 in weaponNames) {
     images.weapons[weaponNames[i1]] = {};
     for(var i2 in weaponImageNames) {
@@ -122,6 +129,13 @@ function loadImages(images, callback) {
   imageNames = ["rock", "grass", "water"];
   for(var i in imageNames) {
     images.textures[imageNames[i]] = loadImage("textures/" + imageNames[i], onload);
+  }
+
+  // Textures
+  images.stats = {};
+  imageNames = ["bullets", "gold", "kills", "score", "shells"];
+  for(var i in imageNames) {
+    images.stats[imageNames[i]] = loadImage("stats/" + imageNames[i], onload);
   }
 }
 

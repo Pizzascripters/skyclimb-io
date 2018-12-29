@@ -174,6 +174,8 @@ const io = module.exports = {
         packet.push( p.kills );
         packet.push( p.gold );
         packet.push( p.score );
+        packet.push( p.bullets );
+        packet.push( p.shells );
       }
     }
 
