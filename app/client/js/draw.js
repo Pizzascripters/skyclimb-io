@@ -37,10 +37,9 @@ function draw(Game){
     drawPlayer(ctx, cam, players[i], PLAYER_OUTLINE, images.eyes.generic, items[players[i].weapon]);
 
   // Draw the map
-  ctx.fillStyle = ctx.createPattern(images.textures.rock, "repeat");
-  ctx.lineWidth = OBJECT_OUTLINE_WIDTH;
-  for(var i in map.objects)
-    drawObject(ctx, cam, map.objects[i], OBJECT_OUTLINE);
+  for(var i in map.objects) {
+    drawObject(ctx, cam, map.objects[i], images.textures.rock);
+  }
   drawWater(ctx, cam, map.waterHeight, images.textures.water);
 
   if(players.length > 0) {
@@ -173,7 +172,7 @@ function drawPlayer(ctx, cam, p, outline, eyes, weapon) {
   );
 }
 
-function drawObject(ctx, cam, p, outline) {
+function drawObject(ctx, cam, p, texture) {
   const zoom = cvs.width / FRAME_WIDTH;
   const size = 3 * zoom;
 
@@ -185,6 +184,8 @@ function drawObject(ctx, cam, p, outline) {
   ctx.save();
   ctx.translate(offset.x, offset.y);
   ctx.scale(size, size);
+  ctx.fillStyle = ctx.createPattern(texture, "repeat");
+  ctx.lineWidth = OBJECT_OUTLINE_WIDTH;
 
   var v0 = getVertexPosition(p.vertices[0], cam);
   ctx.beginPath();
@@ -199,9 +200,7 @@ function drawObject(ctx, cam, p, outline) {
   }
   ctx.lineTo(v0.x, v0.y);
   ctx.fill();
-  if(outline)
-    ctx.stroke();
-
+  ctx.stroke();
   ctx.restore();
 }
 
@@ -222,6 +221,7 @@ function drawWater(ctx, cam, waterLevel, image) {
   ctx.save();
   ctx.translate(offset, v.y);
   ctx.fillStyle = ctx.createPattern(image, "repeat");
+  ctx.beginPath();
   ctx.rect(0, 0, cvs.width + image.width * 2, image.height);
   ctx.fill();
   ctx.restore();

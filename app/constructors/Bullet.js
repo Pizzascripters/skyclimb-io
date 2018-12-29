@@ -31,7 +31,7 @@ module.exports = function (world, p, accuracy = 0, type = 0, damage = BULLET_DAM
   const yVelocity = -speed * Math.sin(angle);
 
   let body;
-  if(this.type === 0) {
+  if(this.type === 0 || this.type === 1) {
     body = this.body = Matter.Bodies.rectangle(bulletX, bulletY, 20, 10);
   } else if(this.type === 2) {
     body = this.body = Matter.Bodies.rectangle(bulletX, bulletY, 10, 10);

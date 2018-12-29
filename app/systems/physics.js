@@ -43,7 +43,7 @@ module.exports = function(Game){
     chargeJetpack(p);
     sendShopData(p, Game.map.shops);
     if(p.keyboard.drop) dropWeapon(p, Game.world, Game.loot);
-    if(p.keyboard.loot) handleLooting(p, Game.world, Game.loot);
+    handleLooting(p, Game.world, Game.loot);
 
     // Sticky buttons only reset on update, not in io
     let stickyButtons = ["throw", "consume", "select", "drop", "loot"]
@@ -291,7 +291,10 @@ function handleLooting(p, world, loot) {
   let closest = null; // The index of the nearest loot
   for(var i in loot) {
     const dist = distance(p.body.position, loot[i].body.position);
-    if(dist < minDistance && dist < p.radius + loot[i].radius) {
+    if(dist < minDistance &&
+      dist < p.radius + loot[i].radius &&
+      (p.keyboard.loot || loot[i].item.id === 224 || loot[i].item.id === 225)
+    ) {
       minDistance = dist;
       closest = loot[i];
     }

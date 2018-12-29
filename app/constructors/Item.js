@@ -121,6 +121,34 @@ class Bandage extends Item {
   }
 }
 
+class Bullet extends Item {
+  constructor() {
+    super();
+    this.type = "bullet";
+    this.name = "Bullet";
+    this.plural = "Bullets";
+    this.id = 224;
+
+    this.onAcquire = (p, amount) => {
+      p.bullets += amount;
+    }
+  }
+}
+
+class Shell extends Item {
+  constructor() {
+    super();
+    this.type = "bullet";
+    this.name = "Shell";
+    this.plural = "Shells";
+    this.id = 225;
+
+    this.onAcquire = (p, amount) => {
+      p.shells += amount;
+    }
+  }
+}
+
 // Exports is a function that inputs an id and returns an item
 module.exports = function(id) {
   let item;
@@ -144,6 +172,14 @@ module.exports = function(id) {
     case 192:
     case "bandage":
       item = new Bandage();
+      break;
+    case 224:
+    case "bullet":
+      item = new Bullet();
+      break;
+    case 225:
+    case "shell":
+      item = new Shell();
       break;
     default:
     case "item":

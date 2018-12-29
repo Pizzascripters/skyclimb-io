@@ -65,7 +65,7 @@ module.exports = function(ws, id){
           return true;
         }
       }
-    } else {
+    } else if(item.id < 224) {
       for(var i = 3; i < 6; i++) {
         if(this.inventory.items[i].id === item.id) {
           this.inventory.amt[i-3] += number;
@@ -79,6 +79,9 @@ module.exports = function(ws, id){
           return true;
         }
       }
+    } else {
+      item.onAcquire(this, number);
+      return true;
     }
     return false;
   }
@@ -96,9 +99,16 @@ module.exports = function(ws, id){
 
     for(var i in this.inventory.items) {
       const item = this.inventory.items[i];
-      const amount = this.inventory.amt[i] !== undefined ? this.inventory.amt[i] : 1;
+      const amount = i>2 ? this.inventory.amt[i-3] : 1;
       if(item.id !== 0 && amount > 0)
         loot.push(new Loot(world, item.id, this.body.position, Math.random() * 2 * Math.PI, amount));
+    }
+
+    if(this.bullets > 0) {
+      loot.push(new Loot(world, 224, this.body.position, Math.random() * 2 * Math.PI, this.bullets));
+    }
+    if(this.shells > 0) {
+      loot.push(new Loot(world, 225, this.body.position, Math.random() * 2 * Math.PI, this.shells));
     }
   }
 
