@@ -180,6 +180,9 @@ const io = module.exports = {
         return 1;
     }
 
+    if(p.state !== p.PLAYING && p.state !== p.SPECTATING)
+      return 2;
+
     // 1 byte header
     const header = Buffer.from( new Uint8Array([2]) );
     let packet = [];
@@ -256,7 +259,7 @@ const io = module.exports = {
 
     for(var i in players){
       if(
-        (players[i].state === players[id].PLAYING || players[i].state === player[id].DISCONNECTED) &&
+        (players[id].state === players[i].PLAYING || players[i].state === players[i].DISCONNECTED) &&
         i !== String(id) &&
         distance(p.body.position, players[i].body.position) < VISIBILITY
       ) {
