@@ -5,9 +5,10 @@ class Item {
     this.plural = "Empties";
     this.id = 0;
     this.canShoot = false;         // Whether or not the item can fire
+    this.shotgun = false;          // Whether or not this gun is a shotgun
     this.throwable = false;        // Whether or not the item can be thrown
     this.consumable = false;       // Whether or not the item can be consumed
-    this.spawnDistance = 50;      // Distance between player and bullet spawn
+    this.spawnDistance = 50;       // Distance between player and bullet spawn
     this.numBullets = 0;           // The number of bullets the gun fires at a time
     this.accuracy = 0;             // The error in the angle the bullets can spawn
     this.cooldownTime = 0;         // The # of frames it takes before the player can fire again
@@ -68,6 +69,7 @@ class Shotgun extends Item {
     this.id = 64;
     this.price = 300;
     this.canShoot = true;
+    this.shotgun = true;
     this.spawnDistance = 40;
     this.numBullets = 10;
     this.accuracy = Math.PI / 6;

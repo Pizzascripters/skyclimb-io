@@ -23,6 +23,8 @@ var Game = {
 }
 cli(Game);
 
+Game.WATER_HEIGHT = 6000;
+
 var players = Game.players, // Holds the player body and a virtual keyboard
     bullets = Game.bullets, // Holds all of the bullet objects
     throwables = Game.throwables, // Holds all of the throwable objects (nades, smokes, nukes?)
@@ -80,7 +82,7 @@ wss.on('connection', (ws, req) => {
     io.handle(ws, player, Game, packet);
   });
 
-  io.mapData(ws, map); // Send map data
+  io.mapData(ws, map, Game.WATER_HEIGHT); // Send map data
 });
 
 setInterval(() => {

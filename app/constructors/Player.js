@@ -23,7 +23,7 @@ module.exports = function(ws, id){
 
   this.body = Matter.Bodies.circle(PLAYER_START_POS[rand].x, PLAYER_START_POS[rand].y, PLAYER_RADIUS);
   this.body.restitution = 0.3;
-  this.radius = PLAYER_RADIUS;
+  this.body.radius = this.radius = PLAYER_RADIUS;
 
   this.keyboard = {
     left: false,
@@ -41,6 +41,8 @@ module.exports = function(ws, id){
   this.kills = 0;
   this.gold = 0;
   this.score = 0;
+  this.bullets = 50;
+  this.shells = 5;
 
   this.inventory = {};
   this.inventory.select = 4;
