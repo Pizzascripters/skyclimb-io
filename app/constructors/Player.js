@@ -59,6 +59,7 @@ module.exports = function(ws, id){
     if(!number) number = 1;
 
     if(item.id < 128) {
+      if(number !== 1) return false;
       for(var i = 0; i < 3; i++) {
         if(this.inventory.items[i].id === 0) {
           this.inventory.items[i] = new Item(item.id);

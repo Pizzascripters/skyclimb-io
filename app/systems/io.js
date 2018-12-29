@@ -18,7 +18,7 @@ const io = module.exports = {
         io.mapData(ws, Game.map);
         break;
       case 3: // Buy Item
-        io.buyItem(ws, p, Game.map.shops, packet[1]);
+        io.buyItem(ws, p, Game.map.shops, packet[1], packet[2]);
         break;
     }
   },
@@ -115,7 +115,7 @@ const io = module.exports = {
     return 0;
   },
 
-  buyItem: (ws, p, shops, slot) => {
+  buyItem: (ws, p, shops, slot, amount) => {
     for(var i in shops) {
       const rect = {
         x: shops[i].x - p.radius,
@@ -126,7 +126,7 @@ const io = module.exports = {
       if(insideRect(p.body.position, rect)) {
         const shop = shops[i];
         if(shop.items[slot])
-          shop.items[slot].buy(p);
+          shop.items[slot].buy(p, amount);
       }
     }
   },

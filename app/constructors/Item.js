@@ -14,11 +14,11 @@ class Item {
     this.cooldownTime = 0;         // The # of frames it takes before the player can fire again
     this.shootingCooldown = this.cooldownTime;
 
-    this.buy = p => {
+    this.buy = (p, amount) => {
       if(this.price){
-        if(p.gold >= this.price) {
-          if(p.acquire(this)) {
-            p.gold -= this.price;
+        if(p.gold >= this.price * amount) {
+          if(p.acquire(this, amount)) {
+            p.gold -= this.price * amount;
           }
         }
       }
@@ -128,6 +128,7 @@ class Bullet extends Item {
     this.name = "Bullet";
     this.plural = "Bullets";
     this.id = 224;
+    this.price = 1;
 
     this.onAcquire = (p, amount) => {
       p.bullets += amount;
@@ -142,6 +143,7 @@ class Shell extends Item {
     this.name = "Shell";
     this.plural = "Shells";
     this.id = 225;
+    this.price = 8;
 
     this.onAcquire = (p, amount) => {
       p.shells += amount;

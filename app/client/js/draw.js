@@ -3,6 +3,7 @@ function draw(Game){
         ctx = Game.ctx,
         cam = Game.cam,
         players = Game.players,
+        keyboard = Game.keyboard,
         map = Game.map,
         bullets = Game.bullets,
         throwables = Game.throwables,
@@ -51,7 +52,7 @@ function draw(Game){
   }
 
   if(shopMenu.length > 0) {
-    drawShopMenu(ctx, shopMenu, images.shops[shopMenu[0]]);
+    drawShopMenu(ctx, shopMenu, images.shops[shopMenu[0]], keyboard);
   }
 }
 
@@ -348,7 +349,7 @@ function drawStats(ctx, images, gold, kills, score, bullets, shells) {
   ctx.fillText(shells, 80, 290);
 }
 
-function drawShopMenu(ctx, shopMenu, shopImages) {
+function drawShopMenu(ctx, shopMenu, shopImages, keyboard) {
   const width = cvs.width / 2;
   const height = 9 * width / 16;
 
@@ -358,6 +359,8 @@ function drawShopMenu(ctx, shopMenu, shopImages) {
 
   // Draw Shelf
   shopMenuApply(shopMenu, (item, rect) => {
+    if(item.id < 128 && (keyboard.buy10 || keyboard.buy100)) return false;
+
     const size = width / 8;
     const margin = SHOP_MENU_MARGIN;
     const padding = SHOP_MENU_PADDING;
@@ -395,7 +398,14 @@ function drawShopMenu(ctx, shopMenu, shopImages) {
       pos.x + (size - ctx.measureText(item.name).width) / 2,
       pos.y + textHeight + margin + padding
     );
-    const price = item.price + " gold";
+
+    var price = item.price;
+    if(keyboard.buy10) {
+      price *= 10;
+    } else if(keyboard.buy100) {
+      price *= 100;
+    }
+    price += " gold";
     ctx.fillText(
       price,
       pos.x + (size - ctx.measureText(price).width) / 2,

@@ -45,13 +45,14 @@ function sendKeyboard(ws, keyboard, select, hand){
   keyboard.drop = false;
 }
 
-function buyItem(ws, slot) {
+function buyItem(ws, slot, amount) {
   if(ws.readyState != ws.OPEN)
     return 1;
 
   let packet = [];
   packet.push(3);
   packet.push(slot);
+  packet.push(amount);
   ws.send( new Uint8Array(packet) );
 }
 
@@ -178,7 +179,7 @@ function setPlayers(data, Game){
     bullet.y = readInt(data, ref);
     bullet.angle = readInt(data, ref);
     bullets.push(bullet);
-    
+
     if(bullet.type === 0){
       bullet.image = images.bullets.bullet;
     } else if(bullet.type === 1) {

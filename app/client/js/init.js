@@ -26,9 +26,8 @@ function init(e){
     shoot: false,
     select: false,
     loot: false,
-    consume: false,
-    cook: false,
-    throw: false
+    shift: false,
+    ctrl: false
   }
   Game.hand = 0;         // Angle of the hand
 
@@ -60,7 +59,13 @@ function init(e){
     } else {
       shopMenuApply(Game.shopMenu, (item, rect, slot) => {
         if(insideRect(mouse, rect)) {
-          buyItem(Game.ws, slot);
+          if(Game.keyboard.buy100) {
+            if(item.id >= 128) buyItem(Game.ws, slot, 100);
+          } else if(Game.keyboard.buy10) {
+            if(item.id >= 128) buyItem(Game.ws, slot, 10);
+          } else {
+            buyItem(Game.ws, slot, 1);
+          }
         }
       })
     }
@@ -74,12 +79,23 @@ function init(e){
       if(e.keyCode === 27 || e.keyCode === 88) {
         Game.shopMenu = [];
       }
+      if(e.keyCode === 16)
+        Game.keyboard.buy10 = true;
+      if(e.keyCode === 17)
+        Game.keyboard.buy100 = true;
     } else {
       keydown(e, Game.keyboard, Game.inventory);
     }
   });
   window.addEventListener("keyup", e => {
-    keyup(e, Game.keyboard);
+    if(Game.shopMenu.length > 0) {
+      if(e.keyCode === 16)
+        Game.keyboard.buy10 = false;
+      if(e.keyCode === 17)
+        Game.keyboard.buy100 = false;
+    } else {
+      keyup(e, Game.keyboard);
+    }
   });
   window.addEventListener("contextmenu", e => {
     e.preventDefault();
