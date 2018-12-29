@@ -27,6 +27,13 @@ body {
   color: white;
 }
 
+#error {
+  font-size: 30px;
+  font-family: Play;
+  color: #b00;
+  text-align: center;
+}
+
 input, button {
   margin: 10px;
   display: block;

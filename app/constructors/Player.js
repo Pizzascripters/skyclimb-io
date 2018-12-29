@@ -18,7 +18,13 @@ module.exports = function(ws, id){
   this.ws = ws;
   this.id = id;
   this.name = "guest" + id;
-  this.disconnected = false;
+
+  this.state = 0;
+  this.CHOOSING_NAME = 0; // Checking if name is valid
+  this.PLAYING = 1;       // Playing in the game
+  this.DISCONNECTED = 2;  // Socket closed by client but player is still alive
+  this.SPECTATING = 3;    // Player is dead but socket is still open
+  this.DELETED = 4;       // Player is dead and the socket was closed
 
   const rand = Math.floor(Math.random() * PLAYER_START_POS.length)
 
@@ -52,8 +58,6 @@ module.exports = function(ws, id){
   for(var i = 0; i < 7; i++)
     this.inventory.items[i] = new Item( itemIds[i] );
   this.inventory.amt = [3, 3, 0];
-
-  this.deleted = false;
 
   // Player gets an item
   this.acquire = (item, number) => {
@@ -91,14 +95,14 @@ module.exports = function(ws, id){
   this.kill = (world, p, loot) => {
     if(p.id !== this.id) {
       this.kills++;
-      economy.addGold(this, Math.round(p.gold / 2));  
+      economy.addGold(this, Math.round(p.gold / 2));
     }
     p.apoptosis(world, loot);
   }
 
   // Programmed cell suicide
   this.apoptosis = (world, loot) => {
-    if(this.spectating) return 1;
+    if(this.state === this.SPECTATING) return 1;
 
     Matter.Composite.remove(world, this.body);
 
@@ -116,7 +120,7 @@ module.exports = function(ws, id){
       loot.push(new Loot(world, 225, this.body.position, Math.random() * 2 * Math.PI, this.shells));
     }
 
-    this.spectating = true;
+    this.state = this.SPECTATING;
   }
 
   this.getItem = () => {

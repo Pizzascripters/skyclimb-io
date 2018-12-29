@@ -11,6 +11,7 @@ function createWebsocket(Game) {
   ws.binaryType = "arraybuffer"; // Allows us to recieve byte strings from the server
 
   ws.onopen = () => {
+    document.getElementById("error").innerText = "";
     sendName(ws, document.getElementById("name").value);
   }
   ws.onmessage = packet => {
@@ -89,6 +90,9 @@ function handleMessage(packet, Game){
       break;
     case 3: // Shop data
       shopMenu(data, Game.shopMenu, Game.items);
+      break;
+    case 4:
+      error(data);
       break;
   }
 }
@@ -254,6 +258,12 @@ function shopMenu(data, menu, items){
   }
 }
 
+function error(data){
+  var ref = {i:1};
+  const err = readString(data, ref);
+  document.getElementById("error").innerText = err;
+}
+
 // Sends a 1 byte packet to the server
 function ping(ws){
   if(ws.readyState != ws.OPEN)
@@ -294,7 +304,7 @@ function readInt(a, ref) {
   return bytesToInt([b1, b2, b3, b4]);
 }
 
-// Reads a string from an intex in a byte array
+// Reads a string from an index in a byte array
 function readString(a, ref){
   var str = "";
   while(a[ref.i++] !== 0)

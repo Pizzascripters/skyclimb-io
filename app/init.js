@@ -88,7 +88,7 @@ wss.on('connection', (ws, req) => {
 setInterval(() => {
   // Remove deleted objects
   for(var i in players)
-    if(players[i].deleted)
+    if(players[i].state === players[i].DELETED)
       delete players[i];
   for(var i in bullets)
     if(bullets[i].deleted)

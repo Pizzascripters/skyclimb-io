@@ -6,7 +6,7 @@ const WATER_HEIGHT = 6000;
 
 const io = module.exports = {
   handle: (ws, p, Game, packet) => {
-    if(p.spectating) return 1;
+    if(p.state === p.SPECTATING) return 1;
     const data = new Uint8Array(packet);
     switch( data[0] ){
       case 0: // Ping
@@ -22,7 +22,21 @@ const io = module.exports = {
         io.buyItem(ws, p, Game.map.shops, packet[1], packet[2]);
         break;
       case 4:
-        io.setName(ws, packet.slice(1), Game.players, p);
+        switch(io.setName(ws, packet.slice(1), Game.players, p)) {
+          case 0:
+            p.state = p.PLAYING;
+            break;
+          case 1:
+            io.sendError(ws, "Name already taken");
+            p.state = p.DELETED;
+            ws.close();
+            break;
+          case 2:
+            io.sendError(ws, "Invalid Name");
+            p.state = p.DELETED;
+            ws.close();
+            break;
+        }
         break;
     }
   },
@@ -142,8 +156,9 @@ const io = module.exports = {
     for(var i in players) {
       if(players[i].name.toLowerCase() === name.toLowerCase()) return 1;
     }
-    if(name.startsWith("guest")) return 1;
+    if(name.startsWith("guest")) return 2;
     p.name = name;
+    return 0;
   },
 
   playerData: (p, Game) => { // Send player and bullet data
@@ -157,7 +172,11 @@ const io = module.exports = {
         world = Game.world;
 
     if(ws.readyState === ws.CLOSED || ws.readyState === ws.CLOSING) {
-        players[id].disconnected = true;
+        if(p.state === p.PLAYING) {
+          p.state = p.DISCONNECTED;
+        } else {
+          p.state = p.DELETED;
+        }
         return 1;
     }
 
@@ -166,9 +185,9 @@ const io = module.exports = {
     let packet = [];
 
     packet.push(0, 0, 0, 0); // For counting players, bullets, throwables, and loot
-    packet.push(p.spectating ? 1 : 0);
+    packet.push(p.state === p.SPECTATING ? 1 : 0);
 
-    if(p.spectating) {
+    if(p.state === p.SPECTATING) {
       packet.push(p.body.position.x);
       packet.push(p.body.position.y);
       packet.push(p.kills);
@@ -230,14 +249,14 @@ const io = module.exports = {
     let numThrowables = 0;
     let numLoot = 0;
 
-    if(!players[id].spectating) {
+    if(players[id].state === players[id].PLAYING) {
       addPlayer(players[id]); // Add yourself to the player packet
       numPlayers++;
     }
 
     for(var i in players){
       if(
-        !players[i].spectating &&
+        players[i].state !== players[id].SPECTATING &&
         i !== String(id) &&
         distance(p.body.position, players[i].body.position) < VISIBILITY
       ) {
@@ -292,6 +311,10 @@ const io = module.exports = {
     }
 
     sendArray(p.ws, Buffer.from(new Uint8Array([3])), packet);
+  },
+
+  sendError: (ws, error) => {
+    sendArray(ws, Buffer.from(new Uint8Array([4])), [error]);
   }
 }
 
@@ -322,16 +345,6 @@ function readString(a, ref){
   var str = "";
   while(a[ref.i++] !== 0)
     str += String.fromCharCode(a[ref.i-1]);
-  return str;
-}
-
-// Converts a unit8array to a string
-function bytesToStr(bytes){
-  let str = "";
-  for(var i = 0; i < bytes.length; i++){
-    if(bytes[i] !== 0)
-      str += String.fromCharCode(bytes[i]);
-  }
   return str;
 }
 

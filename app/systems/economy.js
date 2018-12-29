@@ -6,9 +6,8 @@ const economy = module.exports = {
 
   update: function(players) {
     for(var i in players) {
-      if(players[i].spectating)
-        continue;
-      economy.addGold(players[i], 1);
+      if(players[i].state === players[i].PLAYING || players[i].state === players[i].DISCONNECTED)
+        economy.addGold(players[i], 1);
     }
   }
 }
