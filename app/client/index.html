@@ -8,6 +8,11 @@
     <script src="js/init.js"></script>
   </head>
   <body>
-    <canvas id="cvs"></canvas>
+    <div id="startmenu">
+      <p id="header">Skyclimb</p>
+      <input type="text" placeholder="name" maxlength="15" spellcheck="false" id="name"/>
+      <button onclick="init()">Start</button>
+    </div>
+    <canvas id="cvs" hidden></canvas>
   </body>
 </html>

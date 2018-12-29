@@ -2,8 +2,6 @@ var prevTime = 0;     // Time of last frame
 var pingStart;        // The time we sent out the ping
 var Game = {};        // The entire game, only used fro debugging
 
-window.addEventListener("load", init);
-
 function init(e){
   Game.players = [];
   Game.map = [];
@@ -48,6 +46,9 @@ function init(e){
   });
   Game.ctx = Game.cvs.getContext("2d");
   Game.cam = {x:0, y:0}; // Position of the camera
+
+  Game.cvs.hidden = false;
+  document.getElementById("startmenu").style.visibility = "hidden";
 
   window.addEventListener("mousemove", e => {
     Game.hand = mousemove(e);

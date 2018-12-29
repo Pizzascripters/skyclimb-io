@@ -10,14 +10,30 @@ function createWebsocket(Game) {
   }
   ws.binaryType = "arraybuffer"; // Allows us to recieve byte strings from the server
 
+  ws.onopen = () => {
+    sendName(ws, document.getElementById("name").value);
+  }
   ws.onmessage = packet => {
     handleMessage(packet, Game);
   };
   ws.onclose = () => {
     console.error("Socket closed");
     clearInterval(sendKeyboardInterval);
+    cvs.hidden = true;
+    document.getElementById("startmenu").style.visibility = "visible";
   };
   return ws;
+}
+
+function sendName(ws, name) {
+  if(ws.readyState != ws.OPEN)
+    return 1;
+
+  let packet = [];
+  packet.push(4);
+  let bytes = strToBytes(name);
+  for(var i in bytes) packet.push(bytes[i]);
+  ws.send( new Uint8Array(packet) );
 }
 
 // Sends keyboard input to server
@@ -273,6 +289,16 @@ function readString(a, ref){
   while(a[ref.i++] !== 0)
     str += String.fromCharCode(a[ref.i-1]);
   return str;
+}
+
+// Converts a string to a uint8array
+function strToBytes(str){
+  let bytes = [];
+  for(var i = 0; i < str.length; i++){
+    bytes.push(str.charCodeAt(i));
+  }
+  bytes.push(0);
+  return new Uint8Array(bytes);
 }
 
 // Converts a 4 byte uint8array to an integer

@@ -112,6 +112,8 @@ module.exports = function(ws, id){
     if(this.shells > 0) {
       loot.push(new Loot(world, 225, this.body.position, Math.random() * 2 * Math.PI, this.shells));
     }
+
+    ws.close();
   }
 
   this.getItem = () => {

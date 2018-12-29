@@ -20,6 +20,9 @@ const io = module.exports = {
       case 3: // Buy Item
         io.buyItem(ws, p, Game.map.shops, packet[1], packet[2]);
         break;
+      case 4:
+        io.setName(ws, packet.slice(1), Game.players, p);
+        break;
     }
   },
 
@@ -129,6 +132,17 @@ const io = module.exports = {
           shop.items[slot].buy(p, amount);
       }
     }
+  },
+
+  setName: (ws, packet, players, p) => {
+    var ref = {i:0};
+    const name = readString(packet, ref);
+    // Check if anyone else has this name
+    for(var i in players) {
+      if(players[i].name.toLowerCase() === name.toLowerCase()) p.apoptosis();
+    }
+    if(name.startsWith("guest")) p.apoptosis();
+    p.name = name;
   },
 
   playerData: (p, Game) => { // Send player and bullet data
@@ -286,9 +300,17 @@ function sendArray(ws, header, packet) {
   ws.send(Buffer.concat( [header, packet] ));
 }
 
-// Reads a one byte intereger from an index in a byte array
+// Reads a one byte integer from an index in a byte array
 function readInt(a, ref) {
   return a[ref.i++];
+}
+
+// Reads a string from an intex in a byte array
+function readString(a, ref){
+  var str = "";
+  while(a[ref.i++] !== 0)
+    str += String.fromCharCode(a[ref.i-1]);
+  return str;
 }
 
 // Converts a unit8array to a string
