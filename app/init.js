@@ -71,11 +71,9 @@ app.use('/', express.static(__dirname + '/client'));
 wss.on('connection', (ws, req) => {
   // Create the player
   const playerId = players.length;
-  let player = new Player(ws, playerId);
+  let player = new Player(ws, playerId, world);
   players.push(player);
   console.log("New client, id: %d", playerId);
-
-  World.addBody(world, player.body);
 
   // On user message
   ws.on('message', packet => {

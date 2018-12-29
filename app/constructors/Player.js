@@ -14,7 +14,7 @@ const PLAYER_START_POS = [
 ];
 const PLAYER_RADIUS = 50;
 
-module.exports = function(ws, id){
+module.exports = function(ws, id, world){
   this.ws = ws;
   this.id = id;
   this.name = "guest" + id;
@@ -25,12 +25,6 @@ module.exports = function(ws, id){
   this.DISCONNECTED = 2;  // Socket closed by client but player is still alive
   this.SPECTATING = 3;    // Player is dead but socket is still open
   this.DELETED = 4;       // Player is dead and the socket was closed
-
-  const rand = Math.floor(Math.random() * PLAYER_START_POS.length)
-
-  this.body = Matter.Bodies.circle(PLAYER_START_POS[rand].x, PLAYER_START_POS[rand].y, PLAYER_RADIUS);
-  this.body.restitution = 0.3;
-  this.body.radius = this.radius = PLAYER_RADIUS;
 
   this.keyboard = {
     left: false,
@@ -58,6 +52,15 @@ module.exports = function(ws, id){
   for(var i = 0; i < 7; i++)
     this.inventory.items[i] = new Item( itemIds[i] );
   this.inventory.amt = [3, 3, 0];
+
+  this.spawn = () => {
+    const rand = Math.floor(Math.random() * PLAYER_START_POS.length)
+    this.body = Matter.Bodies.circle(PLAYER_START_POS[rand].x, PLAYER_START_POS[rand].y, PLAYER_RADIUS);
+    this.body.restitution = 0.3;
+    this.body.radius = this.radius = PLAYER_RADIUS;
+    Matter.World.addBody(world, this.body);
+    this.state = this.PLAYING;
+  }
 
   // Player gets an item
   this.acquire = (item, number) => {

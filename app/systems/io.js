@@ -24,7 +24,7 @@ const io = module.exports = {
       case 4:
         switch(io.setName(ws, packet.slice(1), Game.players, p)) {
           case 0:
-            p.state = p.PLAYING;
+            p.spawn();
             break;
           case 1:
             io.sendError(ws, "Name already taken");
@@ -256,7 +256,7 @@ const io = module.exports = {
 
     for(var i in players){
       if(
-        players[i].state !== players[id].SPECTATING &&
+        (players[i].state === players[id].PLAYING || players[i].state === player[id].DISCONNECTED) &&
         i !== String(id) &&
         distance(p.body.position, players[i].body.position) < VISIBILITY
       ) {
