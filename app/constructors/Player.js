@@ -89,14 +89,17 @@ module.exports = function(ws, id){
   }
 
   this.kill = (world, p, loot) => {
-    this.kills++;
-    economy.addGold(this, Math.round(p.gold / 2));
+    if(p.id !== this.id) {
+      this.kills++;
+      economy.addGold(this, Math.round(p.gold / 2));  
+    }
     p.apoptosis(world, loot);
   }
 
   // Programmed cell suicide
   this.apoptosis = (world, loot) => {
-    this.deleted = true;
+    if(this.spectating) return 1;
+
     Matter.Composite.remove(world, this.body);
 
     for(var i in this.inventory.items) {
@@ -113,7 +116,7 @@ module.exports = function(ws, id){
       loot.push(new Loot(world, 225, this.body.position, Math.random() * 2 * Math.PI, this.shells));
     }
 
-    ws.close();
+    this.spectating = true;
   }
 
   this.getItem = () => {

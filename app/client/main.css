@@ -3,7 +3,7 @@ body {
   overflow: hidden;
 }
 
-#startmenu {
+#startmenu, #deathscreen {
   display: block;
   position: absolute;
   width: 20%;
@@ -19,6 +19,12 @@ body {
   font-family: Play;
   color: white;
   text-align: center;
+}
+
+.text {
+  font-size: 30px;
+  font-family: Play;
+  color: white;
 }
 
 input, button {

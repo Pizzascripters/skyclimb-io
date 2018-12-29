@@ -21,6 +21,7 @@ function createWebsocket(Game) {
     clearInterval(sendKeyboardInterval);
     cvs.hidden = true;
     document.getElementById("startmenu").style.visibility = "visible";
+    document.getElementById("deathscreen").style.visibility = "hidden";
   };
   return ws;
 }
@@ -152,6 +153,16 @@ function setPlayers(data, Game){
   let numBullets = readInt(data, ref);
   let numThrowables = readInt(data, ref);
   let numLoot = readInt(data, ref);
+  let spectating = readInt(data, ref);
+  Game.spectating = spectating;
+
+  if(spectating) {
+    cam.x = readInt(data, ref);
+    cam.y = readInt(data, ref);
+    Game.deathscreen.kills = readInt(data, ref);
+    Game.deathscreen.score = readInt(data, ref);
+    Game.deathscreen.show();
+  }
 
   while(players.length < numPlayers){
     var player = {};
@@ -165,7 +176,7 @@ function setPlayers(data, Game){
     player.energy = readInt(data, ref) / 255;
     player.weapon = readInt(data, ref);
 
-    if(players.length === 0) {
+    if(players.length === 0 && !spectating) {
       // Inventory
       for(var i = 0; i < inventory.items.length; i++) {
         if(i === 0 || i === 1)
@@ -182,7 +193,7 @@ function setPlayers(data, Game){
 
     players.push(player);
 
-    if(players.length === 1) { // If we're loading yourself
+    if(players.length === 1 && !spectating) { // If we're loading yourself
       cam.x = player.x;
       cam.y = player.y;
     }

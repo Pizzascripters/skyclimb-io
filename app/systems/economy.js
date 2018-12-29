@@ -6,7 +6,7 @@ const economy = module.exports = {
 
   update: function(players) {
     for(var i in players) {
-      if(players[i].deleted)
+      if(players[i].spectating)
         continue;
       economy.addGold(players[i], 1);
     }

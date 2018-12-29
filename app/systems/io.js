@@ -6,6 +6,7 @@ const WATER_HEIGHT = 6000;
 
 const io = module.exports = {
   handle: (ws, p, Game, packet) => {
+    if(p.spectating) return 1;
     const data = new Uint8Array(packet);
     switch( data[0] ){
       case 0: // Ping
@@ -139,9 +140,9 @@ const io = module.exports = {
     const name = readString(packet, ref);
     // Check if anyone else has this name
     for(var i in players) {
-      if(players[i].name.toLowerCase() === name.toLowerCase()) p.apoptosis();
+      if(players[i].name.toLowerCase() === name.toLowerCase()) return 1;
     }
-    if(name.startsWith("guest")) p.apoptosis();
+    if(name.startsWith("guest")) return 1;
     p.name = name;
   },
 
@@ -165,6 +166,14 @@ const io = module.exports = {
     let packet = [];
 
     packet.push(0, 0, 0, 0); // For counting players, bullets, throwables, and loot
+    packet.push(p.spectating ? 1 : 0);
+
+    if(p.spectating) {
+      packet.push(p.body.position.x);
+      packet.push(p.body.position.y);
+      packet.push(p.kills);
+      packet.push(p.score);
+    }
 
     // Adds a player to the packet
     function addPlayer(p) {
@@ -216,16 +225,19 @@ const io = module.exports = {
       packet.push( Math.floor(255*(b.body.angle % (Math.PI*2)) / (Math.PI*2)) );
     }
 
-    let numPlayers = 1;
+    let numPlayers = 0;
     let numBullets = 0;
     let numThrowables = 0;
     let numLoot = 0;
 
-    addPlayer(players[id]); // Add yourself to the player packet
+    if(!players[id].spectating) {
+      addPlayer(players[id]); // Add yourself to the player packet
+      numPlayers++;
+    }
 
     for(var i in players){
       if(
-        !players[i].deleted &&
+        !players[i].spectating &&
         i !== String(id) &&
         distance(p.body.position, players[i].body.position) < VISIBILITY
       ) {

@@ -14,5 +14,13 @@
       <button onclick="init()">Start</button>
     </div>
     <canvas id="cvs" hidden></canvas>
+    <div id="deathscreen" style="visibility:hidden">
+      <p id="header">Game Over</p>
+      <img src="img/stats/kills.png" width="30" height="30"/>
+      <span id="kills" class="text"></span><br />
+      <img src="img/stats/score.png"  width="30" height="30"/>
+      <span id="score" class="text"></span><br />
+      <button onclick="restarting = true;">Restart</button>
+    </div>
   </body>
 </html>

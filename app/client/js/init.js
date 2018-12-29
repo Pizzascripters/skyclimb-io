@@ -1,6 +1,7 @@
-var prevTime = 0;     // Time of last frame
-var pingStart;        // The time we sent out the ping
-var Game = {};        // The entire game, only used fro debugging
+var restarting = false; // If the game is restarting
+var prevTime = 0;       // Time of last frame
+var pingStart;          // The time we sent out the ping
+var Game = {};          // The entire game, only used fro debugging
 
 function init(e){
   Game.players = [];
@@ -49,6 +50,13 @@ function init(e){
 
   Game.cvs.hidden = false;
   document.getElementById("startmenu").style.visibility = "hidden";
+
+  Game.deathscreen = {};
+  Game.deathscreen.show = () => {
+    document.getElementById("deathscreen").style.visibility = "visible";
+    document.getElementById("kills").innerText = Game.deathscreen.kills;
+    document.getElementById("score").innerText = Game.deathscreen.score;
+  }
 
   window.addEventListener("mousemove", e => {
     Game.hand = mousemove(e);
@@ -124,7 +132,11 @@ function update(Game, time){
   draw(Game);
   anim.main(delta, Game.inventory);
 
-  requestAnimationFrame(time => {
-    update(Game, time);
-  });
+  if(restarting) {
+    restart(Game.ws);
+  } else {
+    requestAnimationFrame(time => {
+      update(Game, time);
+    });
+  }
 }

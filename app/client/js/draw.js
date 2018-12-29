@@ -47,7 +47,7 @@ function draw(Game){
   for(var i in players)
     drawName(ctx, cam, players[i]);
 
-  if(players.length > 0) {
+  if(players.length > 0 && !Game.spectating) {
     drawHealthbar(ctx, players[0].health, healthbar);
     drawEnergyBar(ctx, players[0].energy, energybar);
     drawInventory(ctx, inventory, items);

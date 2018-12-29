@@ -40,6 +40,7 @@ function cash(Game, amount, name) {
   if(name) {
     let found = false;
     for(var i in Game.players) {
+      if(Game.players[i].spectating) continue;
       if(Game.players[i].name === name) {
         found = true;
         Game.players[i].gold += amount;
@@ -55,6 +56,7 @@ function cash(Game, amount, name) {
   } else {
     for(var i in Game.players) {
       const p = Game.players[i];
+      if(p.spectating) continue;
       p.gold += amount;
       p.score += amount;
     }
@@ -70,6 +72,7 @@ function give(Game, itemId, amount, name) {
   if(name) {
     for(var i in Game.players) {
       const p = Game.players[i];
+      if(p.spectating) continue;
       if(p.name === name) {
         if(p.acquire(item, amount)){
           if(amount === 1) {
@@ -90,6 +93,7 @@ function give(Game, itemId, amount, name) {
   } else {
     for(var i in Game.players) {
       const p = Game.players[i];
+      if(p.spectating) continue;
       if(p.acquire(item, amount)){
         if(amount === 1) {
           console.log('\x1b[35m%s\x1b[0m', 'Gave ' + p.name + ' ' + amount + ' ' + item.name);
@@ -103,7 +107,7 @@ function give(Game, itemId, amount, name) {
           console.log('\x1b[31m%s\x1b[0m', 'Failed to give ' + p.name + ' ' + amount + ' ' + item.plural);
         }
       }
-    }  
+    }
   }
 }
 

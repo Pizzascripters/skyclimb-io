@@ -30,7 +30,7 @@ module.exports = function(Game){
 
   for(var i in Game.players){
     let p = Game.players[i];
-    if(p.deleted)
+    if(p.deleted || p.spectating)
       continue;
 
     doGravity(p.body, Game.WATER_HEIGHT);
