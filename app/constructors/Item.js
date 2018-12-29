@@ -14,11 +14,11 @@ class Item {
     this.cooldownTime = 0;         // The # of frames it takes before the player can fire again
     this.shootingCooldown = this.cooldownTime;
 
-    this.buy = p => {
+    this.buy = (p, amount) => {
       if(this.price){
-        if(p.gold >= this.price) {
-          if(p.acquire(this)) {
-            p.gold -= this.price;
+        if(p.gold >= this.price * amount) {
+          if(p.acquire(this, amount)) {
+            p.gold -= this.price * amount;
           }
         }
       }
@@ -121,6 +121,36 @@ class Bandage extends Item {
   }
 }
 
+class Bullet extends Item {
+  constructor() {
+    super();
+    this.type = "bullet";
+    this.name = "Bullet";
+    this.plural = "Bullets";
+    this.id = 224;
+    this.price = 1;
+
+    this.onAcquire = (p, amount) => {
+      p.bullets += amount;
+    }
+  }
+}
+
+class Shell extends Item {
+  constructor() {
+    super();
+    this.type = "bullet";
+    this.name = "Shell";
+    this.plural = "Shells";
+    this.id = 225;
+    this.price = 8;
+
+    this.onAcquire = (p, amount) => {
+      p.shells += amount;
+    }
+  }
+}
+
 // Exports is a function that inputs an id and returns an item
 module.exports = function(id) {
   let item;
@@ -144,6 +174,14 @@ module.exports = function(id) {
     case 192:
     case "bandage":
       item = new Bandage();
+      break;
+    case 224:
+    case "bullet":
+      item = new Bullet();
+      break;
+    case 225:
+    case "shell":
+      item = new Shell();
       break;
     default:
     case "item":

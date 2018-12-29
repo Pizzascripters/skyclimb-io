@@ -1,8 +1,7 @@
-var prevTime = 0;     // Time of last frame
-var pingStart;        // The time we sent out the ping
-var Game = {};        // The entire game, only used fro debugging
-
-window.addEventListener("load", init);
+var restarting = false; // If the game is restarting
+var prevTime = 0;       // Time of last frame
+var pingStart;          // The time we sent out the ping
+var Game = {};          // The entire game, only used fro debugging
 
 function init(e){
   Game.players = [];
@@ -26,9 +25,8 @@ function init(e){
     shoot: false,
     select: false,
     loot: false,
-    consume: false,
-    cook: false,
-    throw: false
+    shift: false,
+    ctrl: false
   }
   Game.hand = 0;         // Angle of the hand
 
@@ -50,6 +48,16 @@ function init(e){
   Game.ctx = Game.cvs.getContext("2d");
   Game.cam = {x:0, y:0}; // Position of the camera
 
+  Game.cvs.hidden = false;
+  document.getElementById("startmenu").style.visibility = "hidden";
+
+  Game.deathscreen = {};
+  Game.deathscreen.show = () => {
+    document.getElementById("deathscreen").style.visibility = "visible";
+    document.getElementById("kills").innerText = Game.deathscreen.kills;
+    document.getElementById("score").innerText = Game.deathscreen.score;
+  }
+
   window.addEventListener("mousemove", e => {
     Game.hand = mousemove(e);
   });
@@ -60,7 +68,13 @@ function init(e){
     } else {
       shopMenuApply(Game.shopMenu, (item, rect, slot) => {
         if(insideRect(mouse, rect)) {
-          buyItem(Game.ws, slot);
+          if(Game.keyboard.buy100) {
+            if(item.id >= 128) buyItem(Game.ws, slot, 100);
+          } else if(Game.keyboard.buy10) {
+            if(item.id >= 128) buyItem(Game.ws, slot, 10);
+          } else {
+            buyItem(Game.ws, slot, 1);
+          }
         }
       })
     }
@@ -74,12 +88,23 @@ function init(e){
       if(e.keyCode === 27 || e.keyCode === 88) {
         Game.shopMenu = [];
       }
+      if(e.keyCode === 16)
+        Game.keyboard.buy10 = true;
+      if(e.keyCode === 17)
+        Game.keyboard.buy100 = true;
     } else {
       keydown(e, Game.keyboard, Game.inventory);
     }
   });
   window.addEventListener("keyup", e => {
-    keyup(e, Game.keyboard);
+    if(Game.shopMenu.length > 0) {
+      if(e.keyCode === 16)
+        Game.keyboard.buy10 = false;
+      if(e.keyCode === 17)
+        Game.keyboard.buy100 = false;
+    } else {
+      keyup(e, Game.keyboard);
+    }
   });
   window.addEventListener("contextmenu", e => {
     e.preventDefault();
@@ -107,7 +132,11 @@ function update(Game, time){
   draw(Game);
   anim.main(delta, Game.inventory);
 
-  requestAnimationFrame(time => {
-    update(Game, time);
-  });
+  if(restarting) {
+    restart(Game.ws);
+  } else {
+    requestAnimationFrame(time => {
+      update(Game, time);
+    });
+  }
 }

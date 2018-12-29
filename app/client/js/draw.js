@@ -3,6 +3,7 @@ function draw(Game){
         ctx = Game.ctx,
         cam = Game.cam,
         players = Game.players,
+        keyboard = Game.keyboard,
         map = Game.map,
         bullets = Game.bullets,
         throwables = Game.throwables,
@@ -37,22 +38,24 @@ function draw(Game){
     drawPlayer(ctx, cam, players[i], PLAYER_OUTLINE, images.eyes.generic, items[players[i].weapon]);
 
   // Draw the map
-  ctx.fillStyle = ctx.createPattern(images.textures.rock, "repeat");
-  ctx.lineWidth = OBJECT_OUTLINE_WIDTH;
-  for(var i in map.objects)
-    drawObject(ctx, cam, map.objects[i], OBJECT_OUTLINE);
+  for(var i in map.objects) {
+    drawObject(ctx, cam, map.objects[i], images.textures.rock);
+  }
   drawWater(ctx, cam, map.waterHeight, images.textures.water);
 
-  if(players.length > 0) {
+  drawLoot(ctx, loot, cam);
+  for(var i in players)
+    drawName(ctx, cam, players[i]);
+
+  if(players.length > 0 && !Game.spectating) {
     drawHealthbar(ctx, players[0].health, healthbar);
     drawEnergyBar(ctx, players[0].energy, energybar);
     drawInventory(ctx, inventory, items);
     drawStats(ctx, images.stats, players[0].gold, players[0].kills, players[0].score, players[0].bullets, players[0].shells);
-    drawLoot(ctx, loot, cam);
   }
 
   if(shopMenu.length > 0) {
-    drawShopMenu(ctx, shopMenu, images.shops[shopMenu[0]]);
+    drawShopMenu(ctx, shopMenu, images.shops[shopMenu[0]], keyboard);
   }
 }
 
@@ -173,7 +176,7 @@ function drawPlayer(ctx, cam, p, outline, eyes, weapon) {
   );
 }
 
-function drawObject(ctx, cam, p, outline) {
+function drawObject(ctx, cam, p, texture) {
   const zoom = cvs.width / FRAME_WIDTH;
   const size = 3 * zoom;
 
@@ -185,6 +188,8 @@ function drawObject(ctx, cam, p, outline) {
   ctx.save();
   ctx.translate(offset.x, offset.y);
   ctx.scale(size, size);
+  ctx.fillStyle = ctx.createPattern(texture, "repeat");
+  ctx.lineWidth = OBJECT_OUTLINE_WIDTH;
 
   var v0 = getVertexPosition(p.vertices[0], cam);
   ctx.beginPath();
@@ -199,10 +204,42 @@ function drawObject(ctx, cam, p, outline) {
   }
   ctx.lineTo(v0.x, v0.y);
   ctx.fill();
-  if(outline)
-    ctx.stroke();
-
+  ctx.stroke();
   ctx.restore();
+}
+
+function drawLoot(ctx, loot, cam) {
+  ctx.fillStyle = "rgba(100, 100, 100, 0.8)";
+  ctx.strokeStyle = "2px solid black";
+  ctx.lineWidth = 2;
+
+  for(var i in loot) {
+    const l = loot[i];
+    const v = getVertexPosition(l, cam)
+
+    ctx.save();
+    ctx.translate(v.x, v.y);
+    ctx.rotate(2 * Math.PI * l.angle / 255);
+    ctx.beginPath();
+    ctx.arc(0, 0, (cvs.width / FRAME_WIDTH) * l.radius, 0, 2 * Math.PI);
+    ctx.stroke();
+    ctx.fill();
+
+    if(l.item.image !== null) {
+      const width = (cvs.width / FRAME_WIDTH) * (l.radius * 2 - 10);
+      const height = l.item.image.height * width / l.item.image.width;
+      ctx.drawImage(l.item.image, -width/2, -height/2, width, height);
+    }
+
+    ctx.restore();
+  }
+}
+
+function drawName(ctx, cam, p) {
+  const v = getVertexPosition(p, cam);
+
+  ctx.fillStyle = "#fff";
+  ctx.fillText(p.name, v.x - ctx.measureText(p.name).width / 2, v.y - p.radius - 20);
 }
 
 function drawWater(ctx, cam, waterLevel, image) {
@@ -222,6 +259,7 @@ function drawWater(ctx, cam, waterLevel, image) {
   ctx.save();
   ctx.translate(offset, v.y);
   ctx.fillStyle = ctx.createPattern(image, "repeat");
+  ctx.beginPath();
   ctx.rect(0, 0, cvs.width + image.width * 2, image.height);
   ctx.fill();
   ctx.restore();
@@ -348,7 +386,7 @@ function drawStats(ctx, images, gold, kills, score, bullets, shells) {
   ctx.fillText(shells, 80, 290);
 }
 
-function drawShopMenu(ctx, shopMenu, shopImages) {
+function drawShopMenu(ctx, shopMenu, shopImages, keyboard) {
   const width = cvs.width / 2;
   const height = 9 * width / 16;
 
@@ -358,6 +396,8 @@ function drawShopMenu(ctx, shopMenu, shopImages) {
 
   // Draw Shelf
   shopMenuApply(shopMenu, (item, rect) => {
+    if(item.id < 128 && (keyboard.buy10 || keyboard.buy100)) return false;
+
     const size = width / 8;
     const margin = SHOP_MENU_MARGIN;
     const padding = SHOP_MENU_PADDING;
@@ -395,7 +435,14 @@ function drawShopMenu(ctx, shopMenu, shopImages) {
       pos.x + (size - ctx.measureText(item.name).width) / 2,
       pos.y + textHeight + margin + padding
     );
-    const price = item.price + " gold";
+
+    var price = item.price;
+    if(keyboard.buy10) {
+      price *= 10;
+    } else if(keyboard.buy100) {
+      price *= 100;
+    }
+    price += " gold";
     ctx.fillText(
       price,
       pos.x + (size - ctx.measureText(price).width) / 2,
@@ -413,33 +460,6 @@ function drawShopMenu(ctx, shopMenu, shopImages) {
   ctx.lineTo((cvs.width - width) / 2, (cvs.height + height) / 2);
   ctx.lineTo((cvs.width - width) / 2, (cvs.height - height) / 2);
   ctx.stroke();
-}
-
-function drawLoot(ctx, loot, cam) {
-  ctx.fillStyle = "rgba(100, 100, 100, 0.8)";
-  ctx.strokeStyle = "2px solid black";
-  ctx.lineWidth = 2;
-
-  for(var i in loot) {
-    const l = loot[i];
-    const v = getVertexPosition(l, cam)
-
-    ctx.save();
-    ctx.translate(v.x, v.y);
-    ctx.rotate(2 * Math.PI * l.angle / 255);
-    ctx.beginPath();
-    ctx.arc(0, 0, (cvs.width / FRAME_WIDTH) * l.radius, 0, 2 * Math.PI);
-    ctx.stroke();
-    ctx.fill();
-
-    if(l.item.image !== null) {
-      const width = (cvs.width / FRAME_WIDTH) * (l.radius * 2 - 10);
-      const height = l.item.image.height * width / l.item.image.width;
-      ctx.drawImage(l.item.image, -width/2, -height/2, width, height);
-    }
-
-    ctx.restore();
-  }
 }
 
 function roundRect(ctx, x, y, width, height, radius, fill, stroke) {

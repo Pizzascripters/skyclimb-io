@@ -10,14 +10,31 @@ function createWebsocket(Game) {
   }
   ws.binaryType = "arraybuffer"; // Allows us to recieve byte strings from the server
 
+  ws.onopen = () => {
+    sendName(ws, document.getElementById("name").value);
+  }
   ws.onmessage = packet => {
     handleMessage(packet, Game);
   };
   ws.onclose = () => {
     console.error("Socket closed");
     clearInterval(sendKeyboardInterval);
+    cvs.hidden = true;
+    document.getElementById("startmenu").style.visibility = "visible";
+    document.getElementById("deathscreen").style.visibility = "hidden";
   };
   return ws;
+}
+
+function sendName(ws, name) {
+  if(ws.readyState != ws.OPEN)
+    return 1;
+
+  let packet = [];
+  packet.push(4);
+  let bytes = strToBytes(name);
+  for(var i in bytes) packet.push(bytes[i]);
+  ws.send( new Uint8Array(packet) );
 }
 
 // Sends keyboard input to server
@@ -45,13 +62,14 @@ function sendKeyboard(ws, keyboard, select, hand){
   keyboard.drop = false;
 }
 
-function buyItem(ws, slot) {
+function buyItem(ws, slot, amount) {
   if(ws.readyState != ws.OPEN)
     return 1;
 
   let packet = [];
   packet.push(3);
   packet.push(slot);
+  packet.push(amount);
   ws.send( new Uint8Array(packet) );
 }
 
@@ -135,9 +153,20 @@ function setPlayers(data, Game){
   let numBullets = readInt(data, ref);
   let numThrowables = readInt(data, ref);
   let numLoot = readInt(data, ref);
+  let spectating = readInt(data, ref);
+  Game.spectating = spectating;
+
+  if(spectating) {
+    cam.x = readInt(data, ref);
+    cam.y = readInt(data, ref);
+    Game.deathscreen.kills = readInt(data, ref);
+    Game.deathscreen.score = readInt(data, ref);
+    Game.deathscreen.show();
+  }
 
   while(players.length < numPlayers){
     var player = {};
+    player.name = readString(data, ref);
     player.x = readInt(data, ref);
     player.y = readInt(data, ref);
     player.radius = readInt(data, ref);
@@ -147,7 +176,7 @@ function setPlayers(data, Game){
     player.energy = readInt(data, ref) / 255;
     player.weapon = readInt(data, ref);
 
-    if(players.length === 0) {
+    if(players.length === 0 && !spectating) {
       // Inventory
       for(var i = 0; i < inventory.items.length; i++) {
         if(i === 0 || i === 1)
@@ -164,7 +193,7 @@ function setPlayers(data, Game){
 
     players.push(player);
 
-    if(players.length === 1) { // If we're loading yourself
+    if(players.length === 1 && !spectating) { // If we're loading yourself
       cam.x = player.x;
       cam.y = player.y;
     }
@@ -178,7 +207,7 @@ function setPlayers(data, Game){
     bullet.y = readInt(data, ref);
     bullet.angle = readInt(data, ref);
     bullets.push(bullet);
-    
+
     if(bullet.type === 0){
       bullet.image = images.bullets.bullet;
     } else if(bullet.type === 1) {
@@ -255,7 +284,7 @@ function shopIdToName(id) {
   }
 }
 
-// Reads a four byte intereger from an index in a byte array
+// Reads a four byte integer from an index in a byte array
 function readInt(a, ref) {
   let b1 = a[ref.i];
   let b2 = a[ref.i+1];
@@ -263,6 +292,24 @@ function readInt(a, ref) {
   let b4 = a[ref.i+3];
   ref.i += 4;
   return bytesToInt([b1, b2, b3, b4]);
+}
+
+// Reads a string from an intex in a byte array
+function readString(a, ref){
+  var str = "";
+  while(a[ref.i++] !== 0)
+    str += String.fromCharCode(a[ref.i-1]);
+  return str;
+}
+
+// Converts a string to a uint8array
+function strToBytes(str){
+  let bytes = [];
+  for(var i = 0; i < str.length; i++){
+    bytes.push(str.charCodeAt(i));
+  }
+  bytes.push(0);
+  return new Uint8Array(bytes);
 }
 
 // Converts a 4 byte uint8array to an integer

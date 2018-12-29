@@ -18,7 +18,7 @@ function keydown(e, keyboard, inventory){
     case 65:  // A
       keyboard.left = true;
       break;
-    case 67:
+    case 67:  // C
       inventory.select = 5;
       break;
     case 68:  // D

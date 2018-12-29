@@ -17,6 +17,7 @@ const PLAYER_RADIUS = 50;
 module.exports = function(ws, id){
   this.ws = ws;
   this.id = id;
+  this.name = "guest" + id;
   this.disconnected = false;
 
   const rand = Math.floor(Math.random() * PLAYER_START_POS.length)
@@ -59,13 +60,14 @@ module.exports = function(ws, id){
     if(!number) number = 1;
 
     if(item.id < 128) {
+      if(number !== 1) return false;
       for(var i = 0; i < 3; i++) {
         if(this.inventory.items[i].id === 0) {
           this.inventory.items[i] = new Item(item.id);
           return true;
         }
       }
-    } else {
+    } else if(item.id < 224) {
       for(var i = 3; i < 6; i++) {
         if(this.inventory.items[i].id === item.id) {
           this.inventory.amt[i-3] += number;
@@ -79,27 +81,42 @@ module.exports = function(ws, id){
           return true;
         }
       }
+    } else {
+      item.onAcquire(this, number);
+      return true;
     }
     return false;
   }
 
   this.kill = (world, p, loot) => {
-    this.kills++;
-    economy.addGold(this, Math.round(p.gold / 2));
+    if(p.id !== this.id) {
+      this.kills++;
+      economy.addGold(this, Math.round(p.gold / 2));  
+    }
     p.apoptosis(world, loot);
   }
 
   // Programmed cell suicide
   this.apoptosis = (world, loot) => {
-    this.deleted = true;
+    if(this.spectating) return 1;
+
     Matter.Composite.remove(world, this.body);
 
     for(var i in this.inventory.items) {
       const item = this.inventory.items[i];
-      const amount = this.inventory.amt[i] !== undefined ? this.inventory.amt[i] : 1;
+      const amount = i>2 ? this.inventory.amt[i-3] : 1;
       if(item.id !== 0 && amount > 0)
         loot.push(new Loot(world, item.id, this.body.position, Math.random() * 2 * Math.PI, amount));
     }
+
+    if(this.bullets > 0) {
+      loot.push(new Loot(world, 224, this.body.position, Math.random() * 2 * Math.PI, this.bullets));
+    }
+    if(this.shells > 0) {
+      loot.push(new Loot(world, 225, this.body.position, Math.random() * 2 * Math.PI, this.shells));
+    }
+
+    this.spectating = true;
   }
 
   this.getItem = () => {

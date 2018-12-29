@@ -1,3 +1,8 @@
+function restart(ws) {
+  ws.close();
+  restarting = false;
+}
+
 // Check if we have exited the shop and leave if we have
 function checkShopExit(shopMenu) {
   let exited = true;

@@ -19,6 +19,8 @@ class Generic extends Shop {
     this.items.push(new Item(64));
     this.items.push(new Item(128));
     this.items.push(new Item(192));
+    this.items.push(new Item(224));
+    this.items.push(new Item(225));
   }
 }
 

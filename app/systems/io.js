@@ -6,6 +6,7 @@ const WATER_HEIGHT = 6000;
 
 const io = module.exports = {
   handle: (ws, p, Game, packet) => {
+    if(p.spectating) return 1;
     const data = new Uint8Array(packet);
     switch( data[0] ){
       case 0: // Ping
@@ -18,7 +19,10 @@ const io = module.exports = {
         io.mapData(ws, Game.map);
         break;
       case 3: // Buy Item
-        io.buyItem(ws, p, Game.map.shops, packet[1]);
+        io.buyItem(ws, p, Game.map.shops, packet[1], packet[2]);
+        break;
+      case 4:
+        io.setName(ws, packet.slice(1), Game.players, p);
         break;
     }
   },
@@ -115,7 +119,7 @@ const io = module.exports = {
     return 0;
   },
 
-  buyItem: (ws, p, shops, slot) => {
+  buyItem: (ws, p, shops, slot, amount) => {
     for(var i in shops) {
       const rect = {
         x: shops[i].x - p.radius,
@@ -126,9 +130,20 @@ const io = module.exports = {
       if(insideRect(p.body.position, rect)) {
         const shop = shops[i];
         if(shop.items[slot])
-          shop.items[slot].buy(p);
+          shop.items[slot].buy(p, amount);
       }
     }
+  },
+
+  setName: (ws, packet, players, p) => {
+    var ref = {i:0};
+    const name = readString(packet, ref);
+    // Check if anyone else has this name
+    for(var i in players) {
+      if(players[i].name.toLowerCase() === name.toLowerCase()) return 1;
+    }
+    if(name.startsWith("guest")) return 1;
+    p.name = name;
   },
 
   playerData: (p, Game) => { // Send player and bullet data
@@ -151,10 +166,19 @@ const io = module.exports = {
     let packet = [];
 
     packet.push(0, 0, 0, 0); // For counting players, bullets, throwables, and loot
+    packet.push(p.spectating ? 1 : 0);
+
+    if(p.spectating) {
+      packet.push(p.body.position.x);
+      packet.push(p.body.position.y);
+      packet.push(p.kills);
+      packet.push(p.score);
+    }
 
     // Adds a player to the packet
     function addPlayer(p) {
       const radius = distance(p.body.position, p.body.vertices[0]);
+      packet.push( p.name );
       packet.push( p.body.position.x );
       packet.push( p.body.position.y );
       packet.push( radius );
@@ -201,16 +225,19 @@ const io = module.exports = {
       packet.push( Math.floor(255*(b.body.angle % (Math.PI*2)) / (Math.PI*2)) );
     }
 
-    let numPlayers = 1;
+    let numPlayers = 0;
     let numBullets = 0;
     let numThrowables = 0;
     let numLoot = 0;
 
-    addPlayer(players[id]); // Add yourself to the player packet
+    if(!players[id].spectating) {
+      addPlayer(players[id]); // Add yourself to the player packet
+      numPlayers++;
+    }
 
     for(var i in players){
       if(
-        !players[i].deleted &&
+        !players[i].spectating &&
         i !== String(id) &&
         distance(p.body.position, players[i].body.position) < VISIBILITY
       ) {
@@ -270,16 +297,32 @@ const io = module.exports = {
 
 // Converts an array of ints to bytes and sends it
 function sendArray(ws, header, packet) {
-  for(var i in packet)
-    packet[i] = Buffer.from( intToBytes(packet[i]) );
+  for(var i in packet) {
+    switch(typeof packet[i]){
+      case "number":
+        packet[i] = Buffer.from( intToBytes(packet[i]) );
+        break;
+      case "string":
+        packet[i] = Buffer.from( strToBytes(packet[i]) );
+        break;
+    }
+  }
 
   packet = Buffer.concat( packet );
   ws.send(Buffer.concat( [header, packet] ));
 }
 
-// Reads a one byte intereger from an index in a byte array
+// Reads a one byte integer from an index in a byte array
 function readInt(a, ref) {
   return a[ref.i++];
+}
+
+// Reads a string from an intex in a byte array
+function readString(a, ref){
+  var str = "";
+  while(a[ref.i++] !== 0)
+    str += String.fromCharCode(a[ref.i-1]);
+  return str;
 }
 
 // Converts a unit8array to a string
@@ -292,13 +335,14 @@ function bytesToStr(bytes){
   return str;
 }
 
+// Converts a string to a uint8array
 function strToBytes(str){
   let bytes = [];
   for(var i = 0; i < str.length; i++){
-    const code = str.charCodeAt(i);
-    bytes = bytes.concat([code]);
+    bytes.push(str.charCodeAt(i));
   }
-  return bytes;
+  bytes.push(0);
+  return new Uint8Array(bytes);
 }
 
 // Converts an integer into a unit8array
