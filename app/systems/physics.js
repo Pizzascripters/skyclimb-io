@@ -16,6 +16,8 @@ const JETPACK_CHARGE_SPEED = 0.003;
 const JETPACK_DRAIN_SPEED = 0.009;
 const HORIZONTAL_ACCELERTION = 0.01;
 const GRAVITY = 0.003;
+const WATER_GRAVITY = GRAVITY / 2;
+const WATER_DAMAGE = 0.01;
 
 const SHOOTING_COOLDOWN = {
   1: 10,
@@ -31,7 +33,8 @@ module.exports = function(Game){
     if(p.deleted)
       continue;
 
-    doGravity(p.body);
+    doGravity(p.body, Game.WATER_HEIGHT);
+    waterDamage(Game.world, Game.loot, p, Game.WATER_HEIGHT);
     handleMovement(p, p.body);
     handleShooting(p, p.body, Game.bullets);
     handleThrowing(p, p.body, Game.bullets, Game.throwables);
@@ -53,22 +56,38 @@ module.exports = function(Game){
 
   for(var i in Game.throwables){
     let t = Game.throwables[i];
-    doGravity(t.body);
+    doGravity(t.body, Game.WATER_HEIGHT);
   }
 
   for(var i in Game.loot){
     let l = Game.loot[i];
-    doGravity(l.body);
+    doGravity(l.body, Game.WATER_HEIGHT);
   }
 
   bulletCollisions(Game.players, Game.bullets, Game.map.bodies, Game.loot);
 }
 
-function doGravity(body){
-  Matter.Body.applyForce(body,
-    {x: body.position.x, y: body.position.y},
-    {x: 0, y: GRAVITY * body.mass}
-  );
+function doGravity(body, WATER_HEIGHT){
+  if(body.position.y < WATER_HEIGHT) {
+    Matter.Body.applyForce(body,
+      {x: body.position.x, y: body.position.y},
+      {x: 0, y: GRAVITY * body.mass}
+    );
+  } else {
+    Matter.Body.applyForce(body,
+      {x: body.position.x, y: body.position.y},
+      {x: 0, y: WATER_GRAVITY * body.mass}
+    );
+  }
+}
+
+function waterDamage(world, loot, p, WATER_HEIGHT) {
+  if(p.body.position.y >= WATER_HEIGHT) {
+    p.health -= WATER_DAMAGE;
+    if(p.health <= 0) {
+      p.kill(world, p, loot);
+    }
+  }
 }
 
 function handleMovement(p, body) {

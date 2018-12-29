@@ -58,7 +58,7 @@ const io = module.exports = {
     player.inventory.select = readInt(packet, ref);
   },
 
-  mapData: (ws, map) => { // Send map data
+  mapData: (ws, map, WATER_HEIGHT) => { // Send map data
     if(ws.readyState === ws.CLOSED || ws.readyState === ws.CLOSING)
       return 1;
 
