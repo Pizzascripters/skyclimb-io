@@ -83,6 +83,8 @@ function setMap(data, map){
 
   let ref = {i:1}; // We want to pass i by reference to readInt can increment it
 
+  map.waterHeight = readInt(data, ref);
+
   map.objects = [];
   const numObjects = readInt(data, ref);
   while(map.objects.length < numObjects){

@@ -29,18 +29,19 @@ function draw(Game){
   for (var i in throwables)
     drawThrowable(ctx, throwables[i], images.items.nade, cam);
 
-  // Draw the map
-  ctx.fillStyle = ctx.createPattern(images.textures.rock, "repeat");
-  ctx.lineWidth = OBJECT_OUTLINE_WIDTH;
-  for(var i in map.objects)
-    drawObject(ctx, cam, map.objects[i], OBJECT_OUTLINE);
-
   // Draw the players
   ctx.strokeStyle = PLAYER_OUTLINE_COLOR;
   ctx.lineWidth = PLAYER_OUTLINE_WIDTH * (cvs.width / FRAME_WIDTH);
   ctx.fillStyle = PLAYER_COLOR;
   for(var i in players)
     drawPlayer(ctx, cam, players[i], PLAYER_OUTLINE, images.eyes.generic, items[players[i].weapon]);
+
+  // Draw the map
+  ctx.fillStyle = ctx.createPattern(images.textures.rock, "repeat");
+  ctx.lineWidth = OBJECT_OUTLINE_WIDTH;
+  for(var i in map.objects)
+    drawObject(ctx, cam, map.objects[i], OBJECT_OUTLINE);
+  drawWater(ctx, cam, map.waterHeight, images.textures.water);
 
   if(players.length > 0) {
     drawHealthbar(ctx, players[0].health, healthbar);
@@ -201,6 +202,28 @@ function drawObject(ctx, cam, p, outline) {
   if(outline)
     ctx.stroke();
 
+  ctx.restore();
+}
+
+function drawWater(ctx, cam, waterLevel, image) {
+  const v = getVertexPosition({x: 0, y: waterLevel}, cam);
+  const y = v.y > -image.height ? v.y : -image.height;
+
+  // Draw the bottomless ocean
+  ctx.globalAlpha = 0.6;
+  ctx.fillStyle = "#14f";
+  ctx.fillRect(0, y + image.height - 2, cvs.width, cvs.height + image.height + 2);
+  ctx.globalAlpha = 1;
+
+  // Draw the texture on top
+  let offset = -(cam.x % image.width);
+  if(cam.x < 0)
+    offset = -(cam.x % image.width) - image.width;
+  ctx.save();
+  ctx.translate(offset, v.y);
+  ctx.fillStyle = ctx.createPattern(image, "repeat");
+  ctx.rect(0, 0, cvs.width + image.width * 2, image.height);
+  ctx.fill();
   ctx.restore();
 }
 

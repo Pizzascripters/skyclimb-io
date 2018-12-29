@@ -119,7 +119,7 @@ function loadImages(images, callback) {
 
   // Textures
   images.textures = {};
-  imageNames = ["rock"];
+  imageNames = ["rock", "grass", "water"];
   for(var i in imageNames) {
     images.textures[imageNames[i]] = loadImage("textures/" + imageNames[i], onload);
   }

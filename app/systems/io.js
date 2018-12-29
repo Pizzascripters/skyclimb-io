@@ -2,6 +2,7 @@ const distance = require('../util/distance');
 const insideRect = require('../util/insideRect');
 
 const VISIBILITY = 1100; // Any objectect at a greater distance will not be sent to client
+const WATER_HEIGHT = 6000;
 
 const io = module.exports = {
   handle: (ws, p, Game, packet) => {
@@ -64,6 +65,8 @@ const io = module.exports = {
     // 1 byte header
     const header = Buffer.from( new Uint8Array([1]) );
     let packet = [];
+
+    packet.push( WATER_HEIGHT );
 
     // Add the body to the packet
     function addObject(obj) {
