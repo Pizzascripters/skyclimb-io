@@ -43,12 +43,15 @@ function draw(Game){
   }
   drawWater(ctx, cam, map.waterHeight, images.textures.water);
 
+  drawLoot(ctx, loot, cam);
+  for(var i in players)
+    drawName(ctx, cam, players[i]);
+
   if(players.length > 0) {
     drawHealthbar(ctx, players[0].health, healthbar);
     drawEnergyBar(ctx, players[0].energy, energybar);
     drawInventory(ctx, inventory, items);
     drawStats(ctx, images.stats, players[0].gold, players[0].kills, players[0].score, players[0].bullets, players[0].shells);
-    drawLoot(ctx, loot, cam);
   }
 
   if(shopMenu.length > 0) {
@@ -203,6 +206,40 @@ function drawObject(ctx, cam, p, texture) {
   ctx.fill();
   ctx.stroke();
   ctx.restore();
+}
+
+function drawLoot(ctx, loot, cam) {
+  ctx.fillStyle = "rgba(100, 100, 100, 0.8)";
+  ctx.strokeStyle = "2px solid black";
+  ctx.lineWidth = 2;
+
+  for(var i in loot) {
+    const l = loot[i];
+    const v = getVertexPosition(l, cam)
+
+    ctx.save();
+    ctx.translate(v.x, v.y);
+    ctx.rotate(2 * Math.PI * l.angle / 255);
+    ctx.beginPath();
+    ctx.arc(0, 0, (cvs.width / FRAME_WIDTH) * l.radius, 0, 2 * Math.PI);
+    ctx.stroke();
+    ctx.fill();
+
+    if(l.item.image !== null) {
+      const width = (cvs.width / FRAME_WIDTH) * (l.radius * 2 - 10);
+      const height = l.item.image.height * width / l.item.image.width;
+      ctx.drawImage(l.item.image, -width/2, -height/2, width, height);
+    }
+
+    ctx.restore();
+  }
+}
+
+function drawName(ctx, cam, p) {
+  const v = getVertexPosition(p, cam);
+
+  ctx.fillStyle = "#fff";
+  ctx.fillText(p.name, v.x - ctx.measureText(p.name).width / 2, v.y - p.radius - 20);
 }
 
 function drawWater(ctx, cam, waterLevel, image) {
@@ -423,33 +460,6 @@ function drawShopMenu(ctx, shopMenu, shopImages, keyboard) {
   ctx.lineTo((cvs.width - width) / 2, (cvs.height + height) / 2);
   ctx.lineTo((cvs.width - width) / 2, (cvs.height - height) / 2);
   ctx.stroke();
-}
-
-function drawLoot(ctx, loot, cam) {
-  ctx.fillStyle = "rgba(100, 100, 100, 0.8)";
-  ctx.strokeStyle = "2px solid black";
-  ctx.lineWidth = 2;
-
-  for(var i in loot) {
-    const l = loot[i];
-    const v = getVertexPosition(l, cam)
-
-    ctx.save();
-    ctx.translate(v.x, v.y);
-    ctx.rotate(2 * Math.PI * l.angle / 255);
-    ctx.beginPath();
-    ctx.arc(0, 0, (cvs.width / FRAME_WIDTH) * l.radius, 0, 2 * Math.PI);
-    ctx.stroke();
-    ctx.fill();
-
-    if(l.item.image !== null) {
-      const width = (cvs.width / FRAME_WIDTH) * (l.radius * 2 - 10);
-      const height = l.item.image.height * width / l.item.image.width;
-      ctx.drawImage(l.item.image, -width/2, -height/2, width, height);
-    }
-
-    ctx.restore();
-  }
 }
 
 function roundRect(ctx, x, y, width, height, radius, fill, stroke) {

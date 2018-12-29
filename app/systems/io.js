@@ -155,6 +155,7 @@ const io = module.exports = {
     // Adds a player to the packet
     function addPlayer(p) {
       const radius = distance(p.body.position, p.body.vertices[0]);
+      packet.push( p.name );
       packet.push( p.body.position.x );
       packet.push( p.body.position.y );
       packet.push( radius );
@@ -270,8 +271,16 @@ const io = module.exports = {
 
 // Converts an array of ints to bytes and sends it
 function sendArray(ws, header, packet) {
-  for(var i in packet)
-    packet[i] = Buffer.from( intToBytes(packet[i]) );
+  for(var i in packet) {
+    switch(typeof packet[i]){
+      case "number":
+        packet[i] = Buffer.from( intToBytes(packet[i]) );
+        break;
+      case "string":
+        packet[i] = Buffer.from( strToBytes(packet[i]) );
+        break;
+    }
+  }
 
   packet = Buffer.concat( packet );
   ws.send(Buffer.concat( [header, packet] ));
@@ -292,13 +301,14 @@ function bytesToStr(bytes){
   return str;
 }
 
+// Converts a string to a uint8array
 function strToBytes(str){
   let bytes = [];
   for(var i = 0; i < str.length; i++){
-    const code = str.charCodeAt(i);
-    bytes = bytes.concat([code]);
+    bytes.push(str.charCodeAt(i));
   }
-  return bytes;
+  bytes.push(0);
+  return new Uint8Array(bytes);
 }
 
 // Converts an integer into a unit8array

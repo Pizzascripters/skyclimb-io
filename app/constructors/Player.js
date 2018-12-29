@@ -17,6 +17,7 @@ const PLAYER_RADIUS = 50;
 module.exports = function(ws, id){
   this.ws = ws;
   this.id = id;
+  this.name = "guest" + id;
   this.disconnected = false;
 
   const rand = Math.floor(Math.random() * PLAYER_START_POS.length)

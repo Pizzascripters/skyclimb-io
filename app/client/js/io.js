@@ -139,6 +139,7 @@ function setPlayers(data, Game){
 
   while(players.length < numPlayers){
     var player = {};
+    player.name = readString(data, ref);
     player.x = readInt(data, ref);
     player.y = readInt(data, ref);
     player.radius = readInt(data, ref);
@@ -256,7 +257,7 @@ function shopIdToName(id) {
   }
 }
 
-// Reads a four byte intereger from an index in a byte array
+// Reads a four byte integer from an index in a byte array
 function readInt(a, ref) {
   let b1 = a[ref.i];
   let b2 = a[ref.i+1];
@@ -264,6 +265,14 @@ function readInt(a, ref) {
   let b4 = a[ref.i+3];
   ref.i += 4;
   return bytesToInt([b1, b2, b3, b4]);
+}
+
+// Reads a string from an intex in a byte array
+function readString(a, ref){
+  var str = "";
+  while(a[ref.i++] !== 0)
+    str += String.fromCharCode(a[ref.i-1]);
+  return str;
 }
 
 // Converts a 4 byte uint8array to an integer
