@@ -47,6 +47,8 @@ function draw(Game){
   for(var i in players)
     drawName(ctx, cam, players[i]);
 
+  ctx.save();
+  ctx.scale((cvs.width / FRAME_WIDTH), (cvs.width / FRAME_WIDTH));
   if(players.length > 0 && !Game.spectating) {
     drawHealthbar(ctx, players[0].health, healthbar);
     drawEnergyBar(ctx, players[0].energy, energybar);
@@ -54,6 +56,7 @@ function draw(Game){
     drawStats(ctx, images.stats, players[0].gold, players[0].kills, players[0].score, players[0].bullets, players[0].shells);
     drawLeaderboard(ctx, Game.leaderboard, images.stats.score);
   }
+  ctx.restore();
 
   if(shopMenu.length > 0) {
     drawShopMenu(ctx, shopMenu, images.shops[shopMenu[0]], keyboard);
@@ -79,7 +82,7 @@ function getBackgroundGradient(ctx, cam) {
 function createHealthbar(ctx, image) {
   const healthbar = {};
   healthbar.image = image;
-  healthbar.x = cvs.width / 2 - image.width / 2;
+  healthbar.x = FRAME_WIDTH / 2 - image.width / 2;
   healthbar.y = 80;
   healthbar.gradient = ctx.createLinearGradient(
     healthbar.x, 0,
@@ -93,7 +96,7 @@ function createHealthbar(ctx, image) {
 function createEnergybar(ctx, image) {
   const energybar = {};
   energybar.image = image;
-  energybar.x = cvs.width / 2 - image.width / 2;
+  energybar.x = FRAME_WIDTH / 2 - image.width / 2;
   energybar.y = 130;
   energybar.gradient = ctx.createLinearGradient(
     energybar.x, 0,
@@ -240,6 +243,7 @@ function drawName(ctx, cam, p) {
   const v = getVertexPosition(p, cam);
 
   ctx.fillStyle = "#fff";
+  ctx.font = "20px Play";
   ctx.fillText(p.name, v.x - ctx.measureText(p.name).width / 2, v.y - p.radius - 20);
 }
 
@@ -288,12 +292,12 @@ function drawInventory(ctx, inventory, items){
   ctx.fillStyle = "#888";
   ctx.globalAlpha = 0.8;
 
-  roundRect(ctx, cvs.width / 2 - 340, -10, 100, inventory.anim[0]);
-  roundRect(ctx, cvs.width / 2 - 220, -10, 100, inventory.anim[1]);
-  roundRect(ctx, cvs.width / 2 - 100, -10, 100, inventory.anim[2]);
-  roundRect(ctx, cvs.width / 2 + 100, -10, 100, inventory.anim[3]);
-  roundRect(ctx, cvs.width / 2 + 220, -10, 100, inventory.anim[4]);
-  roundRect(ctx, cvs.width / 2 + 340, -10, 100, inventory.anim[5]);
+  roundRect(ctx, FRAME_WIDTH / 2 - 340, -10, 100, inventory.anim[0]);
+  roundRect(ctx, FRAME_WIDTH / 2 - 220, -10, 100, inventory.anim[1]);
+  roundRect(ctx, FRAME_WIDTH / 2 - 100, -10, 100, inventory.anim[2]);
+  roundRect(ctx, FRAME_WIDTH / 2 + 100, -10, 100, inventory.anim[3]);
+  roundRect(ctx, FRAME_WIDTH / 2 + 220, -10, 100, inventory.anim[4]);
+  roundRect(ctx, FRAME_WIDTH / 2 + 340, -10, 100, inventory.anim[5]);
 
   drawItem(ctx, 0, items[inventory.items[0]], inventory.anim[0]);
   drawItem(ctx, 1, items[inventory.items[1]], inventory.anim[1]);
@@ -327,22 +331,22 @@ function drawItem(ctx, slot, item, anim, amt) {
 
   switch(slot) {
     case 0:
-      x = cvs.width / 2 - 290 - width / 2;
+      x = FRAME_WIDTH / 2 - 290 - width / 2;
       break;
     case 1:
-      x = cvs.width / 2 - 170 - width / 2;
+      x = FRAME_WIDTH / 2 - 170 - width / 2;
       break;
     case 2:
-      x = cvs.width / 2 - 50 - width / 2;
+      x = FRAME_WIDTH / 2 - 50 - width / 2;
       break;
     case 3:
-      x = cvs.width / 2 + 150 - width / 2;
+      x = FRAME_WIDTH / 2 + 150 - width / 2;
       break;
     case 4:
-      x = cvs.width / 2 + 270 - width / 2;
+      x = FRAME_WIDTH / 2 + 270 - width / 2;
       break;
     case 5:
-      x = cvs.width / 2 + 390 - width / 2;
+      x = FRAME_WIDTH / 2 + 390 - width / 2;
       break;
   }
 
@@ -390,21 +394,21 @@ function drawStats(ctx, images, gold, kills, score, bullets, shells) {
 function drawLeaderboard(ctx, leaderboard, scoreImage) {
   ctx.fillStyle = "#888";
   ctx.globalAlpha = 0.8;
-  roundRect(ctx, cvs.width - 20 - LEADERBOARD_WIDTH, 20, LEADERBOARD_WIDTH, LEADERBOARD_HEIGHT, 10, true, false)
+  roundRect(ctx, FRAME_WIDTH - 20 - LEADERBOARD_WIDTH, 20, LEADERBOARD_WIDTH, LEADERBOARD_HEIGHT, 10, true, false)
   ctx.globalAlpha = 1;
 
   ctx.fillStyle = "#fff";
   ctx.font = "30px Play";
   ctx.fillText(
     "Leaderboard",
-    cvs.width - 20 - LEADERBOARD_WIDTH/2 - ctx.measureText("Leaderboard").width/2,
+    FRAME_WIDTH - 20 - LEADERBOARD_WIDTH/2 - ctx.measureText("Leaderboard").width/2,
     60
   );
 
   for(var i in leaderboard) {
     ctx.font = "24px Play";
     var text = (Number(i)+1) + ". ";
-    ctx.fillText(text, cvs.width - LEADERBOARD_WIDTH, 90 + 30*i);
+    ctx.fillText(text, FRAME_WIDTH - LEADERBOARD_WIDTH, 90 + 30*i);
 
     ctx.font = "1px Play"
     text = leaderboard[i].name
@@ -412,12 +416,12 @@ function drawLeaderboard(ctx, leaderboard, scoreImage) {
     fontsize = Math.floor(fontsize);
     if(fontsize > 30) fontsize = 30;
     ctx.font = fontsize + "px Play";
-    ctx.fillText(text, cvs.width - LEADERBOARD_WIDTH + 30, 90 + 30*i);
+    ctx.fillText(text, FRAME_WIDTH - LEADERBOARD_WIDTH + 30, 90 + 30*i);
 
     text = leaderboard[i].score;
-    ctx.drawImage(scoreImage, cvs.width - 70, 66 + 30*i, 30, 30)
+    ctx.drawImage(scoreImage, FRAME_WIDTH - 70, 66 + 30*i, 30, 30)
     ctx.font = "18px Play";
-    ctx.fillText(text, cvs.width - 80 - ctx.measureText(text).width, 90 + 30*i);
+    ctx.fillText(text, FRAME_WIDTH - 80 - ctx.measureText(text).width, 90 + 30*i);
   }
 }
 
@@ -436,7 +440,7 @@ function drawShopMenu(ctx, shopMenu, shopImages, keyboard) {
     const size = width / 8;
     const margin = SHOP_MENU_MARGIN;
     const padding = SHOP_MENU_PADDING;
-    const textHeight = SHOP_MENU_TEXT_HEIGHT;
+    const textHeight = Math.floor(20 * (cvs.width / FRAME_WIDTH));
     const pos = {
       x: rect.x - margin,
       y: rect.y - margin

@@ -172,12 +172,12 @@ const io = module.exports = {
         world = Game.world;
 
     if(ws.readyState === ws.CLOSED || ws.readyState === ws.CLOSING) {
-        if(p.state === p.PLAYING) {
-          p.state = p.DISCONNECTED;
-        } else {
-          p.state = p.DELETED;
-        }
-        return 1;
+      if(p.state === p.PLAYING) {
+        p.state = p.DISCONNECTED;
+      } else if(p.state === p.SPECTATING) {
+        p.state = p.DELETED;
+      }
+      return 1;
     }
 
     if(p.state !== p.PLAYING && p.state !== p.SPECTATING)
@@ -302,7 +302,7 @@ const io = module.exports = {
     var leaderboard = [];
     for(var i in players){
       const p = players[i];
-      if(p.state !== p.PLAYING) continue;
+      if(p.state !== p.PLAYING && p.state !== p.DISCONNECTED) continue;
       var i = leaderboard.findIndex(player => {
         return player.score > p.score;
       });
