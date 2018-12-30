@@ -96,11 +96,12 @@ module.exports = function(ws, id, world){
   }
 
   this.kill = (world, p, loot) => {
-    if(p.id !== this.id) {
-      this.kills++;
-      economy.addGold(this, Math.round(p.gold / 2));
+    if(!p.apoptosis(world, loot)) {
+      if(p.id !== this.id) {
+        this.kills++;
+        economy.addGold(this, Math.round(p.gold / 2));
+      }
     }
-    p.apoptosis(world, loot);
   }
 
   // Programmed cell suicide
@@ -124,6 +125,7 @@ module.exports = function(ws, id, world){
     }
 
     this.state = this.SPECTATING;
+    return 0;
   }
 
   this.getItem = () => {

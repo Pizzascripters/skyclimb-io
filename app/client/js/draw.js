@@ -52,6 +52,7 @@ function draw(Game){
     drawEnergyBar(ctx, players[0].energy, energybar);
     drawInventory(ctx, inventory, items);
     drawStats(ctx, images.stats, players[0].gold, players[0].kills, players[0].score, players[0].bullets, players[0].shells);
+    drawLeaderboard(ctx, Game.leaderboard, images.stats.score);
   }
 
   if(shopMenu.length > 0) {
@@ -384,6 +385,40 @@ function drawStats(ctx, images, gold, kills, score, bullets, shells) {
   ctx.fillText(score, 80, 210);
   ctx.fillText(bullets, 80, 250);
   ctx.fillText(shells, 80, 290);
+}
+
+function drawLeaderboard(ctx, leaderboard, scoreImage) {
+  ctx.fillStyle = "#888";
+  ctx.globalAlpha = 0.8;
+  roundRect(ctx, cvs.width - 20 - LEADERBOARD_WIDTH, 20, LEADERBOARD_WIDTH, LEADERBOARD_HEIGHT, 10, true, false)
+  ctx.globalAlpha = 1;
+
+  ctx.fillStyle = "#fff";
+  ctx.font = "30px Play";
+  ctx.fillText(
+    "Leaderboard",
+    cvs.width - 20 - LEADERBOARD_WIDTH/2 - ctx.measureText("Leaderboard").width/2,
+    60
+  );
+
+  for(var i in leaderboard) {
+    ctx.font = "24px Play";
+    var text = (Number(i)+1) + ". ";
+    ctx.fillText(text, cvs.width - LEADERBOARD_WIDTH, 90 + 30*i);
+
+    ctx.font = "1px Play"
+    text = leaderboard[i].name
+    var fontsize = 120 / ctx.measureText(text).width;
+    fontsize = Math.floor(fontsize);
+    if(fontsize > 30) fontsize = 30;
+    ctx.font = fontsize + "px Play";
+    ctx.fillText(text, cvs.width - LEADERBOARD_WIDTH + 30, 90 + 30*i);
+
+    text = leaderboard[i].score;
+    ctx.drawImage(scoreImage, cvs.width - 70, 66 + 30*i, 30, 30)
+    ctx.font = "18px Play";
+    ctx.fillText(text, cvs.width - 80 - ctx.measureText(text).width, 90 + 30*i);
+  }
 }
 
 function drawShopMenu(ctx, shopMenu, shopImages, keyboard) {
