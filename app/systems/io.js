@@ -187,7 +187,7 @@ const io = module.exports = {
     const header = Buffer.from( new Uint8Array([2]) );
     let packet = [];
 
-    packet.push(0, 0, 0, 0); // For counting players, bullets, throwables, and loot
+    packet.push(0, 0, 0, 0, 0); // For counting players, bullets, throwables, loot, and leaderboard size
     packet.push(p.state === p.SPECTATING ? 1 : 0);
 
     if(p.state === p.SPECTATING) {
@@ -259,7 +259,7 @@ const io = module.exports = {
 
     for(var i in players){
       if(
-        (players[id].state === players[i].PLAYING || players[i].state === players[i].DISCONNECTED) &&
+        (players[i].state === players[i].PLAYING || players[i].state === players[i].DISCONNECTED) &&
         i !== String(id) &&
         distance(p.body.position, players[i].body.position) < VISIBILITY
       ) {
@@ -298,10 +298,30 @@ const io = module.exports = {
       }
     }
 
+    // Leaderboard
+    var leaderboard = [];
+    for(var i in players){
+      const p = players[i];
+      if(p.state !== p.PLAYING) continue;
+      var i = leaderboard.findIndex(player => {
+        return player.score > p.score;
+      });
+      if(i) {
+        leaderboard.splice(i, 0, p);
+      } else {
+        leaderboard.push(p);
+      }
+    }
+    for(var i = 0; i < Math.min(10, leaderboard.length); i++) {
+      packet.push(leaderboard[i].name);
+      packet.push(leaderboard[i].score);
+    }
+
     packet[0] = numPlayers;
     packet[1] = numBullets;
     packet[2] = numThrowables;
     packet[3] = numLoot;
+    packet[4] = leaderboard.length;
 
     sendArray(ws, header, packet);
   },
