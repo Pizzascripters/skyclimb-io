@@ -9,6 +9,7 @@ function init(e){
   Game.bullets = [];
   Game.throwables = [];
   Game.loot = [];
+  Game.leaderboard = [];
 
   Game.images = {};
   loadImages(Game.images, () => {

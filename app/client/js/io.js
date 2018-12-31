@@ -143,6 +143,7 @@ function setPlayers(data, Game){
       bullets = Game.bullets,
       throwables = Game.throwables,
       loot = Game.loot,
+      leaderboard = Game.leaderboard,
       cam = Game.cam;
 
   // Clear the arrays
@@ -150,6 +151,7 @@ function setPlayers(data, Game){
   bullets.splice(0, bullets.length);
   throwables.splice(0, throwables.length);
   loot.splice(0, loot.length);
+  leaderboard.splice(0, leaderboard.length);
 
   let ref = {i:1}; // We want to pass i by reference to readInt can increment it
 
@@ -157,6 +159,7 @@ function setPlayers(data, Game){
   let numBullets = readInt(data, ref);
   let numThrowables = readInt(data, ref);
   let numLoot = readInt(data, ref);
+  let leaderboardSize = readInt(data, ref);
   let spectating = readInt(data, ref);
   Game.spectating = spectating;
 
@@ -241,6 +244,14 @@ function setPlayers(data, Game){
     l.radius = readInt(data, ref);
     l.angle = readInt(data, ref);
     loot.push(l);
+  }
+
+  // Leaderboard
+  while(leaderboard.length < leaderboardSize){
+    let l = {};
+    l.name = readString(data, ref);
+    l.score = readInt(data, ref);
+    leaderboard.push(l);
   }
 }
 
