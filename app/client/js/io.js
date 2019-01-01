@@ -230,8 +230,8 @@ function setPlayers(data, Game){
     throwable.x = readInt(data, ref);
     throwable.y = readInt(data, ref);
     throwable.angle = readInt(data, ref);
-    throwable.width = 30;
-    throwable.height = 30;
+    throwable.width = 40;
+    throwable.height = 40;
     throwables.push(throwable);
   }
 

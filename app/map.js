@@ -3,6 +3,10 @@ const fs = require('fs');
 const Matter = require('./lib/matter');
 const Shop = require('./constructors/Shop');
 const distance = require('./util/distance');
+const setConstants = require('./constants');
+
+var constants = {};
+setConstants(constants);
 
 const Vertices = Matter.Vertices,
       Bodies = Matter.Bodies,
@@ -45,24 +49,24 @@ for(var i in objects){
     // Create other side of trapezoid
     if(clockwise(a, b, c)) {
       var e = {
-        x: b.x + 50 * Math.cos(be),
-        y: b.y + 50 * Math.sin(be)
+        x: b.x + constants.MOUNTAIN_THICKNESS * Math.cos(be),
+        y: b.y + constants.MOUNTAIN_THICKNESS * Math.sin(be)
       }
     } else {
       var e = {
-        x: b.x - 50 * Math.cos(be),
-        y: b.y - 50 * Math.sin(be)
+        x: b.x - constants.MOUNTAIN_THICKNESS * Math.cos(be),
+        y: b.y - constants.MOUNTAIN_THICKNESS * Math.sin(be)
       }
     }
     if(clockwise(b, c, d)) {
       var f = {
-        x: c.x + 50 * Math.cos(cf),
-        y: c.y + 50 * Math.sin(cf)
+        x: c.x + constants.MOUNTAIN_THICKNESS * Math.cos(cf),
+        y: c.y + constants.MOUNTAIN_THICKNESS * Math.sin(cf)
       }
     } else {
       var f = {
-        x: c.x - 50 * Math.cos(cf),
-        y: c.y - 50 * Math.sin(cf)
+        x: c.x - constants.MOUNTAIN_THICKNESS * Math.cos(cf),
+        y: c.y - constants.MOUNTAIN_THICKNESS * Math.sin(cf)
       }
     }
 

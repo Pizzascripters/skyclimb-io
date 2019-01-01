@@ -89,7 +89,7 @@ class Nade extends Item {
     this.throwable = true;
     this.throwSpeed = 20;
     this.spawnDistance = 60;
-    this.radius = 10;
+    this.radius = 21;
     this.cooldownTime = 20;
     this.shootingCooldown = 0;
   }
