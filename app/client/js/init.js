@@ -120,7 +120,7 @@ function update(Game, time){
   let delta = time - prevTime;  // Time since last frame
   prevTime = time;
 
-  checkShopExit(Game.shopMenu);
+  checkShopExit(Game);
 
   // Debug only shop menu
   /*Game.items[1].price = 100;

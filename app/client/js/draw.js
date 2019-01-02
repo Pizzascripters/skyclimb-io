@@ -60,7 +60,7 @@ function draw(Game){
   ctx.restore();
 
   if(shopMenu.length > 0) {
-    drawShopMenu(ctx, shopMenu, images.shops[shopMenu[0]], keyboard);
+    drawShopMenu(ctx, shopMenu, images.shops[shopMenu[0]], keyboard, images.stats.gold);
   }
 }
 
@@ -445,7 +445,7 @@ function drawLeaderboard(ctx, leaderboard, scoreImage) {
   }
 }
 
-function drawShopMenu(ctx, shopMenu, shopImages, keyboard) {
+function drawShopMenu(ctx, shopMenu, shopImages, keyboard, goldImage) {
   const width = cvs.width / 2;
   const height = 9 * width / 16;
 
@@ -501,11 +501,16 @@ function drawShopMenu(ctx, shopMenu, shopImages, keyboard) {
     } else if(keyboard.buy100) {
       price *= 100;
     }
-    price += " gold";
     ctx.fillText(
       price,
-      pos.x + (size - ctx.measureText(price).width) / 2,
+      pos.x + (size - ctx.measureText(price).width - SHOP_GOLD_IMAGE_WIDTH) / 2 - 5,
       pos.y + size - margin - padding
+    );
+    ctx.drawImage(
+      goldImage,
+      pos.x + (size + ctx.measureText(price).width - SHOP_GOLD_IMAGE_WIDTH) / 2 + 5,
+      pos.y + size - margin - padding - SHOP_GOLD_IMAGE_HEIGHT / 2,
+      SHOP_GOLD_IMAGE_WIDTH, SHOP_GOLD_IMAGE_HEIGHT
     );
   });
 

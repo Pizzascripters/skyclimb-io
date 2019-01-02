@@ -4,9 +4,9 @@ function restart(ws) {
 }
 
 // Check if we have exited the shop and leave if we have
-function checkShopExit(shopMenu) {
+function checkShopExit(Game) {
   let exited = true;
-  if(shopMenu.length > 0) {
+  if(Game.shopMenu.length > 0 && Game.players.length > 0) {
     const p = Game.players[0];
     for(var i in Game.map.shops) {
       const shop = Game.map.shops[i];
