@@ -4,9 +4,9 @@ function restart(ws) {
 }
 
 // Check if we have exited the shop and leave if we have
-function checkShopExit(shopMenu) {
+function checkShopExit(Game) {
   let exited = true;
-  if(shopMenu.length > 0) {
+  if(Game.shopMenu.length > 0 && Game.players.length > 0) {
     const p = Game.players[0];
     for(var i in Game.map.shops) {
       const shop = Game.map.shops[i];
@@ -93,6 +93,9 @@ function loadImages(images, callback) {
     images.shrapnel[Number(imageNames[i])] = loadImage("shrapnel/" + imageNames[i], onload);
   }
 
+  // Jetpack
+  images.jetpack = loadImage("jetpack", onload);
+
   // Eyes
   images.eyes = {};
   imageNames = ["generic", "sans"];
@@ -167,7 +170,7 @@ function loadScript(name){
   script.src = "js/" + name + ".js";
   document.head.appendChild(script);
 }
-let scripts = ["anim", "constants", "draw", "input", "io", "Item"];
+let scripts = ["anim", "constants", "draw", "Flame", "input", "io", "Item", "Particle"];
 scripts.map(x => loadScript(x));
 
 function fullscreen(cvs){

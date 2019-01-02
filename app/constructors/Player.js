@@ -14,17 +14,15 @@ const PLAYER_START_POS = [
 ];
 const PLAYER_RADIUS = 50;
 
-module.exports = function(ws, id, world){
-  this.ws = ws;
+module.exports = function(id, ws, world){
   this.id = id;
   this.name = "guest" + id;
+  this.ws = ws;
+  this.ws.player = this;
 
-  this.state = 0;
-  this.CHOOSING_NAME = 0; // Checking if name is valid
-  this.PLAYING = 1;       // Playing in the game
-  this.DISCONNECTED = 2;  // Socket closed by client but player is still alive
-  this.SPECTATING = 3;    // Player is dead but socket is still open
-  this.DELETED = 4;       // Player is dead and the socket was closed
+  this.choosingName = true;
+  this.connected = true;
+  this.alive = true;
 
   this.keyboard = {
     left: false,
@@ -53,13 +51,41 @@ module.exports = function(ws, id, world){
     this.inventory.items[i] = new Item( itemIds[i] );
   this.inventory.amt = [3, 3, 0];
 
+  this.getItem = () => {
+    return this.inventory.items[this.inventory.select];
+  }
+
+  this.getAmt = () => {
+    if(this.inventory.select >= 3) {
+      return this.inventory.amt[this.inventory.select - 3];
+    } else {
+      return 1;
+    }
+  }
+
+  this.inGame = () => {
+    return !this.choosingName && this.alive;
+  }
+
+  this.isPlaying = () => {
+    return !this.choosingName && this.connected && this.alive;
+  }
+
+  this.isSpectating = () => {
+    return !this.choosingName && this.connected && !this.alive;
+  }
+
+  this.isDeleted = () => {
+    return !this.choosingName && !this.connected && !this.alive;
+  }
+
   this.spawn = () => {
     const rand = Math.floor(Math.random() * PLAYER_START_POS.length)
     this.body = Matter.Bodies.circle(PLAYER_START_POS[rand].x, PLAYER_START_POS[rand].y, PLAYER_RADIUS);
     this.body.restitution = 0.3;
     this.body.radius = this.radius = PLAYER_RADIUS;
     Matter.World.addBody(world, this.body);
-    this.state = this.PLAYING;
+    this.choosingName = false;
   }
 
   // Player gets an item
@@ -106,7 +132,7 @@ module.exports = function(ws, id, world){
 
   // Programmed cell suicide
   this.apoptosis = (world, loot) => {
-    if(this.state === this.SPECTATING) return 1;
+    if(!this.alive) return 1;
 
     Matter.Composite.remove(world, this.body);
 
@@ -124,11 +150,7 @@ module.exports = function(ws, id, world){
       loot.push(new Loot(world, 225, this.body.position, Math.random() * 2 * Math.PI, this.shells));
     }
 
-    this.state = this.SPECTATING;
+    this.alive = false;
     return 0;
-  }
-
-  this.getItem = () => {
-    return this.inventory.items[this.inventory.select];
   }
 }

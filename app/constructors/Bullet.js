@@ -36,6 +36,7 @@ module.exports = function (world, p, accuracy = 0, type = 0, damage = BULLET_DAM
   } else if(this.type === 2) {
     body = this.body = Matter.Bodies.rectangle(bulletX, bulletY, 10, 10);
   }
+  body.angle = angle;
   Matter.Body.setVelocity(
     this.body,
     {x: xVelocity, y: yVelocity}

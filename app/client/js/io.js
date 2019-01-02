@@ -144,6 +144,7 @@ function setPlayers(data, Game){
       throwables = Game.throwables,
       loot = Game.loot,
       leaderboard = Game.leaderboard,
+      flames = Game.flames,
       cam = Game.cam;
 
   // Clear the arrays
@@ -198,6 +199,15 @@ function setPlayers(data, Game){
       player.shells = readInt(data, ref);
     }
 
+    player.flame = readBool(data, ref);
+    if(player.flame) {
+      if(!flames[player.name]) {
+        flames[player.name] = new Flame();
+      }
+    } else {
+      delete flames[player.name];
+    }
+
     players.push(player);
 
     if(players.length === 1 && !spectating) { // If we're loading yourself
@@ -230,8 +240,8 @@ function setPlayers(data, Game){
     throwable.x = readInt(data, ref);
     throwable.y = readInt(data, ref);
     throwable.angle = readInt(data, ref);
-    throwable.width = 30;
-    throwable.height = 30;
+    throwable.width = 40;
+    throwable.height = 40;
     throwables.push(throwable);
   }
 
@@ -314,6 +324,14 @@ function readInt(a, ref) {
   ref.i += 4;
   return bytesToInt([b1, b2, b3, b4]);
 }
+
+// Reads a one byte boolean from an index in a byte array
+function readBool(a, ref) {
+  let x = a[ref.i];
+  ref.i++;
+  return x ? true : false;
+}
+
 
 // Reads a string from an index in a byte array
 function readString(a, ref){

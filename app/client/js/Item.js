@@ -33,8 +33,8 @@ function initItems(items, images) {
   items[1] = new Item(1, "Glock", images.weapons.glock);
   items[32] = new Item(32, "Ak47", images.weapons.ak47, 100, 50, -50);
   items[64] = new Item(64, "Pump", images.weapons.pump, 100, 50, -50);
-  items[128] = new Item(128, "Nade", images.items.nade, 20, 20);
-  items[192] = new Item(192, "Bandage", images.items.bandage, 20, 20);
+  items[128] = new Item(128, "Nade", images.items.nade, 40, 40);
+  items[192] = new Item(192, "Bandage", images.items.bandage, 40, 40);
   items[224] = new Item(224, "Bullet", images.stats.bullets, 30, 30);
   items[225] = new Item(225, "Shell", images.stats.shells, 30, 30);
 }

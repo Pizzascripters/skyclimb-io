@@ -7,44 +7,29 @@ const distance = require('../util/distance');
 const insideRect = require('../util/insideRect');
 const io = require('./io');
 
-const RECOIL = 0.0005;
-const KNOCKBACK = 0.001;
-const TERMINAL_X_VELOCITY = 30;
-const TERMINAL_Y_VELOCITY = 30;
-const JUMP_ACCELERATION = 0.03;
-const JETPACK_CHARGE_SPEED = 0.003;
-const JETPACK_DRAIN_SPEED = 0.009;
-const HORIZONTAL_ACCELERTION = 0.01;
-const GRAVITY = 0.003;
-const WATER_DAMAGE = 0.01;
-
-const SHOOTING_COOLDOWN = {
-  1: 10,
-  64: 30
-}
-
+// Everything that needs to happen on engine tick goes here
 module.exports = function(Game){
 
-  world.gravity.y = 0; // I'm making my own gravity
+  world.gravity.y = 0; // I need to make my own gravity so bullets aren't affected
 
   for(var i in Game.players){
     let p = Game.players[i];
-    if(p.state !== p.PLAYING && p.state !== p.DISCONNECTED)
+    if(!p.inGame())
       continue;
 
-    doGravity(p.body, Game.WATER_HEIGHT);
-    waterDamage(Game.world, Game.loot, p, Game.WATER_HEIGHT);
-    handleMovement(p, p.body);
-    handleShooting(p, p.body, Game.bullets);
+    doGravity(p.body, Game.WATER_HEIGHT, Game.GRAVITY);
+    waterDamage(Game.world, Game.loot, p, Game.WATER_HEIGHT, Game.WATER_DAMAGE);
+    handleMovement(p, p.body, Game.HORIZONTAL_ACCELERTION, Game.JETPACK_ACCELERATION, Game.JETPACK_DRAIN_SPEED);
+    handleShooting(p, p.body, Game.bullets, Game.RECOIL);
     handleThrowing(p, p.body, Game.bullets, Game.throwables);
     handleConsuming(p);
-    terminalVelocity(p.body);
-    chargeJetpack(p);
+    handleLooting(p, Game.world, Game.loot);
+    terminalVelocity(p.body, Game.TERMINAL_X_VELOCITY, Game.TERMINAL_Y_VELOCITY);
+    chargeJetpack(p, Game.JETPACK_CHARGE_SPEED);
     sendShopData(p, Game.map.shops);
     if(p.keyboard.drop) dropWeapon(p, Game.world, Game.loot);
-    handleLooting(p, Game.world, Game.loot);
 
-    // Sticky buttons only reset on update, not in io
+    // Sticky buttons only reset on physics update, not in io
     let stickyButtons = ["throw", "consume", "select", "drop", "loot"]
     for(var i in p.keyboard) {
       if(stickyButtons.indexOf(i) !== -1) {
@@ -55,18 +40,18 @@ module.exports = function(Game){
 
   for(var i in Game.throwables){
     let t = Game.throwables[i];
-    doGravity(t.body, Game.WATER_HEIGHT, true);
+    doGravity(t.body, Game.WATER_HEIGHT, Game.GRAVITY);
   }
 
   for(var i in Game.loot){
     let l = Game.loot[i];
-    doGravity(l.body, Game.WATER_HEIGHT, true);
+    doGravity(l.body, Game.WATER_HEIGHT, Game.GRAVITY);
   }
 
-  bulletCollisions(Game.players, Game.bullets, Game.map.bodies, Game.loot);
+  bulletCollisions(Game.players, Game.bullets, Game.map.bodies, Game.loot, Game.KNOCKBACK);
 }
 
-function doGravity(body, WATER_HEIGHT, floats){
+function doGravity(body, WATER_HEIGHT, GRAVITY){
   Matter.Body.applyForce(body,
     {x: body.position.x, y: body.position.y},
     {x: 0, y: GRAVITY * body.mass}
@@ -84,7 +69,7 @@ function doGravity(body, WATER_HEIGHT, floats){
   }
 }
 
-function waterDamage(world, loot, p, WATER_HEIGHT) {
+function waterDamage(world, loot, p, WATER_HEIGHT, WATER_DAMAGE) {
   if(p.body.position.y >= WATER_HEIGHT) {
     p.health -= WATER_DAMAGE;
     if(p.health <= 0) {
@@ -93,12 +78,12 @@ function waterDamage(world, loot, p, WATER_HEIGHT) {
   }
 }
 
-function handleMovement(p, body) {
+function handleMovement(p, body, HORIZONTAL_ACCELERATION, JETPACK_ACCELERATION, JETPACK_DRAIN_SPEED) {
   if(p.keyboard.left){
     Matter.Body.applyForce(
       body,
       {x: body.position.x, y: body.position.y},
-      {x: -HORIZONTAL_ACCELERTION, y: 0}
+      {x: -HORIZONTAL_ACCELERATION, y: 0}
     );
   }
 
@@ -106,7 +91,7 @@ function handleMovement(p, body) {
     Matter.Body.applyForce(
       body,
       {x: body.position.x, y: body.position.y},
-      {x: HORIZONTAL_ACCELERTION, y: 0}
+      {x: HORIZONTAL_ACCELERATION, y: 0}
     );
   }
 
@@ -114,13 +99,13 @@ function handleMovement(p, body) {
     Matter.Body.applyForce(
       body,
       {x: body.position.x, y: body.position.y},
-      {x: 0, y: -JUMP_ACCELERATION}
+      {x: 0, y: -JETPACK_ACCELERATION}
     );
     p.energy -= JETPACK_DRAIN_SPEED;
   }
 }
 
-function handleShooting(p, body, bullets) {
+function handleShooting(p, body, bullets, RECOIL) {
   const item = p.getItem();
 
   if(p.keyboard.shoot && item.shootingCooldown === 0 && item.type === "weapon") {
@@ -204,7 +189,7 @@ function handleConsuming(p) {
   }
 }
 
-function terminalVelocity(body){
+function terminalVelocity(body, TERMINAL_X_VELOCITY, TERMINAL_Y_VELOCITY){
   if(body.velocity.x < -TERMINAL_X_VELOCITY)
     Matter.Body.setVelocity(body, {x: -TERMINAL_X_VELOCITY, y: body.velocity.y});
   if(body.velocity.x > TERMINAL_X_VELOCITY)
@@ -215,7 +200,7 @@ function terminalVelocity(body){
     Matter.Body.setVelocity(body, {x: body.velocity.x, y: TERMINAL_Y_VELOCITY});
 }
 
-function chargeJetpack(p){
+function chargeJetpack(p, JETPACK_CHARGE_SPEED){
   if(p.energy < 1)
     p.energy += JETPACK_CHARGE_SPEED; // Charge the jetpack
 
@@ -225,7 +210,7 @@ function chargeJetpack(p){
     p.energy = 0;
 }
 
-function bulletCollisions(players, bullets, map, loot){
+function bulletCollisions(players, bullets, map, loot, KNOCKBACK){
   for(var i1 in bullets) {
     let b = bullets[i1];
     if(b.deleted) continue;
@@ -237,7 +222,7 @@ function bulletCollisions(players, bullets, map, loot){
 
     for(var i2 in players) {
       let p = players[i2];
-      if(p.deleted) continue;
+      if(!p.inGame()) continue;
 
       if(Matter.SAT.collides(b.body, p.body).collided){
         // Knockback
@@ -253,8 +238,9 @@ function bulletCollisions(players, bullets, map, loot){
 
     for(var i2 in map) {
       const obj = map[i2];
-      if(Matter.SAT.collides(b.body, obj).collided)
+      if(Matter.SAT.collides(b.body, obj).collided) {
         b.apoptosis();
+      }
     }
   }
 }
@@ -269,7 +255,7 @@ function sendShopData(p, shops) {
       height: shops[i].height + p.radius * 2
     }
     if(insideRect(p.body.position, rect) && p.keyboard.select) {
-      io.shopData(p, shops[i]);
+      io.sendShopMenu(p, shops[i]);
     }
   }
 }
@@ -277,8 +263,9 @@ function sendShopData(p, shops) {
 // Called when player drops a weapon
 function dropWeapon(p, world, loot){
   // Spawn a new item
-  if(p.getItem().id !== 0)
-    loot.push(new Loot(world, p.getItem().id, p.body.position, 2 * Math.PI * p.hand / 256));
+  if(p.getItem().id !== 0) {
+    loot.push(new Loot(world, p.getItem().id, p.body.position, 2 * Math.PI * p.hand / 256, p.getAmt()));
+  }
 
   // Copy an empty item into the player's selected slot
   let dest = p.getItem();

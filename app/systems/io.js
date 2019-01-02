@@ -1,50 +1,110 @@
+const fs = require('fs');
+
+const Player = require('../constructors/Player');
 const distance = require('../util/distance');
 const insideRect = require('../util/insideRect');
-
-const VISIBILITY = 1100; // Any objectect at a greater distance will not be sent to client
-const WATER_HEIGHT = 6000;
+const isAlphaNumeric = require('../util/isAlphaNumeric');
 
 const io = module.exports = {
-  handle: (ws, p, Game, packet) => {
-    if(p.state === p.SPECTATING) return 1;
+  httpHandle: (req, res, dirname) => {
+    if(req.url === '/') {
+      res.sendFile(dirname + '/client/index.html');
+    } else if(req.url.startsWith('/img')) {
+      fs.access(dirname + '/client' + req.url, err => {
+        if(err) {
+          res.sendFile(dirname + '/client/img/notexture.png'); // 404 -> No texture image
+        } else {
+          res.sendFile(dirname + '/client' + req.url);
+        }
+      });
+    } else {
+      res.sendFile(dirname + '/client' + req.url);
+    }
+  },
+
+  // Called when a client establishes a new connection
+  wsConnection: (ws, Game) => {
+    const playerId = Game.players.length; // The player's id is its index
+    let player = new Player(playerId, ws, Game.world);
+    Game.players.push(player);
+    console.log("New client, id: %d", playerId);
+
+    ws.on('message', packet => {
+      io.wsMessage(ws, Game, player, packet);
+    });
+
+    ws.on('close', () => {
+      io.wsClose(player);
+    });
+
+    io.sendMapData(ws, Game.map, Game.WATER_HEIGHT); // Send map data
+  },
+
+  // Called when server recieves a websocket packet
+  wsMessage: (ws, Game, p, packet) => {
+    if(!p.alive) return 1;
+
     const data = new Uint8Array(packet);
-    switch( data[0] ){
+    switch(data[0]){
       case 0: // Ping
         io.pong(ws);
         break;
       case 1: // Keyboard Input
-        io.setKeyboard(ws, packet.slice(1), p);
+        io.setKeyboard(ws, p, packet.slice(1));
         break;
       case 2: // Request Map Data
-        io.mapData(ws, Game.map);
+        io.sendMapData(ws, Game.map);
         break;
       case 3: // Buy Item
-        io.buyItem(ws, p, Game.map.shops, packet[1], packet[2]);
+        io.buyItem(ws, Game.map.shops, p, packet[1], packet[2]);
         break;
-      case 4:
-        switch(io.setName(ws, packet.slice(1), Game.players, p)) {
+      case 4: // Set name
+        switch(io.setName(ws, Game.players, p, packet.slice(1))) {
           case 0:
             p.spawn();
             break;
           case 1:
             io.sendError(ws, "Name already taken");
-            p.state = p.DELETED;
-            ws.close();
             break;
           case 2:
             io.sendError(ws, "Invalid Name");
-            p.state = p.DELETED;
-            ws.close();
             break;
         }
         break;
     }
   },
 
-  /*  Following are a series of functions that send a packet to the client
+  wsClose: (player) => {
+    player.connected = false;
+  },
+
+  update: (Game) => {
+    // Remove deleted objects
+    for(var i in Game.players)
+      if(Game.players[i].isDeleted())
+        delete Game.players[i];
+    for(var i in Game.bullets)
+      if(Game.bullets[i].deleted)
+        delete Game.bullets[i];
+    for(var i in Game.throwables)
+      if(Game.throwables[i].deleted)
+        delete Game.throwables[i];
+    for(var i in Game.loot)
+      if(Game.loot[i].deleted)
+        delete Game.loot[i];
+
+    // Send all players the player data
+    for(var i in Game.players){
+      const p = Game.players[i];
+      if(p.connected && !p.choosingName)
+        io.sendGameData(Game, p);
+    }
+  },
+
+  /*  The following functions send a packet to the client
       Each has a 1 byte header to identify its purpose */
 
-  pong: ws => { // 0 - Return ping
+  pong: (ws) => { // 0 - Return ping
     if(ws.readyState === ws.CLOSED)
       return 1;
 
@@ -54,8 +114,8 @@ const io = module.exports = {
     return 0;
   },
 
-  setKeyboard: (ws, packet, player) => { // 1 - Update keyboard object
-    // Sticky buttons only reset on update, not in io
+  setKeyboard: (ws, player, packet) => { // 1 - Update keyboard
+    // Sticky buttons only reset on physics update, not in io
     let stickyButtons = ["throw", "consume", "select", "drop", "loot"]
     for(var i in player.keyboard) {
       if(stickyButtons.indexOf(i) === -1) {
@@ -63,20 +123,20 @@ const io = module.exports = {
       }
     }
 
-    let ref = {i:0}; // We want to pass i by reference to readInt can increment it
+    let ref = {i:0}; // We want to pass i by reference so readByte can increment it
 
-    player.hand = readInt(packet, ref);
-    if(readInt(packet, ref)) player.keyboard.left = true;
-    if(readInt(packet, ref)) player.keyboard.right = true;
-    if(readInt(packet, ref)) player.keyboard.jump = true;
-    if(readInt(packet, ref)) player.keyboard.shoot = true;
-    if(readInt(packet, ref)) player.keyboard.select = true;
-    if(readInt(packet, ref)) player.keyboard.drop = true;
-    if(readInt(packet, ref)) player.keyboard.loot = true;
-    player.inventory.select = readInt(packet, ref);
+    player.hand = readByte(packet, ref);
+    if(readByte(packet, ref)) player.keyboard.left = true;
+    if(readByte(packet, ref)) player.keyboard.right = true;
+    if(readByte(packet, ref)) player.keyboard.jump = true;
+    if(readByte(packet, ref)) player.keyboard.shoot = true;
+    if(readByte(packet, ref)) player.keyboard.select = true;
+    if(readByte(packet, ref)) player.keyboard.drop = true;
+    if(readByte(packet, ref)) player.keyboard.loot = true;
+    player.inventory.select = readByte(packet, ref);
   },
 
-  mapData: (ws, map, WATER_HEIGHT) => { // Send map data
+  sendMapData: (ws, map, WATER_HEIGHT) => { // Send map data
     if(ws.readyState === ws.CLOSED || ws.readyState === ws.CLOSING)
       return 1;
 
@@ -86,7 +146,7 @@ const io = module.exports = {
 
     packet.push( WATER_HEIGHT );
 
-    // Add the body to the packet
+    // Add the object to the packet
     function addObject(obj) {
       packet.push( obj.length );
       for(var i in obj){
@@ -104,13 +164,14 @@ const io = module.exports = {
       packet.push( shop.height );
     }
 
-    // Sends the outline of the map
+    // Send the outline of the map
     packet.push(map.objects.length);
     for(var i in map.objects)
       addObject(map.objects[i]);
 
-    // Sends the physical map (for debugging only)
-    /*for(var i1 in map.bodies) {
+    // Send the physical map (for debugging only)
+    /*packet.push(map.bodies.length);
+    for(var i1 in map.bodies) {
       packet.push(map.bodies[i1].vertices.length);
       for(var i2 in map.bodies[i1].vertices) {
         packet.push(map.bodies[i1].vertices[i2].x);
@@ -118,22 +179,17 @@ const io = module.exports = {
       }
     }*/
 
-    // Sends all the shops
+    // Send all the shops
     packet.push(map.shops.length);
     for(var i in map.shops)
       addShop(map.shops[i]);
 
-    // Turn all the numbers into bytes
-    for(var i in packet)
-      packet[i] = Buffer.from( intToBytes(packet[i]) );
-
-    packet = Buffer.concat( packet );
-    ws.send( Buffer.concat([header, packet]) );
+    sendArray(ws, header, packet);
 
     return 0;
   },
 
-  buyItem: (ws, p, shops, slot, amount) => {
+  buyItem: (ws, shops, p, slot, amount) => {
     for(var i in shops) {
       const rect = {
         x: shops[i].x - p.radius,
@@ -143,25 +199,28 @@ const io = module.exports = {
       }
       if(insideRect(p.body.position, rect)) {
         const shop = shops[i];
-        if(shop.items[slot])
+        if(shop.items[slot]) {
           shop.items[slot].buy(p, amount);
+        }
       }
     }
   },
 
-  setName: (ws, packet, players, p) => {
+  setName: (ws, players, p, packet) => {
     var ref = {i:0};
     const name = readString(packet, ref);
-    // Check if anyone else has this name
     for(var i in players) {
-      if(players[i].name.toLowerCase() === name.toLowerCase()) return 1;
+      if(players[i].name.toLowerCase() === name.toLowerCase()) return 1; // Check if anyone else has this name
     }
-    if(name.startsWith("guest")) return 2;
+    if(name.startsWith("guest") || !isAlphaNumeric(name)) return 2; // Check if player has an invalid name
     p.name = name;
     return 0;
   },
 
-  playerData: (p, Game) => { // Send player and bullet data
+  sendGameData: (Game, p) => { // Send player and bullet data
+    if(p.ws.readyState === p.ws.CLOSED || p.ws.readyState === p.ws.CLOSING)
+      return 1;
+
     const id = p.id,
           ws = p.ws;
 
@@ -171,26 +230,14 @@ const io = module.exports = {
         loot = Game.loot,
         world = Game.world;
 
-    if(ws.readyState === ws.CLOSED || ws.readyState === ws.CLOSING) {
-      if(p.state === p.PLAYING) {
-        p.state = p.DISCONNECTED;
-      } else if(p.state === p.SPECTATING) {
-        p.state = p.DELETED;
-      }
-      return 1;
-    }
-
-    if(p.state !== p.PLAYING && p.state !== p.SPECTATING)
-      return 2;
-
     // 1 byte header
     const header = Buffer.from( new Uint8Array([2]) );
     let packet = [];
 
     packet.push(0, 0, 0, 0, 0); // For counting players, bullets, throwables, loot, and leaderboard size
-    packet.push(p.state === p.SPECTATING ? 1 : 0);
+    packet.push(p.isSpectating() ? 1 : 0);
 
-    if(p.state === p.SPECTATING) {
+    if(p.isSpectating()) {
       packet.push(p.body.position.x);
       packet.push(p.body.position.y);
       packet.push(p.kills);
@@ -223,6 +270,8 @@ const io = module.exports = {
         packet.push( p.bullets );
         packet.push( p.shells );
       }
+
+      packet.push(p.keyboard.jump); // The flame below the jetpack
     }
 
     function addBullet(b) {
@@ -252,18 +301,19 @@ const io = module.exports = {
     let numThrowables = 0;
     let numLoot = 0;
 
-    if(players[id].state === players[id].PLAYING) {
-      addPlayer(players[id]); // Add yourself to the player packet
+    if(p.isPlaying()) {
+      addPlayer(p); // Add yourself to the player packet
       numPlayers++;
     }
 
+    // Add all the other players
     for(var i in players){
       if(
-        (players[i].state === players[i].PLAYING || players[i].state === players[i].DISCONNECTED) &&
+        players[i].inGame() &&
         i !== String(id) &&
-        distance(p.body.position, players[i].body.position) < VISIBILITY
+        distance(p.body.position, players[i].body.position) < Game.VISIBILITY
       ) {
-        addPlayer(players[i]); // Add all the other players
+        addPlayer(players[i]);
         numPlayers++;
       }
     }
@@ -271,7 +321,7 @@ const io = module.exports = {
     for(var i in bullets){
       if(
         !bullets[i].deleted &&
-        distance(p.body.position, bullets[i].body.position) < VISIBILITY
+        distance(p.body.position, bullets[i].body.position) < Game.VISIBILITY
       ) {
         addBullet(bullets[i]); // Add the bullets
         numBullets++; // Count the bullets
@@ -281,7 +331,7 @@ const io = module.exports = {
     for(var i in throwables){
       if(
         !throwables[i].deleted &&
-        distance(p.body.position, throwables[i].body.position) < VISIBILITY
+        distance(p.body.position, throwables[i].body.position) < Game.VISIBILITY
       ) {
         addThrowable(throwables[i]); // Add the throwables
         numThrowables++; // Count the throwables
@@ -291,7 +341,7 @@ const io = module.exports = {
     for(var i in loot){
       if(
         !loot[i].deleted &&
-        distance(p.body.position, loot[i].body.position) < VISIBILITY
+        distance(p.body.position, loot[i].body.position) < Game.VISIBILITY
       ) {
         gimmeTheLoot(loot[i]); // Gimme the loot!
         numLoot++; // Count the loot
@@ -300,19 +350,18 @@ const io = module.exports = {
 
     // Leaderboard
     var leaderboard = [];
-    for(var i in players){
-      const p = players[i];
-      if(p.state !== p.PLAYING && p.state !== p.DISCONNECTED) continue;
-      var i = leaderboard.findIndex(player => {
-        return player.score > p.score;
+    for(var i1 in players){
+      if(!players[i1].inGame()) continue;
+      var i2 = leaderboard.findIndex(player => {
+        return player.score > players[i1].score;
       });
-      if(i) {
-        leaderboard.splice(i, 0, p);
+      if(i2 !== -1) {
+        leaderboard.splice(i2, 0, players[i1]);
       } else {
-        leaderboard.push(p);
+        leaderboard.push(players[i1]);
       }
     }
-    for(var i = 0; i < Math.min(10, leaderboard.length); i++) {
+    for(var i = Math.min(10, leaderboard.length)-1; i >= 0; i--) {
       packet.push(leaderboard[i].name);
       packet.push(leaderboard[i].score);
     }
@@ -326,7 +375,7 @@ const io = module.exports = {
     sendArray(ws, header, packet);
   },
 
-  shopData: (p, shop) => {
+  sendShopMenu: (p, shop) => {
     let packet = [shop.type];
     for(var i in shop.items) {
       packet.push(shop.items[i].id);
@@ -338,6 +387,8 @@ const io = module.exports = {
 
   sendError: (ws, error) => {
     sendArray(ws, Buffer.from(new Uint8Array([4])), [error]);
+    ws.player.alive = false;
+    ws.close();
   }
 }
 
@@ -351,6 +402,9 @@ function sendArray(ws, header, packet) {
       case "string":
         packet[i] = Buffer.from( strToBytes(packet[i]) );
         break;
+      case "boolean":
+        packet[i] = Buffer.from( new Uint8Array([packet[i] ? 1 : 0]) );
+        break;
     }
   }
 
@@ -359,7 +413,7 @@ function sendArray(ws, header, packet) {
 }
 
 // Reads a one byte integer from an index in a byte array
-function readInt(a, ref) {
+function readByte(a, ref) {
   return a[ref.i++];
 }
 
