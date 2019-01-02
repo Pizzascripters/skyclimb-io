@@ -11,6 +11,7 @@ function draw(Game){
         inventory = Game.inventory,
         items = Game.items,
         shopMenu = Game.shopMenu,
+        flames = Game.flames,
         images = Game.images;
 
   const bg_gradient = getBackgroundGradient(ctx, cam);
@@ -31,11 +32,11 @@ function draw(Game){
     drawThrowable(ctx, throwables[i], images.items.nade, cam);
 
   // Draw the players
-  ctx.strokeStyle = PLAYER_OUTLINE_COLOR;
-  ctx.lineWidth = PLAYER_OUTLINE_WIDTH * (cvs.width / FRAME_WIDTH);
-  ctx.fillStyle = PLAYER_COLOR;
-  for(var i in players)
+  for(var i in players) {
+    drawJetpack(ctx, cam, players[i], images.jetpack);
+    drawFlame(ctx, cam, players[i], flames[players[i].name]);
     drawPlayer(ctx, cam, players[i], PLAYER_OUTLINE, images.eyes.generic, items[players[i].weapon]);
+  }
 
   // Draw the map
   for(var i in map.objects) {
@@ -152,10 +153,29 @@ function drawThrowable(ctx, t, image, cam) {
   ctx.restore();
 }
 
+function drawJetpack(ctx, cam, p, jetpack) {
+  const v = getVertexPosition(p, cam)
+        width = jetpack.width * cvs.width / FRAME_WIDTH,
+        height = jetpack.height * cvs.width / FRAME_WIDTH;
+  ctx.drawImage(jetpack, v.x - width/2, v.y - height/2, width, height);
+}
+
+function drawFlame(ctx, cam, p, flame) {
+  const v = getVertexPosition(p, cam);
+  if(flame) {
+    flame.update();
+    flame.render(ctx, v.x, v.y + 60 * cvs.width / FRAME_WIDTH);
+  }
+}
+
 function drawPlayer(ctx, cam, p, outline, eyes, weapon) {
   const v = getVertexPosition(p, cam),
         handAngle = 2 * Math.PI * p.hand / 256,
         radius = p.radius * cvs.width / FRAME_WIDTH;
+
+  ctx.strokeStyle = PLAYER_OUTLINE_COLOR;
+  ctx.lineWidth = PLAYER_OUTLINE_WIDTH * (cvs.width / FRAME_WIDTH);
+  ctx.fillStyle = PLAYER_COLOR;
 
   ctx.beginPath();
   ctx.arc(v.x, v.y, radius, 0, 2 * Math.PI);

@@ -10,6 +10,7 @@ function init(e){
   Game.throwables = [];
   Game.loot = [];
   Game.leaderboard = [];
+  Game.flames = {};
 
   Game.images = {};
   loadImages(Game.images, () => {

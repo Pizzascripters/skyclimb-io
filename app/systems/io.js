@@ -96,7 +96,7 @@ const io = module.exports = {
     // Send all players the player data
     for(var i in Game.players){
       const p = Game.players[i];
-      if(p.connected)
+      if(p.connected && !p.choosingName)
         io.sendGameData(Game, p);
     }
   },
@@ -165,19 +165,19 @@ const io = module.exports = {
     }
 
     // Send the outline of the map
-    /*packet.push(map.objects.length);
+    packet.push(map.objects.length);
     for(var i in map.objects)
-      addObject(map.objects[i]);*/
+      addObject(map.objects[i]);
 
     // Send the physical map (for debugging only)
-    packet.push(map.bodies.length);
+    /*packet.push(map.bodies.length);
     for(var i1 in map.bodies) {
       packet.push(map.bodies[i1].vertices.length);
       for(var i2 in map.bodies[i1].vertices) {
         packet.push(map.bodies[i1].vertices[i2].x);
         packet.push(map.bodies[i1].vertices[i2].y);
       }
-    }
+    }*/
 
     // Send all the shops
     packet.push(map.shops.length);
@@ -270,6 +270,8 @@ const io = module.exports = {
         packet.push( p.bullets );
         packet.push( p.shells );
       }
+
+      packet.push(p.keyboard.jump); // The flame below the jetpack
     }
 
     function addBullet(b) {
@@ -299,15 +301,15 @@ const io = module.exports = {
     let numThrowables = 0;
     let numLoot = 0;
 
-    if(players[id].isPlaying()) {
-      addPlayer(players[id]); // Add yourself to the player packet
+    if(p.isPlaying()) {
+      addPlayer(p); // Add yourself to the player packet
       numPlayers++;
     }
 
     // Add all the other players
     for(var i in players){
       if(
-        players[i].alive &&
+        players[i].inGame() &&
         i !== String(id) &&
         distance(p.body.position, players[i].body.position) < Game.VISIBILITY
       ) {
@@ -348,19 +350,18 @@ const io = module.exports = {
 
     // Leaderboard
     var leaderboard = [];
-    for(var i in players){
-      const p = players[i];
-      if(!p.alive) continue;
-      var i = leaderboard.findIndex(player => {
-        return player.score > p.score;
+    for(var i1 in players){
+      if(!players[i1].inGame()) continue;
+      var i2 = leaderboard.findIndex(player => {
+        return player.score > players[i1].score;
       });
-      if(i) {
-        leaderboard.splice(i, 0, p);
+      if(i2 !== -1) {
+        leaderboard.splice(i2, 0, players[i1]);
       } else {
-        leaderboard.push(p);
+        leaderboard.push(players[i1]);
       }
     }
-    for(var i = 0; i < Math.min(10, leaderboard.length); i++) {
+    for(var i = Math.min(10, leaderboard.length)-1; i >= 0; i--) {
       packet.push(leaderboard[i].name);
       packet.push(leaderboard[i].score);
     }
@@ -400,6 +401,9 @@ function sendArray(ws, header, packet) {
         break;
       case "string":
         packet[i] = Buffer.from( strToBytes(packet[i]) );
+        break;
+      case "boolean":
+        packet[i] = Buffer.from( new Uint8Array([packet[i] ? 1 : 0]) );
         break;
     }
   }

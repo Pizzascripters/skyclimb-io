@@ -93,6 +93,9 @@ function loadImages(images, callback) {
     images.shrapnel[Number(imageNames[i])] = loadImage("shrapnel/" + imageNames[i], onload);
   }
 
+  // Jetpack
+  images.jetpack = loadImage("jetpack", onload);
+
   // Eyes
   images.eyes = {};
   imageNames = ["generic", "sans"];
@@ -167,7 +170,7 @@ function loadScript(name){
   script.src = "js/" + name + ".js";
   document.head.appendChild(script);
 }
-let scripts = ["anim", "constants", "draw", "input", "io", "Item"];
+let scripts = ["anim", "constants", "draw", "Flame", "input", "io", "Item", "Particle"];
 scripts.map(x => loadScript(x));
 
 function fullscreen(cvs){
