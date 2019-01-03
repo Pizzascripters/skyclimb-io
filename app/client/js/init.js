@@ -15,6 +15,7 @@ function init(e){
   Game.images = {};
   loadImages(Game.images, () => {
     requestAnimationFrame(time => {
+      Game.snow = createSnow(Game.images.particles.snow);
       update(Game, time);
     });
   });
@@ -132,7 +133,7 @@ function update(Game, time){
 
   cvs.style.cursor = "default";
   draw(Game);
-  anim.main(delta, Game.inventory);
+  anim.main(delta, Game.inventory, Game.snow);
 
   if(restarting) {
     restart(Game.ws);

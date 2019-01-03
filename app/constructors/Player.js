@@ -40,8 +40,8 @@ module.exports = function(id, ws, world){
   this.kills = 0;
   this.gold = 0;
   this.score = 0;
-  this.bullets = 50;
-  this.shells = 5;
+  this.bullets = 500;
+  this.shells = 200;
 
   this.inventory = {};
   this.inventory.select = 4;

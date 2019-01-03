@@ -15,6 +15,7 @@ const SHOP_MENU_TEXT_HEIGHT = 18;
 const SHOP_GOLD_IMAGE_WIDTH = 30;
 const SHOP_GOLD_IMAGE_HEIGHT = 30;
 
+const SNOW_PARTICLES = 100;
 const PLAYER_COLOR = "#fc7";
 const PLAYER_OUTLINE = true;
 const PLAYER_OUTLINE_COLOR = "#000";
@@ -28,4 +29,4 @@ const FRAME_WIDTH = 2000;
 
 // For the background gradient
 const GREATEST_Y_VALUE = 8000;
-const LEAST_Y_VALUE = 0;
+const LEAST_Y_VALUE = -1000;

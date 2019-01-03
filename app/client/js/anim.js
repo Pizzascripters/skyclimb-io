@@ -1,6 +1,7 @@
 var anim = {
-  main: (delta, inventory) => {
+  main: (delta, inventory, snow) => {
     anim.inventory(delta, inventory);
+    anim.snow(delta, snow);
   },
 
   inventory: (delta, inventory) => {
@@ -16,5 +17,11 @@ var anim = {
       else if(inventory.anim[i] < INVENTORY_COLLAPSED_HEIGHT)
         inventory.anim[i] = INVENTORY_COLLAPSED_HEIGHT;
     }
+  },
+
+  snow: (delta, snow) => {
+    snow.forEach(element => {
+      element.update(delta);
+    });
   }
 }

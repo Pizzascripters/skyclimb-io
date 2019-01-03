@@ -93,6 +93,26 @@ function loadImages(images, callback) {
     images.shrapnel[Number(imageNames[i])] = loadImage("shrapnel/" + imageNames[i], onload);
   }
 
+  // Particles
+  images.particles = {};
+  let particleNames = {
+    "snow": ["1", "2", "3"]
+  };
+  for(var i1 in particleNames) {
+    images.particles[i1] = [];
+    for(var i2 in particleNames[i1]) {
+      const img = loadImage("particles/" + i1 + "/" + particleNames[i1][i2], onload);
+      images.particles[i1].push(img);
+    }
+  }
+
+  // Backgrounds
+  images.backgrounds = {};
+  imageNames = ["moon", "stars", "sunset"];
+  for(var i in imageNames) {
+    images.backgrounds[imageNames[i]] = loadImage("backgrounds/" + imageNames[i], onload)
+  }
+
   // Jetpack
   images.jetpack = loadImage("jetpack", onload);
 
@@ -170,7 +190,7 @@ function loadScript(name){
   script.src = "js/" + name + ".js";
   document.head.appendChild(script);
 }
-let scripts = ["anim", "constants", "draw", "Flame", "input", "io", "Item", "Particle"];
+let scripts = ["anim", "constants", "draw", "Flame", "input", "io", "Item", "Particle", "Snow"];
 scripts.map(x => loadScript(x));
 
 function fullscreen(cvs){

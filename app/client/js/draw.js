@@ -12,6 +12,7 @@ function draw(Game){
         items = Game.items,
         shopMenu = Game.shopMenu,
         flames = Game.flames,
+        snow = Game.snow,
         images = Game.images;
 
   const bg_gradient = getBackgroundGradient(ctx, cam);
@@ -21,6 +22,7 @@ function draw(Game){
   // Fill the background
   ctx.fillStyle = bg_gradient;
   ctx.fillRect(0, 0, cvs.width, cvs.height);
+  drawBackground(ctx, cam, images.backgrounds.sunset, images.backgrounds.stars, snow);
 
   for(var i in map.shops)
     drawShop(ctx, map.shops[i], images.shops, cam);
@@ -71,12 +73,12 @@ function getBackgroundGradient(ctx, cam) {
     0, scale * range - range,
     0, scale * range - range + range
   );
-  bg_gradient.addColorStop(0, "#000");
-  bg_gradient.addColorStop(0.1, "#206");
-  bg_gradient.addColorStop(0.2, "#d22");
-  bg_gradient.addColorStop(0.4, "#fb2");
-  bg_gradient.addColorStop(0.6, "#4cf");
-  bg_gradient.addColorStop(1, "#09f");
+  bg_gradient.addColorStop(0.25, "#000");
+  bg_gradient.addColorStop(0.5, "#206");
+  bg_gradient.addColorStop(0.75, "#d22");
+  bg_gradient.addColorStop(1, "#fb2");
+  //bg_gradient.addColorStop(0.5, "#4cf");
+  //bg_gradient.addColorStop(1, "#09f");
   return bg_gradient;
 }
 
@@ -106,6 +108,32 @@ function createEnergybar(ctx, image) {
   energybar.gradient.addColorStop(0, "#fd0");
   energybar.gradient.addColorStop(1, "#b90");
   return energybar;
+}
+
+function drawBackground(ctx, cam, sunset, stars, snow) {
+  const range = GREATEST_Y_VALUE - LEAST_Y_VALUE;
+  const scale = (GREATEST_Y_VALUE - cam.y) / range;
+
+  // Sunset
+  let y = cvs.height * scale / 0.5
+  if(y < 0) y = 0;
+  ctx.drawImage(sunset, 0, y, cvs.width, cvs.height);
+
+  // Snow
+  if(scale > 0.5 && scale < 0.9) {
+    ctx.globalAlpha = -10*(scale - 0.9)*(scale - 0.5); // Parabola
+    for(var i in snow) {
+      snow[i].render(ctx);
+    }
+    ctx.globalAlpha = 1;
+  }
+
+  // Stars
+  if(scale > 0.8) {
+    ctx.globalAlpha = 5*(scale - 0.8);
+    ctx.drawImage(stars, 0, 0, cvs.width, cvs.height);
+    ctx.globalAlpha = 1;
+  }
 }
 
 function drawWeapon(ctx, p, item, radius) {
