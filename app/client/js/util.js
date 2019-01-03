@@ -86,6 +86,27 @@ function loadImages(images, callback) {
     images.bullets[imageNames[i]] = loadImage("bullets/" + imageNames[i], onload);
   }
 
+  // Decoration
+  images.decoration = {};
+  let decorNames = {
+    "flowers": ["1", "2", "3"],
+    "grass": ["1", "2"]
+  };
+  for(var i1 in decorNames) {
+    images.decoration[i1] = [];
+    for(var i2 in decorNames[i1]) {
+      const img = loadImage("decoration/" + i1 + "/" + decorNames[i1][i2], onload);
+      images.decoration[i1].push(img);
+    }
+  }
+
+  // Clouds
+  images.clouds = {};
+  imageNames = ["1", "2"];
+  for(var i in imageNames) {
+    images.clouds[Number(imageNames[i])] = loadImage("clouds/" + imageNames[i], onload);
+  }
+
   // Shrapnel
   images.shrapnel = {};
   imageNames = ["1", "2", "3"];
@@ -190,10 +211,18 @@ function loadScript(name){
   script.src = "js/" + name + ".js";
   document.head.appendChild(script);
 }
-let scripts = ["anim", "constants", "draw", "Flame", "input", "io", "Item", "Particle", "Snow"];
+let scripts = ["anim", "constants", "Decoration", "draw", "Flame", "input", "io", "Item", "Particle", "Snow"];
 scripts.map(x => loadScript(x));
 
 function fullscreen(cvs){
   cvs.width = window.innerWidth;
   cvs.height = window.innerHeight;
+}
+
+// Finds the distance between two points
+function distance(p1, p2){
+  return Math.sqrt(
+    Math.pow(p1.x - p2.x, 2) +
+    Math.pow(p1.y - p2.y, 2)
+  );
 }

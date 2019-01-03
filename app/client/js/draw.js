@@ -42,7 +42,10 @@ function draw(Game){
 
   // Draw the map
   for(var i in map.objects) {
-    drawObject(ctx, cam, map.objects[i], images.textures.rock);
+    drawObject(ctx, cam, map.objects[i], images.textures);
+  }
+  for(var i in map.decoration) {
+    drawDecoration(ctx, cam, map.decoration[i]);
   }
   drawWater(ctx, cam, map.waterHeight, images.textures.water);
 
@@ -73,12 +76,10 @@ function getBackgroundGradient(ctx, cam) {
     0, scale * range - range,
     0, scale * range - range + range
   );
-  bg_gradient.addColorStop(0.25, "#000");
-  bg_gradient.addColorStop(0.5, "#206");
-  bg_gradient.addColorStop(0.75, "#d22");
-  bg_gradient.addColorStop(1, "#fb2");
-  //bg_gradient.addColorStop(0.5, "#4cf");
-  //bg_gradient.addColorStop(1, "#09f");
+  bg_gradient.addColorStop(1 - BIOME_STARRY, "#000");
+  bg_gradient.addColorStop(1 - BIOME_SNOWY, "#206");
+  bg_gradient.addColorStop(1 - (BIOME_SNOWY + BIOME_SUNSET)/2, "#d22");
+  bg_gradient.addColorStop(1 - BIOME_SUNSET, "#fb2");
   return bg_gradient;
 }
 
@@ -115,13 +116,13 @@ function drawBackground(ctx, cam, sunset, stars, snow) {
   const scale = (GREATEST_Y_VALUE - cam.y) / range;
 
   // Sunset
-  let y = cvs.height * scale / 0.5
+  let y = cvs.height * scale / BIOME_SNOWY
   if(y < 0) y = 0;
   ctx.drawImage(sunset, 0, y, cvs.width, cvs.height);
 
   // Snow
-  if(scale > 0.5 && scale < 0.9) {
-    ctx.globalAlpha = -10*(scale - 0.9)*(scale - 0.5); // Parabola
+  if(scale > BIOME_SNOWY && scale < BIOME_STARRY) {
+    ctx.globalAlpha = -10*(scale - BIOME_STARRY)*(scale - BIOME_SNOWY); // Parabola
     for(var i in snow) {
       snow[i].render(ctx);
     }
@@ -129,8 +130,8 @@ function drawBackground(ctx, cam, sunset, stars, snow) {
   }
 
   // Stars
-  if(scale > 0.8) {
-    ctx.globalAlpha = 5*(scale - 0.8);
+  if(scale > BIOME_STARRY) {
+    ctx.globalAlpha = 5*(scale - BIOME_STARRY);
     ctx.drawImage(stars, 0, 0, cvs.width, cvs.height);
     ctx.globalAlpha = 1;
   }
@@ -228,20 +229,35 @@ function drawPlayer(ctx, cam, p, outline, eyes, weapon) {
   );
 }
 
-function drawObject(ctx, cam, p, texture) {
+function drawObject(ctx, cam, p, textures) {
   const zoom = cvs.width / FRAME_WIDTH;
   const size = 3 * zoom;
 
+  // Stone Pattern
   const offset = {
     x: -(zoom * cam.x % (size * MOUNTAIN_TEXURE_WIDTH)),
     y: -(zoom * cam.y % (size * MOUNTAIN_TEXURE_HEIGHT))
   }
 
+  /*ctx.save();
+  ctx.scale(zoom, zoom);
+  ctx.translate(-cam.x + cvs.width/2, -cam.y + cvs.height / 2);
+  ctx.scale(size, size);
+  ctx.fillStyle = ctx.createPattern(textures.rock, "repeat");
+
+  ctx.beginPath();
+  ctx.moveTo(p.vertices[0].x / size, p.vertices[0].y / size);
+  for(var i = 1; i < p.vertices.length; i++) {
+    ctx.lineTo(p.vertices[i].x / size, p.vertices[i].y / size);
+  }
+  ctx.lineTo(p.vertices[0].x / size, p.vertices[0].y / size);
+  ctx.fill();
+  ctx.restore();*/
+
   ctx.save();
   ctx.translate(offset.x, offset.y);
   ctx.scale(size, size);
-  ctx.fillStyle = ctx.createPattern(texture, "repeat");
-  ctx.lineWidth = OBJECT_OUTLINE_WIDTH;
+  ctx.fillStyle = ctx.createPattern(textures.rock, "repeat");
 
   var v0 = getVertexPosition(p.vertices[0], cam);
   ctx.beginPath();
@@ -256,7 +272,46 @@ function drawObject(ctx, cam, p, texture) {
   }
   ctx.lineTo(v0.x, v0.y);
   ctx.fill();
+  ctx.restore();
+
+  // Draw grass
+  var newv = v0 = getVertexPosition(p.vertices[0], cam);
+  for(var i = 1; i < p.vertices.length; i++) {
+    oldv = newv;
+    newv = getVertexPosition(p.vertices[i], cam);
+    angle = Math.atan2(newv.y - oldv.y, newv.x - oldv.x);
+
+    if(angle < Math.PI/3 && angle > -Math.PI/3) {
+      ctx.save();
+      ctx.translate(oldv.x, oldv.y);
+      ctx.rotate(angle);
+      ctx.beginPath()
+      ctx.rect(0, 0, distance(oldv, newv), 50);
+      ctx.fillStyle = ctx.createPattern(textures.grass, "repeat");
+      ctx.fill();
+      ctx.restore();
+    }
+  }
+
+  // Outline
+  var v0 = getVertexPosition(p.vertices[0], cam);
+  ctx.beginPath();
+  ctx.moveTo(v0.x, v0.y);
+  for(var i = 1; i < p.vertices.length; i++) {
+    var v = getVertexPosition(p.vertices[i], cam);
+    ctx.lineTo(v.x, v.y);
+  }
+  ctx.lineTo(v0.x, v0.y);
+  ctx.lineWidth = OBJECT_OUTLINE_WIDTH;
   ctx.stroke();
+}
+
+function drawDecoration(ctx, cam, d) {
+  const v = getVertexPosition(d, cam);
+  ctx.save();
+  ctx.translate(v.x, v.y);
+  ctx.rotate(d.angle);
+  ctx.drawImage(d.img, 0, -d.img.height);
   ctx.restore();
 }
 

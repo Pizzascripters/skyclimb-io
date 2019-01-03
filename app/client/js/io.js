@@ -84,6 +84,7 @@ function handleMessage(packet, Game){
       break;
     case 1: // Map data
       setMap(data, Game.map);
+      genDecoration(Game.images, Game.map)
       break;
     case 2: // Player data
       setPlayers(data, Game);
