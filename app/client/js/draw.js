@@ -274,36 +274,79 @@ function drawObject(ctx, cam, p, textures) {
   ctx.fill();
   ctx.restore();
 
-  // Draw grass
+  // Outline
+  if(OBJECT_OUTLINE) {
+    var v0 = getVertexPosition(p.vertices[0], cam);
+    ctx.beginPath();
+    ctx.moveTo(v0.x, v0.y);
+    for(var i = 1; i < p.vertices.length; i++) {
+      var v = getVertexPosition(p.vertices[i], cam);
+      ctx.lineTo(v.x, v.y);
+    }
+    ctx.lineTo(v0.x, v0.y);
+    ctx.lineWidth = OBJECT_OUTLINE_WIDTH;
+    ctx.stroke();
+  }
+
+  // Draw grass & snow
   var newv = v0 = getVertexPosition(p.vertices[0], cam);
   for(var i = 1; i < p.vertices.length; i++) {
     oldv = newv;
     newv = getVertexPosition(p.vertices[i], cam);
     angle = Math.atan2(newv.y - oldv.y, newv.x - oldv.x);
 
-    if(angle < Math.PI/3 && angle > -Math.PI/3) {
+    if(p.vertices[i].surface) {
       ctx.save();
       ctx.translate(oldv.x, oldv.y);
+      ctx.scale(cvs.width / FRAME_WIDTH, cvs.width / FRAME_WIDTH);
       ctx.rotate(angle);
-      ctx.beginPath()
-      ctx.rect(0, 0, distance(oldv, newv), 50);
-      ctx.fillStyle = ctx.createPattern(textures.grass, "repeat");
-      ctx.fill();
+      var surface = p.vertices[i].surface;
+
+      if(surface.type === "grass" || surface.type === "midnight") {
+        // Dark grass
+        ctx.fillStyle = "#050";
+        if(surface.type === "midnight") {
+          ctx.fillStyle = "#021";
+        }
+        ctx.beginPath();
+        ctx.moveTo(0, 0);
+        surface.dark.forEach(vertex => {
+          ctx.lineTo(vertex.x, vertex.y);
+        });
+        ctx.fill();
+
+        // Light grass
+        ctx.fillStyle = "#693";
+        if(surface.type === "midnight") {
+          ctx.fillStyle = "#242";
+        }
+        ctx.beginPath();
+        ctx.moveTo(0, 0);
+        surface.light.forEach(vertex => {
+          ctx.lineTo(vertex.x, vertex.y);
+        });
+        ctx.fill();
+      } else if(surface.type === "snow") {
+        // Dark snow
+        ctx.fillStyle = "#bbb";
+        surface.dark.forEach(circle => {
+          ctx.beginPath();
+          ctx.arc(circle.pos, 0, circle.radius, 0, Math.PI);
+          ctx.fill();
+        });
+
+        // Light snow
+        ctx.fillStyle = "#fff";
+        surface.light.forEach(circle => {
+          ctx.beginPath();
+          ctx.arc(circle.pos, 0, circle.radius, 0, Math.PI);
+          ctx.fill();
+        });
+      }
+
       ctx.restore();
     }
   }
-
-  // Outline
-  var v0 = getVertexPosition(p.vertices[0], cam);
-  ctx.beginPath();
-  ctx.moveTo(v0.x, v0.y);
-  for(var i = 1; i < p.vertices.length; i++) {
-    var v = getVertexPosition(p.vertices[i], cam);
-    ctx.lineTo(v.x, v.y);
-  }
-  ctx.lineTo(v0.x, v0.y);
-  ctx.lineWidth = OBJECT_OUTLINE_WIDTH;
-  ctx.stroke();
 }
 
 function drawDecoration(ctx, cam, d) {

@@ -3,6 +3,19 @@ function restart(ws) {
   restarting = false;
 }
 
+// Gets the biome that a point is in
+function getBiome(v) {
+  const range = GREATEST_Y_VALUE - LEAST_Y_VALUE;
+  const scale = (GREATEST_Y_VALUE - v.y) / range;
+  if(scale > BIOME_STARRY) {
+    return "starry";
+  }
+  if(scale > BIOME_SNOWY) {
+    return "snowy";
+  }
+  return "sunset";
+}
+
 // Check if we have exited the shop and leave if we have
 function checkShopExit(Game) {
   let exited = true;
@@ -211,7 +224,7 @@ function loadScript(name){
   script.src = "js/" + name + ".js";
   document.head.appendChild(script);
 }
-let scripts = ["anim", "constants", "Decoration", "draw", "Flame", "input", "io", "Item", "Particle", "Snow"];
+let scripts = ["anim", "constants", "Decoration", "draw", "Flame", "input", "io", "Item", "Particle", "Snow", "Surface"];
 scripts.map(x => loadScript(x));
 
 function fullscreen(cvs){

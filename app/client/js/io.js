@@ -84,7 +84,10 @@ function handleMessage(packet, Game){
       break;
     case 1: // Map data
       setMap(data, Game.map);
-      genDecoration(Game.images, Game.map)
+      Game.map.objects.forEach(obj => {
+        createSurfaces(obj.vertices);
+      });
+      genDecoration(Game.images, Game.map);
       break;
     case 2: // Player data
       setPlayers(data, Game);

@@ -6,7 +6,8 @@ function genDecoration(images, map) {
       const v0 = obj.vertices[i];
       const v1 = obj.vertices[i === String(obj.vertices.length-1) ? 0 : Number(i)+1];
       const angle = Math.atan2(v1.y - v0.y, v1.x - v0.x);
-      if(angle < Math.PI/3 && angle > -Math.PI/3) { // We only want decoration on grassy surfaces
+      if(!v1.surface) continue;
+      if(v1.surface.type === "grass" || v1.surface.type === "midnight") {
         for(var px = 0; px < distance(v0, v1) - 50; px++) {
           if(Math.random() < 0.02) {
             map.decoration.push(new Decoration(images.decoration, Math.floor(Math.random() * 5), [v0, v1], px));

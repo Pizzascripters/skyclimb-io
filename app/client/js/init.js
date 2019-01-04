@@ -47,6 +47,7 @@ function init(e){
   fullscreen(Game.cvs);
   window.addEventListener("resize", () => {
     fullscreen(Game.cvs);
+    Game.snow = createSnow(Game.images.particles.snow)
   });
   Game.ctx = Game.cvs.getContext("2d");
   Game.cam = {x:0, y:0}; // Position of the camera
