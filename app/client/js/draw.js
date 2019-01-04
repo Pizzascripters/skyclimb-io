@@ -88,6 +88,7 @@ function createHealthbar(ctx, image) {
   healthbar.image = image;
   healthbar.x = FRAME_WIDTH / 2 - image.width / 2;
   healthbar.y = 80;
+  healthbar.glow = anim.healthbarglow;
   healthbar.gradient = ctx.createLinearGradient(
     healthbar.x, 0,
     healthbar.x + image.width, 0
@@ -424,8 +425,13 @@ function drawShop(ctx, shop, shopImages, cam) {
 
 function drawHealthbar(ctx, health, healthbar){
   ctx.fillStyle = healthbar.gradient;
+  if(healthbar.glow > 0) {
+    ctx.shadowBlur = healthbar.glow;
+    ctx.shadowColor = "#f00";
+  }
   ctx.fillRect(healthbar.x + 28, healthbar.y + 5, 365 * health, 37);
   ctx.drawImage(healthbar.image, healthbar.x, healthbar.y);
+  ctx.shadowBlur = 0;
 }
 
 function drawEnergyBar(ctx, energy, energybar){

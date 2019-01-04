@@ -134,7 +134,7 @@ function update(Game, time){
 
   cvs.style.cursor = "default";
   draw(Game);
-  anim.main(delta, Game.inventory, Game.snow);
+  anim.main(delta, Game);
 
   if(restarting) {
     restart(Game.ws);

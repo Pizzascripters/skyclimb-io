@@ -43,6 +43,10 @@ module.exports = function(id, ws, world){
   this.bullets = 500;
   this.shells = 200;
 
+  this.healing = false;
+  this.amountToHeal = 0;
+  this.healPerTick = 0;
+
   this.inventory = {};
   this.inventory.select = 4;
   this.inventory.items = [];

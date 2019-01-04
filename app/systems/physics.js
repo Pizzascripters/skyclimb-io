@@ -23,6 +23,7 @@ module.exports = function(Game){
     handleShooting(p, p.body, Game.bullets, Game.RECOIL);
     handleThrowing(p, p.body, Game.bullets, Game.throwables);
     handleConsuming(p);
+    handleHealing(p);
     handleLooting(p, Game.world, Game.loot);
     terminalVelocity(p.body, Game.TERMINAL_X_VELOCITY, Game.TERMINAL_Y_VELOCITY);
     chargeJetpack(p, Game.JETPACK_CHARGE_SPEED);
@@ -186,6 +187,19 @@ function handleConsuming(p) {
     if(--p.inventory.amt[p.inventory.select - 3] === 0)
       p.inventory.items[p.inventory.select] = new Item(0);
     p.getItem().shootingCooldown = p.getItem().cooldownTime;
+  }
+}
+
+function handleHealing(p) {
+  p.health += p.healPerTick;
+  p.amountToHeal -= p.healPerTick;
+  if(p.health > 1) {
+    p.health = 1;
+  }
+  if(p.amountToHeal <= 0) {
+    p.amountToHeal = 0;
+    p.healPerTick = 0;
+    p.healing = false;
   }
 }
 

@@ -201,6 +201,8 @@ function setPlayers(data, Game){
       player.score = readInt(data, ref);
       player.bullets = readInt(data, ref);
       player.shells = readInt(data, ref);
+
+      player.healing = readBool(data, ref);
     }
 
     player.flame = readBool(data, ref);

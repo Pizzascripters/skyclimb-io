@@ -114,9 +114,9 @@ class Bandage extends Item {
     }
 
     this.consume = p => {
-      p.health += 0.3;
-      if(p.health > 1)
-        p.health = 1;
+      p.healing = true;
+      p.amountToHeal += 0.3;
+      p.healPerTick += 0.002;
     }
   }
 }

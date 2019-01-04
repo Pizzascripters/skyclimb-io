@@ -269,6 +269,8 @@ const io = module.exports = {
         packet.push( p.score );
         packet.push( p.bullets );
         packet.push( p.shells );
+
+        packet.push( p.healing );
       }
 
       packet.push(p.keyboard.jump); // The flame below the jetpack
