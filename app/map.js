@@ -16,69 +16,88 @@ const Vertices = Matter.Vertices,
       trapezoid = Bodies.trapezoid;
 
 let map = [];
+let szBodies = [];
 
 const json = JSON.parse(fs.readFileSync("./app/json/mapdata.json"));
 let objects = json.objects;
 let shops = json.shops;
+let objectTypes = json.objectTypes;
 
 for(var i in objects){
-  let vertices = objects[i];
-  vertices[vertices.length] = vertices[0];
+  if(objectTypes[i] === "solid") {
+    let vertices = objects[i];
+    vertices[vertices.length] = vertices[0];
 
-  /* Following is an algorithm for generating a layer of trapezoids based on the set of vertices loaded in JSON
-   * The trapezoids are invisible to the player, but they serve as the physical collision boundaries for the map
-   * Currently, this algorithm is awful, and I am open to suggestions */
+    /* Following is an algorithm for generating a layer of trapezoids based on the set of vertices loaded in JSON
+     * The trapezoids are invisible to the player, but they serve as the physical collision boundaries for the map
+     * Currently, this algorithm is awful, and I am open to suggestions */
 
-  for(var i in vertices) {
-    i = Number(i);
+    for(var i in vertices) {
+      i = Number(i);
 
-    // Get points A, B, C, and D
-    const a = i === 0 ? vertices[vertices.length - 1] : vertices[i - 1];
-    const b = vertices[i];
-    const c = vertices[(i + 1) % vertices.length];
-    const d = vertices[(i + 2) % vertices.length];
+      // Get points A, B, C, and D
+      const a = i === 0 ? vertices[vertices.length - 1] : vertices[i - 1];
+      const b = vertices[i];
+      const c = vertices[(i + 1) % vertices.length];
+      const d = vertices[(i + 2) % vertices.length];
 
-    // Calculate angles be and cf
-    const bc = Math.atan2(c.y - b.y, c.x - b.x);
-    const ba = Math.atan2(a.y - b.y, a.x - b.x);
-    const cb = Math.atan2(b.y - c.y, b.x - c.x);
-    const cd = Math.atan2(d.y - c.y, d.x - c.x);
-    let be = midangle(bc, ba);
-    let cf = midangle(cb, cd);
+      // Calculate angles be and cf
+      const bc = Math.atan2(c.y - b.y, c.x - b.x);
+      const ba = Math.atan2(a.y - b.y, a.x - b.x);
+      const cb = Math.atan2(b.y - c.y, b.x - c.x);
+      const cd = Math.atan2(d.y - c.y, d.x - c.x);
+      let be = midangle(bc, ba);
+      let cf = midangle(cb, cd);
 
-    // Create other side of trapezoid
-    if(clockwise(a, b, c)) {
-      var e = {
-        x: b.x + constants.MOUNTAIN_THICKNESS * Math.cos(be),
-        y: b.y + constants.MOUNTAIN_THICKNESS * Math.sin(be)
+      // Create other side of trapezoid
+      if(clockwise(a, b, c)) {
+        var e = {
+          x: b.x + constants.MOUNTAIN_THICKNESS * Math.cos(be),
+          y: b.y + constants.MOUNTAIN_THICKNESS * Math.sin(be)
+        }
+      } else {
+        var e = {
+          x: b.x - constants.MOUNTAIN_THICKNESS * Math.cos(be),
+          y: b.y - constants.MOUNTAIN_THICKNESS * Math.sin(be)
+        }
       }
-    } else {
-      var e = {
-        x: b.x - constants.MOUNTAIN_THICKNESS * Math.cos(be),
-        y: b.y - constants.MOUNTAIN_THICKNESS * Math.sin(be)
+      if(clockwise(b, c, d)) {
+        var f = {
+          x: c.x + constants.MOUNTAIN_THICKNESS * Math.cos(cf),
+          y: c.y + constants.MOUNTAIN_THICKNESS * Math.sin(cf)
+        }
+      } else {
+        var f = {
+          x: c.x - constants.MOUNTAIN_THICKNESS * Math.cos(cf),
+          y: c.y - constants.MOUNTAIN_THICKNESS * Math.sin(cf)
+        }
       }
+
+      // Create body BCFE
+      let v = [b, c, f, e];
+      body = Body.create({
+        position: Vertices.centre(v),
+        isStatic: true
+      });
+      body.collisionFilter.group = 1;
+      Body.setVertices(body, v);
+      map.push(body);
     }
-    if(clockwise(b, c, d)) {
-      var f = {
-        x: c.x + constants.MOUNTAIN_THICKNESS * Math.cos(cf),
-        y: c.y + constants.MOUNTAIN_THICKNESS * Math.sin(cf)
-      }
-    } else {
-      var f = {
-        x: c.x - constants.MOUNTAIN_THICKNESS * Math.cos(cf),
-        y: c.y - constants.MOUNTAIN_THICKNESS * Math.sin(cf)
-      }
-    }
-
-    // Create body BCFE
-    let v = [b, c, f, e];
+  } else if(objectTypes[i] === "safezone") {
+    let v = [];
+    objects[i].forEach(vertex => {
+      v.push(vertex);
+    });
+    v = Vertices.clockwiseSort(v);
     body = Body.create({
       position: Vertices.centre(v),
       isStatic: true
     });
-    body.collisionFilter.group = 1;
+    body.collisionFilter.group = 2;
+    body.collisionFilter.mask = 0;
     Body.setVertices(body, v);
     map.push(body);
+    szBodies[i] = body;
   }
 }
 
@@ -87,8 +106,10 @@ for(var i in shops)
 
 module.exports = {
   bodies: map,
-  objects: objects,
-  shops: shops
+  objects,
+  objectTypes,
+  shops,
+  szBodies
 };
 
 function createTriangle(map, p1, p2, p3) {

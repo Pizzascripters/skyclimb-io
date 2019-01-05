@@ -147,7 +147,8 @@ const io = module.exports = {
     packet.push( WATER_HEIGHT );
 
     // Add the object to the packet
-    function addObject(obj) {
+    function addObject(obj, type) {
+      packet.push( objTypeToId(type) );
       packet.push( obj.length );
       for(var i in obj){
         packet.push( obj[i].x );
@@ -167,7 +168,7 @@ const io = module.exports = {
     // Send the outline of the map
     packet.push(map.objects.length);
     for(var i in map.objects)
-      addObject(map.objects[i]);
+      addObject(map.objects[i], map.objectTypes[i]);
 
     // Send the physical map (for debugging only)
     /*packet.push(map.bodies.length);
@@ -254,6 +255,7 @@ const io = module.exports = {
       packet.push( p.hand );
       packet.push( Math.floor(p.health * 255) );
       packet.push( Math.floor(p.energy * 255) );
+      packet.push( p.shield );
       packet.push( p.getItem().id ); // The weapon player is holding
 
       if(p.id === id) {
@@ -412,6 +414,21 @@ function sendArray(ws, header, packet) {
 
   packet = Buffer.concat( packet );
   ws.send(Buffer.concat( [header, packet] ));
+}
+
+function objTypeToId(type) {
+  switch(type) {
+    case "solid":
+      var id = 0;
+      break;
+    case "safezone":
+      var id = 1;
+      break;
+    default:
+      var id = 0;
+      break;
+  }
+  return id;
 }
 
 // Reads a one byte integer from an index in a byte array

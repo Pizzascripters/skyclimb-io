@@ -46,10 +46,13 @@ wss.on('connection', (ws, req) => {
   io.wsConnection(ws, Game);
 });
 
+var prevTime = 0;
 setInterval(io.update, 1000 / 60, Game);
-setInterval(economy.update, 1000, Game.players);
-Matter.Events.on(engine, 'beforeUpdate', (e) => {
-  physics(Game);
+setInterval(economy.update, 1000, Game.players, Game.map);
+Matter.Events.on(engine, 'afterUpdate', (e) => {
+  var delta = e.timestamp - prevTime;
+  prevTime = e.timestamp;
+  physics(Game, delta);
 });
 
 server.listen(process.env.PORT || 9090, () => {

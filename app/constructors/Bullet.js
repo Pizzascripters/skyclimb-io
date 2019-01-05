@@ -54,12 +54,14 @@ module.exports = function (world, p, accuracy = 0, type = 0, damage = BULLET_DAM
   Matter.World.addBody(world, body); // Add yourself to the world
 
   this.hit = (p, loot) => {
-    p.health -= damage;
-    if(p.health <= 0) {
-      if(this.player.kill) {
-        this.player.kill(world, p, loot);
-      } else { // It's a nade kill
-        this.player.player.kill(world, p, loot);
+    if(!p.shieldOn()) {
+      p.health -= damage;
+      if(p.health <= 0) {
+        if(this.player.kill) {
+          this.player.kill(world, p, loot);
+        } else { // It's a nade kill
+          this.player.player.kill(world, p, loot);
+        }
       }
     }
     this.apoptosis();

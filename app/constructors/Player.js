@@ -36,6 +36,7 @@ module.exports = function(id, ws, world){
   }
   this.hand = 0;
   this.health = 1;
+  this.shield = 0;
   this.energy = 1;
   this.kills = 0;
   this.gold = 0;
@@ -81,6 +82,25 @@ module.exports = function(id, ws, world){
 
   this.isDeleted = () => {
     return !this.choosingName && !this.connected && !this.alive;
+  }
+
+  this.inSafezone = (map) => {
+    for(var i in map.objects) {
+      if(map.objectTypes[i] === "safezone") {
+        if(Matter.SAT.collides(this.body, map.szBodies[i]).collided) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
+  this.replenishShield = () => {
+    this.shield = 5000;
+  }
+
+  this.shieldOn = () => {
+    return this.shield > 0;
   }
 
   this.spawn = () => {

@@ -114,8 +114,9 @@ function setMap(data, map){
   map.objects = [];
   const numObjects = readInt(data, ref);
   while(map.objects.length < numObjects){
-    const numVertices = readInt(data, ref);
     let object = {};
+    object.type = typeIdToName( readInt(data, ref) );
+    const numVertices = readInt(data, ref);
     object.vertices = [];
     for(var i = 0; i < numVertices; i++) {
       object.vertices[i] = {};
@@ -186,6 +187,7 @@ function setPlayers(data, Game){
     player.hand = readInt(data, ref);
     player.health = readInt(data, ref) / 255;
     player.energy = readInt(data, ref) / 255;
+    player.shield = readInt(data, ref);
     player.weapon = readInt(data, ref);
 
     if(players.length === 0 && !spectating) {
@@ -317,6 +319,17 @@ function shopIdToName(id) {
   switch(id) {
     default:
       return "generic";
+      break;
+  }
+}
+
+function typeIdToName(id) {
+  switch(id) {
+    case 0:
+      return "solid";
+      break;
+    case 1:
+      return "safezone";
       break;
   }
 }

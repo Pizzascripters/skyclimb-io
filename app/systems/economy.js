@@ -4,9 +4,9 @@ const economy = module.exports = {
     p.score += amt;
   },
 
-  update: function(players) {
+  update: function(players, map) {
     for(var i in players) {
-      if(players[i].inGame())
+      if(players[i].inGame() && !players[i].inSafezone(map))
         economy.addGold(players[i], 1);
     }
   }

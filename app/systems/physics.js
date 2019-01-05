@@ -8,7 +8,7 @@ const insideRect = require('../util/insideRect');
 const io = require('./io');
 
 // Everything that needs to happen on engine tick goes here
-module.exports = function(Game){
+module.exports = function(Game, delta){
 
   world.gravity.y = 0; // I need to make my own gravity so bullets aren't affected
 
@@ -19,11 +19,13 @@ module.exports = function(Game){
 
     doGravity(p.body, Game.WATER_HEIGHT, Game.GRAVITY);
     waterDamage(Game.world, Game.loot, p, Game.WATER_HEIGHT, Game.WATER_DAMAGE);
-    handleMovement(p, p.body, Game.HORIZONTAL_ACCELERTION, Game.JETPACK_ACCELERATION, Game.JETPACK_DRAIN_SPEED);
     handleShooting(p, p.body, Game.bullets, Game.RECOIL);
+    bulletCollisions(Game.players, Game.bullets, Game.map.bodies, Game.loot, Game.KNOCKBACK);
+    handleMovement(p, p.body, Game.HORIZONTAL_ACCELERTION, Game.JETPACK_ACCELERATION, Game.JETPACK_DRAIN_SPEED);
     handleThrowing(p, p.body, Game.bullets, Game.throwables);
     handleConsuming(p);
     handleHealing(p);
+    handleShield(p, Game.map, delta);
     handleLooting(p, Game.world, Game.loot);
     terminalVelocity(p.body, Game.TERMINAL_X_VELOCITY, Game.TERMINAL_Y_VELOCITY);
     chargeJetpack(p, Game.JETPACK_CHARGE_SPEED);
@@ -48,8 +50,6 @@ module.exports = function(Game){
     let l = Game.loot[i];
     doGravity(l.body, Game.WATER_HEIGHT, Game.GRAVITY);
   }
-
-  bulletCollisions(Game.players, Game.bullets, Game.map.bodies, Game.loot, Game.KNOCKBACK);
 }
 
 function doGravity(body, WATER_HEIGHT, GRAVITY){
@@ -113,6 +113,7 @@ function handleShooting(p, body, bullets, RECOIL) {
     const spawnBullet = (accuracy) => {
       const bullet = new Bullet(world, p, accuracy);
       bullets.push(bullet);
+      p.bullets--;
 
       // Recoil
       Matter.Body.applyForce(
@@ -120,7 +121,6 @@ function handleShooting(p, body, bullets, RECOIL) {
         {x: body.position.x, y: body.position.y},
         {x: -RECOIL * bullet.body.velocity.x, y: -RECOIL * bullet.body.velocity.y}
       );
-      p.bullets--;
     }
 
     const spawnPellet = (accuracy) => {
@@ -148,6 +148,7 @@ function handleShooting(p, body, bullets, RECOIL) {
           spawnBullet(item.accuracy);
         }
       }
+      p.shield = 0;
     }
 
     item.shootingCooldown = item.cooldownTime;
@@ -203,6 +204,14 @@ function handleHealing(p) {
   }
 }
 
+function handleShield(p, map, delta) {
+  p.shield -= delta;
+  if(p.shield < 0) p.shield = 0;
+  if(p.inSafezone(map)) {
+    p.replenishShield();
+  }
+}
+
 function terminalVelocity(body, TERMINAL_X_VELOCITY, TERMINAL_Y_VELOCITY){
   if(body.velocity.x < -TERMINAL_X_VELOCITY)
     Matter.Body.setVelocity(body, {x: -TERMINAL_X_VELOCITY, y: body.velocity.y});
@@ -234,26 +243,29 @@ function bulletCollisions(players, bullets, map, loot, KNOCKBACK){
       {x: b.xv, y: b.yv}
     );
 
+    for(var i2 in map) {
+      const obj = map[i2];
+      if(Matter.SAT.collides(b.body, obj).collided) {
+        b.apoptosis();
+      }
+    }
+    if(b.deleted) continue;
+
     for(var i2 in players) {
       let p = players[i2];
       if(!p.inGame()) continue;
 
       if(Matter.SAT.collides(b.body, p.body).collided){
         // Knockback
-        Matter.Body.applyForce(
-          p.body,
-          {x: b.body.position.x, y: b.body.position.y},
-          {x: KNOCKBACK * b.body.velocity.x, y: KNOCKBACK * b.body.velocity.y}
-        );
+        if(!p.shieldOn()) {
+          Matter.Body.applyForce(
+            p.body,
+            {x: b.body.position.x, y: b.body.position.y},
+            {x: KNOCKBACK * b.body.velocity.x, y: KNOCKBACK * b.body.velocity.y}
+          );
+        }
 
         b.hit(p, loot);
-      }
-    }
-
-    for(var i2 in map) {
-      const obj = map[i2];
-      if(Matter.SAT.collides(b.body, obj).collided) {
-        b.apoptosis();
       }
     }
   }

@@ -108,7 +108,7 @@ class Bandage extends Item {
     this.shootingCooldown = 0;
 
     this.canConsume = p => {
-      if(p.health < 1)
+      if(p.health < 1 && p.healing === false)
         return true;
       return false;
     }

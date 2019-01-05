@@ -2,6 +2,7 @@
 function genDecoration(images, map) {
   map.decoration = [];
   map.objects.forEach(obj => {
+    if(obj.type !== "solid") return;
     for(var i in obj.vertices) {
       const v0 = obj.vertices[i];
       const v1 = obj.vertices[i === String(obj.vertices.length-1) ? 0 : Number(i)+1];

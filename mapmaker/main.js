@@ -15,13 +15,15 @@ var keyboard = {
 var vertices = [];
 var edges = [];
 var objects = [];
+var objectTypes = [];
 var shops = [];
-var objectSelected = [{id: null}];;
-var vertexSelected = [{id: null}];;
+var objectSelected = [{id: null}];
+var vertexSelected = [{id: null}];
 var shop = null;
 
 var cam = {x: 0, y: 0, zoom: 1};
 var menu = "main";
+var objectType = "solid";
 const PAN_SPEED = 10;
 
 window.addEventListener("load", init);
@@ -77,6 +79,25 @@ function draw() {
   ctx.scale(cam.zoom, cam.zoom);
   ctx.translate(-cam.x, -cam.y)
 
+  // Draw object
+  for(var i1 in objects) {
+    const obj = objects[i1];
+    ctx.beginPath();
+    for(var i2 in obj) {
+      if(i2 === 0)
+        ctx.moveTo(obj[i2].x, obj[i2].y);
+      else
+        ctx.lineTo(obj[i2].x, obj[i2].y);
+    }
+    if(objectTypes[i1] === "solid") {
+      ctx.fillStyle = "#aaa";
+    } else if(objectTypes[i1] === "safezone") {
+      ctx.fillStyle = "#0bf";
+    }
+    ctx.fill();
+    ctx.stroke();
+  }
+
   // Draw shops
   for(var i in shops)
     ctx.drawImage(images.shops[shops[i].type], shops[i].x, shops[i].y);
@@ -88,19 +109,6 @@ function draw() {
     ctx.beginPath();
     ctx.arc(v.x, v.y, 5, 0, 2 * Math.PI);
     ctx.fill();
-  }
-
-  // Draw object
-  for(var i1 in objects) {
-    const obj = objects[i1];
-    ctx.beginPath();
-    for(var i2 in obj) {
-      if(i2 === 0)
-        ctx.moveTo(obj[i2].x, obj[i2].y);
-      else
-        ctx.lineTo(obj[i2].x, obj[i2].y);
-    }
-    ctx.stroke();
   }
 
   if(vertexSelected.id !== null){
@@ -123,7 +131,7 @@ function draw() {
 
 function mainMenu() {
   menu = "main";
-  menuElement.innerHTML = "1 - Load <br /> 2 - Save <br /> 3 - Shops"
+  menuElement.innerHTML = "1 - Load <br /> 2 - Save <br /> 3 - Shops <br /> 4 - Object Type"
 }
 
 function loadMenu() {
@@ -139,6 +147,11 @@ function saveMenu() {
 function shopMenu() {
   menu = "shop";
   menuElement.innerHTML = "0 - Back <br /> 1 - Generic Shop";
+}
+
+function objectTypeMenu() {
+  menu = "objectType";
+  menuElement.innerHTML = "0 - Back <br /> 1 - Solid <br /> 2 - Safe Zone";
 }
 
 function requestJSON() {
@@ -173,18 +186,28 @@ function keydown(e) {
         saveJSON();
       } else if (menu === "shop") {
         shop = "generic";
+      } else if (menu === "objectType") {
+        objectType = "solid";
       }
       break;
     case 50:
     case 98: // 2
       if(menu === "main") {
         saveMenu();
+      } else if (menu === "objectType") {
+        objectType = "safezone";
       }
       break;
     case 51:
     case 99: // 3
       if(menu === "main") {
         shopMenu();
+      }
+      break;
+    case 52:
+    case 100: // 4
+      if(menu === "main") {
+        objectTypeMenu();
       }
       break;
     case 87: // W
@@ -293,6 +316,7 @@ function mousedown(e) {
         objectSelected = v.object;
         vertexSelected = v;
         objects.push(v.object);
+        objectTypes.push(objectType);
       } else { // Add a vertex to an object
         let index = objectSelected.length;
         for(var i in objectSelected)
@@ -372,6 +396,11 @@ function getJSON(){
     });
   }
 
+  json.objectTypes = [];
+  for(var i in objectTypes) {
+    json.objectTypes.push(objectTypes[i]);
+  }
+
   return JSON.stringify(json);
 }
 
@@ -392,6 +421,10 @@ function loadJSON(json) {
 
   for(var i in json.shops) {
     shops.push(json.shops[i])
+  }
+
+  for(var i in json.objectTypes) {
+    objectTypes.push(json.objectTypes[i])
   }
 }
 

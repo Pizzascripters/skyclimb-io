@@ -40,18 +40,22 @@ function draw(Game){
     drawPlayer(ctx, cam, players[i], PLAYER_OUTLINE, images.eyes.generic, items[players[i].weapon]);
   }
 
+  drawLoot(ctx, loot, cam);
+  for(var i in players)
+    drawName(ctx, cam, players[i]);
+
   // Draw the map
   for(var i in map.objects) {
-    drawObject(ctx, cam, map.objects[i], images.textures);
+    if(map.objects[i].type === "solid") {
+      drawMountain(ctx, cam, map.objects[i], images.textures);
+    } else if(map.objects[i].type === "safezone") {
+      drawSafezone(ctx, cam, map.objects[i]);
+    }
   }
   for(var i in map.decoration) {
     drawDecoration(ctx, cam, map.decoration[i]);
   }
   drawWater(ctx, cam, map.waterHeight, images.textures.water);
-
-  drawLoot(ctx, loot, cam);
-  for(var i in players)
-    drawName(ctx, cam, players[i]);
 
   ctx.save();
   ctx.scale((cvs.width / FRAME_WIDTH), (cvs.width / FRAME_WIDTH));
@@ -228,9 +232,19 @@ function drawPlayer(ctx, cam, p, outline, eyes, weapon) {
     weapon,
     radius
   );
+
+  // Draw Shield
+  ctx.strokeStyle = "#fff";
+  ctx.lineWidth = 5;
+  ctx.shadowBlur = 10;
+  ctx.shadowColor = "#fff";
+  ctx.beginPath();
+  ctx.arc(v.x, v.y, radius * 1.5, 0, 2*Math.PI*p.shield/5000);
+  ctx.stroke();
+  ctx.shadowBlur = 0;
 }
 
-function drawObject(ctx, cam, p, textures) {
+function drawMountain(ctx, cam, p, textures) {
   const zoom = cvs.width / FRAME_WIDTH;
   const size = 3 * zoom;
 
@@ -285,6 +299,7 @@ function drawObject(ctx, cam, p, textures) {
       ctx.lineTo(v.x, v.y);
     }
     ctx.lineTo(v0.x, v0.y);
+    ctx.strokeStyle = "#000";
     ctx.lineWidth = OBJECT_OUTLINE_WIDTH;
     ctx.stroke();
   }
@@ -350,6 +365,23 @@ function drawObject(ctx, cam, p, textures) {
   }
 }
 
+function drawSafezone(ctx, cam, obj) {
+  const v0 = getVertexPosition(obj.vertices[0], cam);
+
+  ctx.beginPath();
+  ctx.moveTo(v0.x, v0.y);
+  for(var i = 1; i < obj.vertices.length; i++) {
+    const v = getVertexPosition(obj.vertices[i], cam);
+    ctx.lineTo(v.x, v.y);
+  }
+  ctx.lineTo(v0.x, v0.y);
+
+  ctx.strokeStyle = "rgba(0, 0, 255, 0.3)";
+  ctx.stroke();
+  ctx.fillStyle = "rgba(0, 128, 255, 0.3)";
+  ctx.fill();
+}
+
 function drawDecoration(ctx, cam, d) {
   const v = getVertexPosition(d, cam);
   ctx.save();
@@ -361,7 +393,7 @@ function drawDecoration(ctx, cam, d) {
 
 function drawLoot(ctx, loot, cam) {
   ctx.fillStyle = "rgba(100, 100, 100, 0.8)";
-  ctx.strokeStyle = "2px solid black";
+  ctx.strokeStyle = "#000";
   ctx.lineWidth = 2;
 
   for(var i in loot) {
