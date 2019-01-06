@@ -7,6 +7,8 @@ var mouse = {
   y: 0
 }
 var keyboard = {
+  ctrl: false,
+  shift: false,
   up: false,
   left: false,
   down: false,
@@ -20,6 +22,7 @@ var shops = [];
 var objectSelected = [{id: null}];
 var vertexSelected = [{id: null}];
 var shop = null;
+var correctAngle = null;
 
 var cam = {x: 0, y: 0, zoom: 1};
 var menu = "main";
@@ -111,6 +114,17 @@ function draw() {
     ctx.fill();
   }
 
+  // Draw green line
+  if(vertexSelected && correctAngle !== null) {
+    ctx.strokeStyle = "#0f0";
+    ctx.beginPath();
+    ctx.moveTo(vertexSelected.x - 1000 * Math.cos(correctAngle), vertexSelected.y - 1000 * Math.sin(correctAngle));
+    ctx.lineTo(vertexSelected.x + 1000 * Math.cos(correctAngle), vertexSelected.y + 1000 * Math.sin(correctAngle));
+    ctx.arc(vertexSelected.x, vertexSelected.y, 1000, correctAngle, 2 * Math.PI + correctAngle);
+    ctx.stroke();
+    ctx.strokeStyle = "#000";
+  }
+
   if(vertexSelected.id !== null){
     ctx.beginPath();
     ctx.moveTo(vertexSelected.x, vertexSelected.y);
@@ -169,6 +183,22 @@ function keydown(e) {
     return;
 
   switch(e.keyCode) {
+    case 16:
+      keyboard.shift = true;
+      if(keyboard.ctrl) {
+        correctAngle = -Math.PI / 4;
+      } else {
+        correctAngle = Math.PI / 2;
+      }
+      break;
+    case 17:
+      keyboard.ctrl = true;
+      if(keyboard.shift) {
+        correctAngle = Math.PI / 4;
+      } else {
+        correctAngle = 0;
+      }
+      break;
     case 27: // Esc
     case 48:
     case 96: // 0
@@ -227,6 +257,22 @@ function keydown(e) {
 
 function keyup(e) {
   switch(e.keyCode) {
+    case 16:
+      keyboard.shift = false;
+      if(keyboard.ctrl) {
+        correctAngle = 0;
+      } else {
+        correctAngle = null;
+      }
+      break;
+    case 17:
+      keyboard.ctrl = false;
+      if(keyboard.shift) {
+        correctAngle = Math.PI / 2;
+      } else {
+        correctAngle = null;
+      }
+      break;
     case 87: // W
       keyboard.up = false;
       break;
@@ -246,7 +292,7 @@ function mousedown(e) {
   const x = e.clientX;
   const y = e.clientY;
 
-  const v = {
+  var v = {
     id: uniqueId(),
     x: (x - cvs.width / 2) / cam.zoom + cam.x,
     y: (y - cvs.height / 2) / cam.zoom + cam.y,
@@ -297,6 +343,9 @@ function mousedown(e) {
         let s = shops[nearby];
         shops.splice(nearby, 1);
       } else {
+        if(correctAngle !== null) {
+          adjustToLine(v);
+        }
         vertices.push(v);
       }
     } else if(e.button === 2 && nearbytype === "vertex") {
@@ -426,6 +475,20 @@ function loadJSON(json) {
   for(var i in json.objectTypes) {
     objectTypes.push(json.objectTypes[i])
   }
+}
+
+function adjustToLine(v) {
+  var a = Math.tan(correctAngle);
+  var b = -1;
+  var c = vertexSelected.y - vertexSelected.x * Math.tan(correctAngle);
+  var d = Math.abs(a*v.x + b*v.y + c) / Math.sqrt(a*a + b*b); // Distance from point to line
+  if(0 > a*v.x + b*v.y + c) {
+    var perpAngle = correctAngle - Math.PI / 2;
+  } else {
+    var perpAngle = correctAngle + Math.PI / 2;
+  }
+  v.x = v.x + d * Math.cos(perpAngle)
+  v.y = v.y + d * Math.sin(perpAngle)
 }
 
 function uniqueId() {

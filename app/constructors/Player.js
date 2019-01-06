@@ -12,6 +12,7 @@ const PLAYER_START_POS = [
   {x: 1990, y: 5230},
   {x: 567, y: 3700}
 ];
+//const PLAYER_START_POS = [{x: 0, y: 0}];
 const PLAYER_RADIUS = 50;
 
 module.exports = function(id, ws, world){
