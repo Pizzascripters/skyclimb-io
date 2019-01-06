@@ -18,6 +18,9 @@ const SHOP_MENU_TEXT_HEIGHT = 18;
 const SHOP_GOLD_IMAGE_WIDTH = 30;
 const SHOP_GOLD_IMAGE_HEIGHT = 30;
 
+// Weapon Menu
+const WEAPON_MENU_RADIUS = 150;
+
 // Player drawing
 const PLAYER_COLOR = "#fc7";
 const PLAYER_OUTLINE = true;

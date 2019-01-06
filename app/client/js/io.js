@@ -196,6 +196,7 @@ function setPlayers(data, Game){
         if(i === 0 || i === 1)
           inventory.amt[i] = readInt(data, ref);
         inventory.items[i] = readInt(data, ref);
+        inventory.magazine[i] = readInt(data, ref);
       }
 
       player.kills = readInt(data, ref);

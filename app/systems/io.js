@@ -264,6 +264,7 @@ const io = module.exports = {
           if( i === 0 || i === 1 )
             packet.push( p.inventory.amt[i] );
           packet.push( p.inventory.items[i].id );
+          packet.push( p.inventory.items[i].magazine );
         }
 
         packet.push( p.kills );

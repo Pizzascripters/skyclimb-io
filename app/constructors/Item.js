@@ -10,6 +10,8 @@ class Item {
     this.consumable = false;       // Whether or not the item can be consumed
     this.spawnDistance = 50;       // Distance between player and bullet spawn
     this.numBullets = 0;           // The number of bullets the gun fires at a time
+    this.magazineSize = 0;         // The maximum number of bullets in the magazine
+    this.magazine = 0;             // The current number of bullets in the magazine
     this.accuracy = 0;             // The error in the angle the bullets can spawn
     this.cooldownTime = 0;         // The # of frames it takes before the player can fire again
     this.shootingCooldown = this.cooldownTime;
@@ -37,6 +39,7 @@ class Pistol extends Item {
     this.canShoot = true;
     this.spawnDistance = 40;
     this.numBullets = 1;
+    this.magazineSize = 15;
     this.accuracy = Math.PI / 30;
     this.cooldownTime = 5;
     this.shootingCooldown = this.cooldownTime;
@@ -54,6 +57,7 @@ class Ak47 extends Item {
     this.canShoot = true;
     this.spawnDistance = 50;
     this.numBullets = 1;
+    this.magazineSize = 30;
     this.accuracy = Math.PI / 20;
     this.cooldownTime = 3;
     this.shootingCooldown = this.cooldownTime;
@@ -72,6 +76,7 @@ class Shotgun extends Item {
     this.shotgun = true;
     this.spawnDistance = 40;
     this.numBullets = 10;
+    this.magazineSize = 4;
     this.accuracy = Math.PI / 6;
     this.cooldownTime = 20;
     this.shootingCooldown = this.cooldownTime;
@@ -191,4 +196,8 @@ module.exports = function(id) {
 
   for(var i in item)
     this[i] = item[i];
+
+  if(this.magazineSize) {
+    this.magazine = this.magazineSize;
+  }
 }
