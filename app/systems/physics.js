@@ -27,13 +27,14 @@ module.exports = function(Game, delta){
     handleHealing(p);
     handleShield(p, Game.map, delta);
     handleLooting(p, Game.world, Game.loot);
+    handleReloading(p, delta);
     terminalVelocity(p.body, Game.TERMINAL_X_VELOCITY, Game.TERMINAL_Y_VELOCITY);
     chargeJetpack(p, Game.JETPACK_CHARGE_SPEED);
     sendShopData(p, Game.map.shops);
     if(p.keyboard.drop) dropWeapon(p, Game.world, Game.loot);
 
     // Sticky buttons only reset on physics update, not in io
-    let stickyButtons = ["throw", "consume", "select", "drop", "loot"]
+    let stickyButtons = ["throw", "consume", "select", "drop", "loot", "reload"]
     for(var i in p.keyboard) {
       if(stickyButtons.indexOf(i) !== -1) {
         p.keyboard[i] = false;
@@ -113,7 +114,7 @@ function handleShooting(p, body, bullets, RECOIL) {
     const spawnBullet = (accuracy) => {
       const bullet = new Bullet(world, p, accuracy);
       bullets.push(bullet);
-      p.bullets--;
+      p.getItem().magazine--;
 
       // Recoil
       Matter.Body.applyForce(
@@ -137,15 +138,19 @@ function handleShooting(p, body, bullets, RECOIL) {
 
     if(item.canShoot) {
       if(item.shotgun) {
-        if(p.shells > 0) {
+        if(item.magazine > 0) {
           for(var i = 0; i < item.numBullets; i++) {
             spawnPellet(item.accuracy);
           }
-          p.shells--;
+          item.magazine--;
+          item.reloading = false;
+          p.reloadProgress = 0;
         }
       } else {
-        if(p.bullets > 0) {
+        if(item.magazine > 0) {
           spawnBullet(item.accuracy);
+          item.reloading = false;
+          p.reloadProgress = 0;
         }
       }
       p.shield = 0;
@@ -171,7 +176,7 @@ function handleThrowing(p, body, bullets, throwables){
     const throwable = new Throwable(world, bullets, p, p.getItem());
     throwables.push(throwable);
     if(--p.inventory.amt[p.inventory.select - 3] === 0)
-      p.inventory.items[p.inventory.select] = new Item(0);
+      p.inventory.items[p.inventory.select] = Item(0);
     p.getItem().shootingCooldown = p.getItem().cooldownTime;
   }
 }
@@ -186,7 +191,7 @@ function handleConsuming(p) {
   ) {
     p.getItem().consume(p);
     if(--p.inventory.amt[p.inventory.select - 3] === 0)
-      p.inventory.items[p.inventory.select] = new Item(0);
+      p.inventory.items[p.inventory.select] = Item(0);
     p.getItem().shootingCooldown = p.getItem().cooldownTime;
   }
 }
@@ -295,7 +300,7 @@ function dropWeapon(p, world, loot){
 
   // Copy an empty item into the player's selected slot
   let dest = p.getItem();
-  const src = new Item(0);
+  const src = Item(0);
   for(var i in src)
     dest[i] = src[i];
 }
@@ -321,5 +326,36 @@ function handleLooting(p, world, loot) {
     if(p.acquire(closest.item, closest.amount)) {
       closest.apoptosis();
     }
+  }
+}
+
+function handleReloading(p, delta) {
+  // Make sure that any items that aren't selected aren't reloading
+  for(var i in p.inventory.items) {
+    if(Number(i) === p.inventory.select) continue;
+    p.inventory.items[i].reloading = false;
+  }
+  if(!p.getItem().reloading) p.reloadProgress = 0;
+
+  // Check if player should begin reloading
+  var ammo = p.getItem().shotgun ? p.shells : p.bullets;
+  if(
+    (p.keyboard.reload || p.getItem().magazine === 0) &&
+    p.getItem().magazine !== p.getItem().magazineSize &&
+    ammo > 0
+  ) {
+    p.getItem().reloading = true;
+  }
+
+  // Update reloading progress if reloading
+  if(p.getItem().reloading) {
+    p.reloadProgress += delta / p.getItem().reloadTime;
+  }
+
+  // Reload and stop progress if progress has finished
+  if(p.reloadProgress >= 1) {
+    p.getItem().reloading = false;
+    p.getItem().reload(p);
+    p.reloadProgress = 0;
   }
 }

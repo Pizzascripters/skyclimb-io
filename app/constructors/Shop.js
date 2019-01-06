@@ -14,13 +14,13 @@ class Generic extends Shop {
   constructor(x, y) {
     super(x, y);
     this.type = 1;
-    this.items.push(new Item(1));
-    this.items.push(new Item(32));
-    this.items.push(new Item(64));
-    this.items.push(new Item(128));
-    this.items.push(new Item(192));
-    this.items.push(new Item(224));
-    this.items.push(new Item(225));
+    this.items.push(Item(1));
+    this.items.push(Item(32));
+    this.items.push(Item(64));
+    this.items.push(Item(128));
+    this.items.push(Item(192));
+    this.items.push(Item(224));
+    this.items.push(Item(225));
   }
 }
 

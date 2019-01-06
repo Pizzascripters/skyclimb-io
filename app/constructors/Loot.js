@@ -7,7 +7,7 @@ const LOOT_SPAWNSPEED = 10;
 
 module.exports = function(world, itemId, pos, angle=Math.random()*2*Math.PI, amount=1) {
 
-  this.item = new Item(itemId);
+  this.item = Item(itemId);
   this.radius = LOOT_RADIUS;
   this.amount = amount;
 

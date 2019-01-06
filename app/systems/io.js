@@ -116,7 +116,7 @@ const io = module.exports = {
 
   setKeyboard: (ws, player, packet) => { // 1 - Update keyboard
     // Sticky buttons only reset on physics update, not in io
-    let stickyButtons = ["throw", "consume", "select", "drop", "loot"]
+    let stickyButtons = ["throw", "consume", "select", "drop", "loot", "reload"]
     for(var i in player.keyboard) {
       if(stickyButtons.indexOf(i) === -1) {
         player.keyboard[i] = false;
@@ -133,6 +133,7 @@ const io = module.exports = {
     if(readByte(packet, ref)) player.keyboard.select = true;
     if(readByte(packet, ref)) player.keyboard.drop = true;
     if(readByte(packet, ref)) player.keyboard.loot = true;
+    if(readByte(packet, ref)) player.keyboard.reload = true;
     player.inventory.select = readByte(packet, ref);
   },
 
@@ -255,6 +256,7 @@ const io = module.exports = {
       packet.push( p.hand );
       packet.push( Math.floor(p.health * 255) );
       packet.push( Math.floor(p.energy * 255) );
+      packet.push( Math.floor(p.reloadProgress * 255) );
       packet.push( p.shield );
       packet.push( p.getItem().id ); // The weapon player is holding
 

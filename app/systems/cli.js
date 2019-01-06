@@ -67,7 +67,7 @@ function cash(Game, amount, name) {
 function give(Game, itemId, amount, name) {
   if(!isNaN(itemId)) itemId = Number(itemId);
   if(!amount) amount = 1;
-  const item = new Item(itemId);
+  const item = Item(itemId);
 
   if(name) {
     for(var i in Game.players) {

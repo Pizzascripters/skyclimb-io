@@ -62,7 +62,7 @@ function draw(Game){
   if(players.length > 0 && !Game.spectating) {
     drawHealthbar(ctx, players[0].health, healthbar);
     drawEnergyBar(ctx, players[0].energy, energybar);
-    drawWeaponDisplay(ctx, players[0], inventory.magazine[inventory.select]);
+    drawWeaponDisplay(ctx, players[0], items[inventory.items[inventory.select]], inventory.magazine[inventory.select]);
     drawInventory(ctx, inventory, items);
     drawStats(ctx, images.stats, players[0].gold, players[0].kills, players[0].score, players[0].bullets, players[0].shells);
     drawLeaderboard(ctx, Game.leaderboard, images.stats.score);
@@ -473,21 +473,28 @@ function drawEnergyBar(ctx, energy, energybar){
   ctx.drawImage(energybar.image, energybar.x, energybar.y);
 }
 
-function drawWeaponDisplay(ctx, p, magazine) {
+function drawWeaponDisplay(ctx, p, item, magazine) {
   ctx.beginPath();
   ctx.arc(0, cvs.height * (FRAME_WIDTH / cvs.width), WEAPON_MENU_RADIUS, 0, 2*Math.PI);
   ctx.fillStyle = "#000";
   ctx.fill();
 
+  var ammo = item.shotgun ? p.shells : p.bullets;
   ctx.fillStyle = "#fff";
-  if(p.bullets === 0) ctx.fillStyle = "#f00";
-  ctx.font = "30px Play";
-  ctx.fillText(p.bullets, WEAPON_MENU_RADIUS/2 - ctx.measureText(p.bullets).width, cvs.height * (FRAME_WIDTH / cvs.width) - WEAPON_MENU_RADIUS/2);
+  if(ammo === 0) ctx.fillStyle = "#f00";
+  ctx.font = "50px Play";
+  ctx.fillText(ammo, WEAPON_MENU_RADIUS/3 - ctx.measureText(ammo).width/2, cvs.height * (FRAME_WIDTH / cvs.width) - WEAPON_MENU_RADIUS/2 + 50);
 
   ctx.fillStyle = "#fff";
   if(magazine === 0) ctx.fillStyle = "#f00";
-  ctx.font = "30px Play";
-  ctx.fillText(magazine, WEAPON_MENU_RADIUS/2 - ctx.measureText(magazine).width, cvs.height * (FRAME_WIDTH / cvs.width) - WEAPON_MENU_RADIUS/2 + 30);
+  ctx.font = "50px Play";
+  ctx.fillText(magazine, WEAPON_MENU_RADIUS/3 - ctx.measureText(magazine).width/2, cvs.height * (FRAME_WIDTH / cvs.width) - WEAPON_MENU_RADIUS/2);
+
+  ctx.strokeStyle = "#fff";
+  ctx.lineWidth = 5;
+  ctx.beginPath();
+  ctx.arc(0, cvs.height * (FRAME_WIDTH / cvs.width), WEAPON_MENU_RADIUS, 2*Math.PI - p.reloadProgress*Math.PI/2, 3*Math.PI/2);
+  ctx.stroke();
 }
 
 function drawInventory(ctx, inventory, items){

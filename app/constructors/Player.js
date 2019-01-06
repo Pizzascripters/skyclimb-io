@@ -32,7 +32,8 @@ module.exports = function(id, ws, world){
     throw: false,
     consume: false,
     select: false,
-    loot: false
+    loot: false,
+    reload: false
   }
   this.hand = 0;
   this.health = 1;
@@ -47,13 +48,14 @@ module.exports = function(id, ws, world){
   this.healing = false;
   this.amountToHeal = 0;
   this.healPerTick = 0;
+  this.reloadProgress = 0;
 
   this.inventory = {};
   this.inventory.select = 4;
   this.inventory.items = [];
   const itemIds = [64, 32, 1, 128, 192, 0];
   for(var i = 0; i < 7; i++)
-    this.inventory.items[i] = new Item( itemIds[i] );
+    this.inventory.items[i] = Item(itemIds[i]);
   this.inventory.amt = [3, 3, 0];
 
   this.getItem = () => {
@@ -120,7 +122,7 @@ module.exports = function(id, ws, world){
       if(number !== 1) return false;
       for(var i = 0; i < 3; i++) {
         if(this.inventory.items[i].id === 0) {
-          this.inventory.items[i] = new Item(item.id);
+          this.inventory.items[i] = Item(item.id);
           return true;
         }
       }
@@ -133,7 +135,7 @@ module.exports = function(id, ws, world){
       }
       for(var i = 3; i < 6; i++) {
         if(this.inventory.items[i].id === 0) {
-          this.inventory.items[i] = new Item(item.id);
+          this.inventory.items[i] = Item(item.id);
           this.inventory.amt[i-3] = number;
           return true;
         }

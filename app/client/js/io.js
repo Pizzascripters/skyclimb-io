@@ -53,6 +53,7 @@ function sendKeyboard(ws, keyboard, select, hand){
   packet.push(keyboard.select);
   packet.push(keyboard.drop);
   packet.push(keyboard.loot);
+  packet.push(keyboard.reload);
   packet.push(select);
   ws.send( new Uint8Array(packet) );
 
@@ -61,6 +62,7 @@ function sendKeyboard(ws, keyboard, select, hand){
   keyboard.select = false;
   keyboard.loot = false;
   keyboard.drop = false;
+  keyboard.reload = false;
 }
 
 function buyItem(ws, slot, amount) {
@@ -187,6 +189,7 @@ function setPlayers(data, Game){
     player.hand = readInt(data, ref);
     player.health = readInt(data, ref) / 255;
     player.energy = readInt(data, ref) / 255;
+    player.reloadProgress = readInt(data, ref) / 255;
     player.shield = readInt(data, ref);
     player.weapon = readInt(data, ref);
 

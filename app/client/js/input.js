@@ -33,6 +33,9 @@ function keydown(e, keyboard, inventory){
     case 81:  // Q
       keyboard.drop = true;
       break;
+    case 82:
+      keyboard.reload = true;
+      break;
     case 87:  // W
       keyboard.jump = true;
       break;
