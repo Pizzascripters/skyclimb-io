@@ -41,4 +41,7 @@ function initItems(items, images) {
   items[192] = new Item(192, "Bandage", images.items.bandage, 40, 40);
   items[224] = new Item(224, "Bullet", images.stats.bullets, 30, 30);
   items[225] = new Item(225, "Shell", images.stats.shells, 30, 30);
+  items[240] = new Item(240, "Standard Jetpack", images.jetpacks.standard);
+  items[241] = new Item(241, "Lightning Jetpack", images.jetpacks.lightning);
+  items[242] = new Item(242, "Bull Jetpack", images.jetpacks.bull);
 }

@@ -410,8 +410,13 @@ function drawLoot(ctx, loot, cam) {
     ctx.fill();
 
     if(l.item.image !== null) {
-      const width = (cvs.width / FRAME_WIDTH) * (l.radius * 2 - 10);
-      const height = l.item.image.height * width / l.item.image.width;
+      if(l.item.image.width > l.item.image.height) {
+        width = (cvs.width / FRAME_WIDTH) * (l.radius * 2 - 10);
+        height = l.item.image.height * width / l.item.image.width;
+      } else {
+        height = (cvs.width / FRAME_WIDTH) * (l.radius * 2 - 10);
+        width = l.item.image.width * height / l.item.image.height;
+      }
       ctx.drawImage(l.item.image, -width/2, -height/2, width, height);
     }
 
@@ -644,7 +649,7 @@ function drawShopMenu(ctx, shopMenu, shopImages, keyboard, goldImage) {
 
   // Draw Shelf
   shopMenuApply(shopMenu, (item, rect) => {
-    if(item.id < 128 && (keyboard.buy10 || keyboard.buy100)) return false;
+    if((item.id < 128 || item.id >= 240) && (keyboard.buy10 || keyboard.buy100)) return false;
 
     const size = width / 8;
     const margin = SHOP_MENU_MARGIN;
@@ -667,7 +672,11 @@ function drawShopMenu(ctx, shopMenu, shopImages, keyboard, goldImage) {
       cvs.style.cursor = "pointer";
     }
 
-    const scale = (size / 3) / item.image.width;
+    if(item.image.width > item.image.height) {
+      var scale = (size / 3) / item.image.width;
+    } else {
+      var scale = (size / 3) / item.image.height;
+    }
     ctx.drawImage(
       item.image,
       pos.x + size / 2 - scale * item.image.width / 2,
@@ -676,12 +685,17 @@ function drawShopMenu(ctx, shopMenu, shopImages, keyboard, goldImage) {
       scale * item.image.height
     );
 
+    var newHeight = textHeight;
     ctx.fillStyle = "#fff";
-    ctx.font = textHeight + "px Play";
+    ctx.font = newHeight + "px Play";
+    while(ctx.measureText(item.name).width > size - 2 * margin) {
+      newHeight *= 0.9;
+      ctx.font = newHeight + "px Play";
+    }
     ctx.fillText(
       item.name,
       pos.x + (size - ctx.measureText(item.name).width) / 2,
-      pos.y + textHeight + margin + padding
+      pos.y + newHeight + margin + padding
     );
 
     var price = item.price;
@@ -690,6 +704,7 @@ function drawShopMenu(ctx, shopMenu, shopImages, keyboard, goldImage) {
     } else if(keyboard.buy100) {
       price *= 100;
     }
+    ctx.font = textHeight + "px Play";
     ctx.fillText(
       price,
       pos.x + (size - ctx.measureText(price).width - SHOP_GOLD_IMAGE_WIDTH) / 2 - 5,

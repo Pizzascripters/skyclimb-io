@@ -15,7 +15,7 @@ const PLAYER_START_POS = [
 //const PLAYER_START_POS = [{x: 0, y: 0}];
 const PLAYER_RADIUS = 50;
 
-module.exports = function(id, ws, world){
+module.exports = function(id, ws, world, loot){
   this.id = id;
   this.name = "guest" + id;
   this.ws = ws;
@@ -157,6 +157,10 @@ module.exports = function(id, ws, world){
         economy.addGold(this, Math.round(p.gold / 2));
       }
     }
+  }
+
+  this.dropJetpack = () => {
+    loot.push(new Loot(world, this.jetpack.id, this.body.position, 2 * Math.PI * this.hand / 256));
   }
 
   // Programmed cell suicide

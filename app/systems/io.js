@@ -26,7 +26,7 @@ const io = module.exports = {
   // Called when a client establishes a new connection
   wsConnection: (ws, Game) => {
     const playerId = Game.players.length; // The player's id is its index
-    let player = new Player(playerId, ws, Game.world);
+    let player = new Player(playerId, ws, Game.world, Game.loot);
     Game.players.push(player);
     console.log("New client, id: %d", playerId);
 
