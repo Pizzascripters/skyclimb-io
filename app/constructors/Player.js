@@ -59,6 +59,8 @@ module.exports = function(id, ws, world){
     this.inventory.items[i] = Item(itemIds[i]);
   this.inventory.amt = [3, 3, 0];
 
+  this.jetpack = Item(240);
+
   this.getItem = () => {
     return this.inventory.items[this.inventory.select];
   }

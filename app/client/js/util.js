@@ -148,7 +148,11 @@ function loadImages(images, callback) {
   }
 
   // Jetpack
-  images.jetpack = loadImage("jetpack", onload);
+  images.jetpacks = {};
+  jetpackNames = ["standard", "lightning", "bull"];
+  for(var i in jetpackNames) {
+    images.jetpacks[jetpackNames[i]] = loadImage("jetpacks/" + jetpackNames[i], onload)
+  }
 
   // Eyes
   images.eyes = {};
@@ -224,7 +228,7 @@ function loadScript(name){
   script.src = "js/" + name + ".js";
   document.head.appendChild(script);
 }
-let scripts = ["anim", "constants", "Decoration", "draw", "Flame", "input", "io", "Item", "Particle", "Snow", "Surface"];
+let scripts = ["anim", "constants", "Decoration", "draw", "Flame", "input", "io", "jetpack", "Item", "Particle", "Snow", "Surface"];
 scripts.map(x => loadScript(x));
 
 function fullscreen(cvs){

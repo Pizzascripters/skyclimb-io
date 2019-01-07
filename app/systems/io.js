@@ -4,6 +4,7 @@ const Player = require('../constructors/Player');
 const distance = require('../util/distance');
 const insideRect = require('../util/insideRect');
 const isAlphaNumeric = require('../util/isAlphaNumeric');
+const ReLU = require('../util/ReLU');
 
 const io = module.exports = {
   httpHandle: (req, res, dirname) => {
@@ -255,10 +256,12 @@ const io = module.exports = {
       packet.push( radius );
       packet.push( p.hand );
       packet.push( Math.floor(p.health * 255) );
-      packet.push( Math.floor(p.energy * 255) );
+      packet.push( Math.floor(ReLU(p.energy) * 255) );
       packet.push( Math.floor(p.reloadProgress * 255) );
       packet.push( p.shield );
       packet.push( p.getItem().id ); // The weapon player is holding
+      packet.push( p.jetpack.jetpackId ); // Jetpack
+      packet.push(p.keyboard.jump); // The flame below the jetpack
 
       if(p.id === id) {
         // Inventory
@@ -277,8 +280,6 @@ const io = module.exports = {
 
         packet.push( p.healing );
       }
-
-      packet.push(p.keyboard.jump); // The flame below the jetpack
     }
 
     function addBullet(b) {

@@ -35,8 +35,8 @@ function draw(Game){
 
   // Draw the players
   for(var i in players) {
-    drawJetpack(ctx, cam, players[i], images.jetpack);
-    drawFlame(ctx, cam, players[i], flames[players[i].name]);
+    drawJetpack(ctx, cam, players[i]);
+    drawFlame(ctx, cam, players[i]);
     drawPlayer(ctx, cam, players[i], PLAYER_OUTLINE, images.eyes.generic, items[players[i].weapon]);
   }
 
@@ -188,18 +188,18 @@ function drawThrowable(ctx, t, image, cam) {
   ctx.restore();
 }
 
-function drawJetpack(ctx, cam, p, jetpack) {
+function drawJetpack(ctx, cam, p) {
   const v = getVertexPosition(p, cam)
-        width = jetpack.width * cvs.width / FRAME_WIDTH,
-        height = jetpack.height * cvs.width / FRAME_WIDTH;
-  ctx.drawImage(jetpack, v.x - width/2, v.y - height/2, width, height);
+        width = p.jetpack.img.width * cvs.width / FRAME_WIDTH,
+        height = p.jetpack.img.height * cvs.width / FRAME_WIDTH;
+  ctx.drawImage(p.jetpack.img, v.x - width/2, v.y - height/2, width, height);
 }
 
-function drawFlame(ctx, cam, p, flame) {
+function drawFlame(ctx, cam, p) {
   const v = getVertexPosition(p, cam);
-  if(flame) {
-    flame.update();
-    flame.render(ctx, v.x, v.y + 60 * cvs.width / FRAME_WIDTH);
+  if(p.jetpack.flame) {
+    p.jetpack.flame.update();
+    p.jetpack.flame.render(ctx, v.x, v.y + 60 * cvs.width / FRAME_WIDTH);
   }
 }
 

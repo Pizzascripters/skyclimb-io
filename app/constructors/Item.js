@@ -184,6 +184,59 @@ function Shell(item) {
   return item;
 }
 
+function Jetpack(item) {
+  Item(item);
+  item.type = "jetpack";
+  item.jetpackId = 0;
+
+  item.onAcquire = (p, amount) => {
+    p.dropJetpack();
+    p.jetpack = item;
+  }
+}
+
+function StandardJetpack(item) {
+  Jetpack(item);
+  item.type = "jetpack";
+  item.name = "StandardJetpack";
+  item.plural = "StandardJetpacks";
+  item.id = 240;
+  item.jetpackId = 1;
+  item.price = 100;
+
+  item.power = 0.03;
+  item.battery = 3.5;
+  item.recharge = 0.01;
+}
+
+function LightningJetpack(item) {
+  Jetpack(item);
+  item.type = "jetpack";
+  item.name = "LightningJetpack";
+  item.plural = "LightningJetpacks";
+  item.id = 241;
+  item.jetpackId = 2;
+  item.price = 250;
+
+  item.power = 0.04;
+  item.battery = 2.5;
+  item.recharge = 0.015;
+}
+
+function BullJetpack(item) {
+  Jetpack(item);
+  item.type = "jetpack";
+  item.name = "BullJetpack";
+  item.plural = "BullJetpacks";
+  item.id = 242;
+  item.jetpackId = 3;
+  item.price = 300;
+
+  item.power = 0.028;
+  item.battery = 6;
+  item.recharge = 0.02;
+}
+
 // Exports is a function that inputs an id and returns an item
 module.exports = function(id) {
   let item = {};
@@ -215,6 +268,15 @@ module.exports = function(id) {
     case 225:
     case "shell":
       Shell(item);
+      break;
+    case 240:
+      StandardJetpack(item);
+      break;
+    case 241:
+      LightningJetpack(item);
+      break;
+    case 242:
+      BullJetpack(item);
       break;
     case 0:
     case "empty":

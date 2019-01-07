@@ -21,7 +21,7 @@ module.exports = function(Game, delta){
     waterDamage(Game.world, Game.loot, p, Game.WATER_HEIGHT, Game.WATER_DAMAGE);
     handleShooting(p, p.body, Game.bullets, Game.RECOIL);
     bulletCollisions(Game.players, Game.bullets, Game.map.bodies, Game.loot, Game.KNOCKBACK);
-    handleMovement(p, p.body, Game.HORIZONTAL_ACCELERTION, Game.JETPACK_ACCELERATION, Game.JETPACK_DRAIN_SPEED);
+    handleMovement(p, p.body, Game.HORIZONTAL_ACCELERTION);
     handleThrowing(p, p.body, Game.bullets, Game.throwables);
     handleConsuming(p);
     handleHealing(p);
@@ -29,7 +29,7 @@ module.exports = function(Game, delta){
     handleLooting(p, Game.world, Game.loot);
     handleReloading(p, delta);
     terminalVelocity(p.body, Game.TERMINAL_X_VELOCITY, Game.TERMINAL_Y_VELOCITY);
-    chargeJetpack(p, Game.JETPACK_CHARGE_SPEED);
+    chargeJetpack(p);
     sendShopData(p, Game.map.shops);
     if(p.keyboard.drop) dropWeapon(p, Game.world, Game.loot);
 
@@ -80,7 +80,7 @@ function waterDamage(world, loot, p, WATER_HEIGHT, WATER_DAMAGE) {
   }
 }
 
-function handleMovement(p, body, HORIZONTAL_ACCELERATION, JETPACK_ACCELERATION, JETPACK_DRAIN_SPEED) {
+function handleMovement(p, body, HORIZONTAL_ACCELERATION) {
   if(p.keyboard.left){
     Matter.Body.applyForce(
       body,
@@ -101,9 +101,9 @@ function handleMovement(p, body, HORIZONTAL_ACCELERATION, JETPACK_ACCELERATION, 
     Matter.Body.applyForce(
       body,
       {x: body.position.x, y: body.position.y},
-      {x: 0, y: -JETPACK_ACCELERATION}
+      {x: 0, y: -p.jetpack.power}
     );
-    p.energy -= JETPACK_DRAIN_SPEED;
+    p.energy -= p.jetpack.power / p.jetpack.battery;
   }
 }
 
@@ -228,14 +228,12 @@ function terminalVelocity(body, TERMINAL_X_VELOCITY, TERMINAL_Y_VELOCITY){
     Matter.Body.setVelocity(body, {x: body.velocity.x, y: TERMINAL_Y_VELOCITY});
 }
 
-function chargeJetpack(p, JETPACK_CHARGE_SPEED){
+function chargeJetpack(p){
   if(p.energy < 1)
-    p.energy += JETPACK_CHARGE_SPEED; // Charge the jetpack
+    p.energy += p.jetpack.recharge / p.jetpack.battery;
 
   if(p.energy > 1)
     p.energy = 1;
-  else if(p.energy < 0)
-    p.energy = 0;
 }
 
 function bulletCollisions(players, bullets, map, loot, KNOCKBACK){
