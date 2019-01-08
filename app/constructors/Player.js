@@ -125,7 +125,7 @@ module.exports = function(id, ws, world, loot){
       if(number !== 1) return false;
       for(var i = 0; i < 3; i++) {
         if(this.inventory.items[i].id === 0) {
-          this.inventory.items[i] = Item(item.id);
+          this.inventory.items[i] = item;
           return true;
         }
       }
@@ -138,7 +138,7 @@ module.exports = function(id, ws, world, loot){
       }
       for(var i = 3; i < 6; i++) {
         if(this.inventory.items[i].id === 0) {
-          this.inventory.items[i] = Item(item.id);
+          this.inventory.items[i] = item;
           this.inventory.amt[i-3] = number;
           return true;
         }
@@ -160,7 +160,7 @@ module.exports = function(id, ws, world, loot){
   }
 
   this.dropJetpack = () => {
-    loot.push(new Loot(world, this.jetpack.id, this.body.position, 2 * Math.PI * this.hand / 256));
+    loot.push(new Loot(world, this.jetpack, this.body.position, 2 * Math.PI * this.hand / 256));
   }
 
   // Programmed cell suicide
@@ -173,14 +173,14 @@ module.exports = function(id, ws, world, loot){
       const item = this.inventory.items[i];
       const amount = i>2 ? this.inventory.amt[i-3] : 1;
       if(item.id !== 0 && amount > 0)
-        loot.push(new Loot(world, item.id, this.body.position, Math.random() * 2 * Math.PI, amount));
+        loot.push(new Loot(world, item, this.body.position, Math.random() * 2 * Math.PI, amount));
     }
 
     if(this.bullets > 0) {
-      loot.push(new Loot(world, 224, this.body.position, Math.random() * 2 * Math.PI, this.bullets));
+      loot.push(new Loot(world, Item(224), this.body.position, Math.random() * 2 * Math.PI, this.bullets));
     }
     if(this.shells > 0) {
-      loot.push(new Loot(world, 225, this.body.position, Math.random() * 2 * Math.PI, this.shells));
+      loot.push(new Loot(world, Item(224), this.body.position, Math.random() * 2 * Math.PI, this.shells));
     }
 
     this.alive = false;

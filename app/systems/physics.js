@@ -293,14 +293,11 @@ function sendShopData(p, shops) {
 function dropWeapon(p, world, loot){
   // Spawn a new item
   if(p.getItem().id !== 0) {
-    loot.push(new Loot(world, p.getItem().id, p.body.position, 2 * Math.PI * p.hand / 256, p.getAmt()));
+    loot.push(new Loot(world, p.getItem(), p.body.position, 2 * Math.PI * p.hand / 256, p.getAmt()));
   }
 
   // Copy an empty item into the player's selected slot
-  let dest = p.getItem();
-  const src = Item(0);
-  for(var i in src)
-    dest[i] = src[i];
+  p.inventory.items[p.inventory.select] = Item(0);
 }
 
 // Called when player tries to loot
