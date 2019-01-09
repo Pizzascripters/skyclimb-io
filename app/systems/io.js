@@ -266,8 +266,7 @@ const io = module.exports = {
       if(p.id === id) {
         // Inventory
         for(var i = 0; i < p.inventory.items.length; i++) {
-          if( i === 0 || i === 1 )
-            packet.push( p.inventory.amt[i] );
+          packet.push( p.inventory.amt[i] );
           packet.push( p.inventory.items[i].id );
           packet.push( p.inventory.items[i].magazine );
         }

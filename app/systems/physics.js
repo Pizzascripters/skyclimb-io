@@ -75,7 +75,7 @@ function waterDamage(world, loot, p, WATER_HEIGHT, WATER_DAMAGE) {
   if(p.body.position.y >= WATER_HEIGHT) {
     p.health -= WATER_DAMAGE;
     if(p.health <= 0) {
-      p.kill(world, p, loot);
+      p.kill(p);
     }
   }
 }
@@ -169,13 +169,13 @@ function handleShooting(p, body, bullets, RECOIL) {
 function handleThrowing(p, body, bullets, throwables){
   if(p.getItem().type !== "throwable") return 1;
   if(
-    p.inventory.amt[p.inventory.select - 3] > 0 &&
+    p.inventory.amt[p.inventory.select] > 0 &&
     p.keyboard.shoot &&
     p.getItem().shootingCooldown === 0
   ) {
     const throwable = new Throwable(world, bullets, p, p.getItem());
     throwables.push(throwable);
-    if(--p.inventory.amt[p.inventory.select - 3] === 0)
+    if(--p.inventory.amt[p.inventory.select] === 0)
       p.inventory.items[p.inventory.select] = Item(0);
     p.getItem().shootingCooldown = p.getItem().cooldownTime;
   }
@@ -185,12 +185,12 @@ function handleConsuming(p) {
   if(p.getItem().type !== "consumable") return 1;
   if(
     p.getItem().canConsume(p) &&
-    p.inventory.amt[p.inventory.select - 3] > 0 &&
+    p.inventory.amt[p.inventory.select] > 0 &&
     p.keyboard.shoot &&
     p.getItem().shootingCooldown === 0
   ) {
     p.getItem().consume(p);
-    if(--p.inventory.amt[p.inventory.select - 3] === 0)
+    if(--p.inventory.amt[p.inventory.select] === 0)
       p.inventory.items[p.inventory.select] = Item(0);
     p.getItem().shootingCooldown = p.getItem().cooldownTime;
   }

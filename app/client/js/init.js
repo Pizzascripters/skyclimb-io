@@ -37,9 +37,9 @@ function init(e){
   Game.inventory = {
     select: 0,
     anim: [90, 80, 80, 80, 80, 80],
-    items: [0, 0, 0, 0, 0, 0, 0],
+    items: [0, 0, 0, 0, 0, 0],
     magazine: [0, 0, 0],
-    amt: [0, 0]
+    amt: [0, 0, 0, 0, 0, 0]
   }
   Game.items = {};
   initItems(Game.items, Game.images);

@@ -20,6 +20,8 @@ module.exports = function (world, bullets, p, item) {
     {x: xVelocity, y: yVelocity}
   );
 
+  this.kill = this.player.kill;
+
   setTimeout(this.apoptosis = () => { // Explode
     this.deleted = true;
     for(i = 0; i < 30; i++)

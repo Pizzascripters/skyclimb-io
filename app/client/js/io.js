@@ -220,8 +220,7 @@ function setPlayers(data, Game){
     if(i === 0 && !spectating) {
       // Inventory
       for(var i1 = 0; i1 < inventory.items.length; i1++) {
-        if(i1 === 0 || i1 === 1)
-          inventory.amt[i1] = readInt(data, ref);
+        inventory.amt[i1] = readInt(data, ref);
         inventory.items[i1] = readInt(data, ref);
         inventory.magazine[i1] = readInt(data, ref);
       }

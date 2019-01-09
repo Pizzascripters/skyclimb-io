@@ -516,9 +516,9 @@ function drawInventory(ctx, inventory, items){
   drawItem(ctx, 0, items[inventory.items[0]], inventory.anim[0]);
   drawItem(ctx, 1, items[inventory.items[1]], inventory.anim[1]);
   drawItem(ctx, 2, items[inventory.items[2]], inventory.anim[2]);
-  drawItem(ctx, 3, items[inventory.items[3]], inventory.anim[3], inventory.amt[0]);
-  drawItem(ctx, 4, items[inventory.items[4]], inventory.anim[4], inventory.amt[1]);
-  drawItem(ctx, 5, items[inventory.items[5]], inventory.anim[5], inventory.amt[2]);
+  drawItem(ctx, 3, items[inventory.items[3]], inventory.anim[3], inventory.amt[3]);
+  drawItem(ctx, 4, items[inventory.items[4]], inventory.anim[4], inventory.amt[4]);
+  drawItem(ctx, 5, items[inventory.items[5]], inventory.anim[5], inventory.amt[5]);
 
   ctx.globalAlpha = 1;
 }
