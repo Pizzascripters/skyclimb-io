@@ -206,6 +206,16 @@ function keydown(e) {
         mainMenu();
       }
       break;
+    case 88: // X
+      if(correctAngle !== null) {
+        correctAngle += Math.PI / 6;
+      }
+      break;
+    case 90: // Z
+      if(correctAngle !== null) {
+        correctAngle -= Math.PI / 6;
+      }
+      break;
     case 49:
     case 97: // 1
       if(menu === "main") {
