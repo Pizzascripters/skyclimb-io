@@ -17,6 +17,7 @@ function init(e){
   loadImages(Game.images, () => {
     requestAnimationFrame(time => {
       Game.snow = createSnow(Game.images.particles.snow);
+      Game.stars = createStars();
       update(Game, time);
     });
   });
@@ -49,7 +50,8 @@ function init(e){
   fullscreen(Game.cvs);
   window.addEventListener("resize", () => {
     fullscreen(Game.cvs);
-    Game.snow = createSnow(Game.images.particles.snow)
+    Game.snow = createSnow(Game.images.particles.snow);
+    Game.stars = createStars();
   });
   Game.ctx = Game.cvs.getContext("2d");
   Game.cam = {x:0, y:0}; // Position of the camera

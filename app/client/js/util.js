@@ -228,7 +228,7 @@ function loadScript(name){
   script.src = "js/" + name + ".js";
   document.head.appendChild(script);
 }
-let scripts = ["anim", "constants", "Decoration", "draw", "Flame", "input", "io", "jetpack", "Item", "Particle", "Snow", "Surface"];
+let scripts = ["anim", "constants", "Decoration", "draw", "Flame", "input", "io", "jetpack", "Item", "Particle", "Snow", "Stars", "Surface"];
 scripts.map(x => loadScript(x));
 
 function fullscreen(cvs){

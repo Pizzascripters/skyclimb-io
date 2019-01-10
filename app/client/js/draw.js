@@ -22,7 +22,7 @@ function draw(Game){
   // Fill the background
   ctx.fillStyle = bg_gradient;
   ctx.fillRect(0, 0, cvs.width, cvs.height);
-  drawBackground(ctx, cam, images.backgrounds.sunset, images.backgrounds.stars, snow);
+  drawBackground(ctx, cam, images.backgrounds.sunset, Game.stars, snow);
 
   for(var i in map.shops)
     drawShop(ctx, map.shops[i], images.shops, cam);
@@ -137,7 +137,7 @@ function drawBackground(ctx, cam, sunset, stars, snow) {
   // Stars
   if(scale > BIOME_STARRY) {
     ctx.globalAlpha = 5*(scale - BIOME_STARRY);
-    ctx.drawImage(stars, 0, 0, cvs.width, cvs.height);
+    stars.render(ctx);
     ctx.globalAlpha = 1;
   }
 }

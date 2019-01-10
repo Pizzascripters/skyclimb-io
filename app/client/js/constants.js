@@ -38,6 +38,7 @@ const OBJECT_OUTLINE_WIDTH = 4;
 const GREATEST_Y_VALUE = 8000;
 const LEAST_Y_VALUE = -1000;
 const SNOW_PARTICLES = 100;
+const STARS = 100;
 
 // Biomes
 const BIOME_SUNSET = 0;
