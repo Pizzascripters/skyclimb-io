@@ -196,7 +196,7 @@ module.exports = function(id, ws, world, loot){
       loot.push(new Loot(world, Item(224), this.body.position, Math.random() * 2 * Math.PI, this.bullets));
     }
     if(this.shells > 0) {
-      loot.push(new Loot(world, Item(224), this.body.position, Math.random() * 2 * Math.PI, this.shells));
+      loot.push(new Loot(world, Item(225), this.body.position, Math.random() * 2 * Math.PI, this.shells));
     }
 
     this.alive = false;

@@ -5,6 +5,8 @@ function Item(id, name, imageObj, w, h, radialShift, shotgun) {
   this.height = 50;
   this.radialShift = 0;
   this.shotgun = false;
+  this.canBuy10 = false;
+  this.canBuy100 = false;
 
   if(imageObj) {
     if(imageObj.l) {
@@ -33,14 +35,23 @@ function Item(id, name, imageObj, w, h, radialShift, shotgun) {
 }
 
 function initItems(items, images) {
-  items[0] = new Item(0, "Empty")
+  items[0] = new Item(0, "Empty");
   items[1] = new Item(1, "Glock", images.weapons.glock);
   items[32] = new Item(32, "Ak47", images.weapons.ak47, 100, 50, -50);
   items[64] = new Item(64, "Pump", images.weapons.pump, 100, 50, -50, true);
+
   items[128] = new Item(128, "Nade", images.items.nade, 40, 40);
+  items[128].canBuy10 = items[128].canBuy100 = true;
+
   items[192] = new Item(192, "Bandage", images.items.bandage, 40, 40);
+  items[192].canBuy10 = items[192].canBuy100 = true;
+
   items[224] = new Item(224, "Bullet", images.stats.bullets, 30, 30);
+  items[224].canBuy10 = items[224].canBuy100 = true;
+
   items[225] = new Item(225, "Shell", images.stats.shells, 30, 30);
+  items[225].canBuy10 = items[225].canBuy100 = true;
+
   items[232] = new Item(232, "Lvl 1 Scope", images.stats.scope, 30, 30);
   items[233] = new Item(233, "Lvl 2 Scope", images.stats.scope, 30, 30);
   items[234] = new Item(234, "Lvl 3 Scope", images.stats.scope, 30, 30);

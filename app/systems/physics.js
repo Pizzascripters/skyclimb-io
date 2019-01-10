@@ -18,9 +18,7 @@ module.exports = function(Game, delta){
       continue;
 
     doGravity(p.body, Game.WATER_HEIGHT, Game.GRAVITY);
-    waterDamage(Game.world, Game.loot, p, Game.WATER_HEIGHT, Game.WATER_DAMAGE);
     handleShooting(p, p.body, Game.bullets, Game.RECOIL);
-    bulletCollisions(Game.players, Game.bullets, Game.map.bodies, Game.loot, Game.KNOCKBACK);
     handleMovement(p, p.body, Game.HORIZONTAL_ACCELERTION);
     handleThrowing(p, p.body, Game.bullets, Game.throwables);
     handleConsuming(p);
@@ -32,6 +30,10 @@ module.exports = function(Game, delta){
     chargeJetpack(p);
     sendShopData(p, Game.map.shops);
     if(p.keyboard.drop) dropWeapon(p, Game.world, Game.loot);
+
+    // Dying should be at the end because we shouldn't be updating physics on dead players
+    bulletCollisions(Game.players, Game.bullets, Game.map.bodies, Game.loot, Game.KNOCKBACK);
+    waterDamage(Game.world, Game.loot, p, Game.WATER_HEIGHT, Game.WATER_DAMAGE);
 
     // Sticky buttons only reset on physics update, not in io
     let stickyButtons = ["throw", "consume", "select", "drop", "loot", "reload"]

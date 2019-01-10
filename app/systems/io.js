@@ -220,7 +220,7 @@ const io = module.exports = {
     return 0;
   },
 
-  sendGameData: (Game, p) => { // Send player and bullet data
+  sendGameData: (Game, p) => { // Send player, bullets, throwable, loot, and leaderboard data
     if(p.ws.readyState === p.ws.CLOSED || p.ws.readyState === p.ws.CLOSING)
       return 1;
 
@@ -290,19 +290,19 @@ const io = module.exports = {
       packet.push( b.angle );
     }
 
-    function addThrowable(b) {
-      packet.push( b.body.position.x );
-      packet.push( b.body.position.y );
-      packet.push( Math.floor(255*(b.body.angle % (Math.PI*2)) / (Math.PI*2)) );
+    function addThrowable(t) {
+      packet.push( t.body.position.x );
+      packet.push( t.body.position.y );
+      packet.push( Math.floor(255*(t.body.angle % (Math.PI*2)) / (Math.PI*2)) );
     }
 
     // Adds a loot object to the packet
-    function gimmeTheLoot(b) {
-      packet.push( b.item.id );
-      packet.push( b.body.position.x );
-      packet.push( b.body.position.y );
-      packet.push( b.radius );
-      packet.push( Math.floor(255*(b.body.angle % (Math.PI*2)) / (Math.PI*2)) );
+    function gimmeTheLoot(l) {
+      packet.push( l.item.id );
+      packet.push( l.body.position.x );
+      packet.push( l.body.position.y );
+      packet.push( l.radius );
+      packet.push( Math.floor(255*(l.body.angle % (Math.PI*2)) / (Math.PI*2)) );
     }
 
     let numPlayers = 0;

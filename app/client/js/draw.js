@@ -663,7 +663,7 @@ function drawShopMenu(ctx, shopMenu, shopImages, keyboard, goldImage) {
 
   // Draw Shelf
   shopMenuApply(shopMenu, (item, rect) => {
-    if((item.id < 128 || item.id >= 240) && (keyboard.buy10 || keyboard.buy100)) return false;
+    if(keyboard.buy10 && !item.canBuy10 || keyboard.buy100 && !item.canBuy100) return false;
 
     const size = width / 8;
     const margin = SHOP_MENU_MARGIN;

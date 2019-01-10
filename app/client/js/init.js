@@ -77,9 +77,9 @@ function init(e){
       shopMenuApply(Game.shopMenu, (item, rect, slot) => {
         if(insideRect(mouse, rect)) {
           if(Game.keyboard.buy100) {
-            if(item.id >= 128) buyItem(Game.ws, slot, 100);
+            if(item.canBuy100) buyItem(Game.ws, slot, 100);
           } else if(Game.keyboard.buy10) {
-            if(item.id >= 128) buyItem(Game.ws, slot, 10);
+            if(item.canBuy10) buyItem(Game.ws, slot, 10);
           } else {
             buyItem(Game.ws, slot, 1);
           }
