@@ -170,12 +170,20 @@ module.exports = function(id, ws, world, loot){
     }
   }
 
+  this.drop = (item, randomAngle=false, amt=1) => {
+    if(randomAngle) {
+      loot.push(new Loot(world, item, this.body.position, Math.random() * 2 * Math.PI, amt));
+    } else {
+      loot.push(new Loot(world, item, this.body.position, this.handRadians(), amt));
+    }
+  }
+
   this.dropJetpack = () => {
-    loot.push(new Loot(world, this.jetpack, this.body.position, this.handRadians()));
+    this.drop(this.jetpack);
   }
 
   this.dropScope = () => {
-    loot.push(new Loot(world, this.scope, this.body.position, this.handRadians()));
+    this.drop(this.scope);
   }
 
   // Programmed cell suicide
@@ -189,15 +197,17 @@ module.exports = function(id, ws, world, loot){
       const item = this.inventory.items[i];
       const amount = i>2 ? this.inventory.amt[i] : 1;
       if(item.id !== 0 && amount > 0)
-        loot.push(new Loot(world, item, this.body.position, Math.random() * 2 * Math.PI, amount));
+        this.drop(item, true, amount);
     }
 
     if(this.bullets > 0) {
-      loot.push(new Loot(world, Item(224), this.body.position, Math.random() * 2 * Math.PI, this.bullets));
+      this.drop(Item(224), true, this.bullets);
     }
     if(this.shells > 0) {
-      loot.push(new Loot(world, Item(225), this.body.position, Math.random() * 2 * Math.PI, this.shells));
+      this.drop(Item(225), true, this.shells);
     }
+    this.drop(this.jetpack, true);
+    this.drop(this.scope, true);
 
     this.alive = false;
     return true;

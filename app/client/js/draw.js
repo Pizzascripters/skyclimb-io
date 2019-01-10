@@ -76,14 +76,15 @@ function draw(Game){
 function getBackgroundGradient(ctx, cam) {
   const range = GREATEST_Y_VALUE - LEAST_Y_VALUE;
   const scale = (GREATEST_Y_VALUE - cam.y) / range;
-  const bg_gradient = ctx.createLinearGradient(
-    0, scale * range - range,
-    0, scale * range - range + range
-  );
-  bg_gradient.addColorStop(1 - BIOME_STARRY, "#000");
-  bg_gradient.addColorStop(1 - BIOME_SNOWY, "#206");
-  bg_gradient.addColorStop(1 - (BIOME_SNOWY + BIOME_SUNSET)/2, "#d22");
-  bg_gradient.addColorStop(1 - BIOME_SUNSET, "#fb2");
+
+  const gv = getVertexPosition({x:0,y:GREATEST_Y_VALUE}, cam).y;
+  const lv = getVertexPosition({x:0,y:LEAST_Y_VALUE}, cam).y;
+
+  const bg_gradient = ctx.createLinearGradient(0, gv, 0, lv);
+  bg_gradient.addColorStop(BIOME_STARRY, "#000");
+  bg_gradient.addColorStop(BIOME_SNOWY, "#206");
+  bg_gradient.addColorStop((BIOME_SNOWY + BIOME_SUNSET) / 2, "#d22");
+  bg_gradient.addColorStop(BIOME_SUNSET, "#fb2");
   return bg_gradient;
 }
 
@@ -429,7 +430,7 @@ function drawName(ctx, cam, p) {
 
   ctx.fillStyle = "#fff";
   ctx.font = "20px Play";
-  ctx.fillText(p.name, v.x - ctx.measureText(p.name).width / 2, v.y - p.radius - 20);
+  ctx.fillText(p.name, v.x - ctx.measureText(p.name).width / 2, v.y - (p.radius + 30) * getScale());
 }
 
 function drawWater(ctx, cam, waterLevel, image) {

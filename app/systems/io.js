@@ -320,7 +320,7 @@ const io = module.exports = {
       if(
         players[i].inGame() &&
         i !== String(id) &&
-        distance(p.body.position, players[i].body.position) < Game.VISIBILITY
+        distance(p.body.position, players[i].body.position) < p.getVisibility()
       ) {
         addPlayer(players[i]);
         numPlayers++;
@@ -330,7 +330,7 @@ const io = module.exports = {
     for(var i in bullets){
       if(
         !bullets[i].deleted &&
-        distance(p.body.position, bullets[i].body.position) < Game.VISIBILITY
+        distance(p.body.position, bullets[i].body.position) < p.getVisibility()
       ) {
         addBullet(bullets[i]); // Add the bullets
         numBullets++; // Count the bullets
@@ -340,7 +340,7 @@ const io = module.exports = {
     for(var i in throwables){
       if(
         !throwables[i].deleted &&
-        distance(p.body.position, throwables[i].body.position) < Game.VISIBILITY
+        distance(p.body.position, throwables[i].body.position) < p.getVisibility()
       ) {
         addThrowable(throwables[i]); // Add the throwables
         numThrowables++; // Count the throwables
@@ -350,7 +350,7 @@ const io = module.exports = {
     for(var i in loot){
       if(
         !loot[i].deleted &&
-        distance(p.body.position, loot[i].body.position) < Game.VISIBILITY
+        distance(p.body.position, loot[i].body.position) < p.getVisibility()
       ) {
         gimmeTheLoot(loot[i]); // Gimme the loot!
         numLoot++; // Count the loot
