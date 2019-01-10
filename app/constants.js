@@ -1,6 +1,6 @@
 module.exports = Game => {
   Game.WATER_HEIGHT = 8500;   // The y level of the surface of water
-  Game.VISIBILITY = 1100;     // Any objectect at a greater distance will not be sent to client
+  Game.VISIBILITY = 6000;     // Any object at a greater distance will not be sent to client
   Game.MOUNTAIN_THICKNESS = 100;
 
   Game.RECOIL = 0.0005;

@@ -66,7 +66,7 @@ function Pistol(item){
   item.numBullets = 1;
   item.magazineSize = 15;
   item.accuracy = Math.PI / 30;
-  item.cooldownTime = 5;
+  item.cooldownTime = 12;
   item.shootingCooldown = item.cooldownTime;
 }
 
@@ -83,7 +83,7 @@ function Ak47(item) {
   item.magazineSize = 30;
   item.reloadTime = 3000;
   item.accuracy = Math.PI / 20;
-  item.cooldownTime = 3;
+  item.cooldownTime = 6;
   item.shootingCooldown = item.cooldownTime;
 }
 
@@ -184,6 +184,64 @@ function Shell(item) {
   return item;
 }
 
+function Scope(item) {
+  Item(item);
+  item.type = "scope";
+  item.name = "Scope";
+  item.plurals = "Scopes";
+  this.visibility = 1000;
+
+  item.onAcquire = (p, amount) => {
+    p.dropScope();
+    p.scope = item;
+  }
+}
+
+function ScopeLvl1(item) {
+  Scope(item);
+  item.name = "ScopeLvl1";
+  item.plural = "ScopeLvl1s";
+  item.id = 232;
+  item.price = 20;
+  item.visibility = 1000;
+}
+
+function ScopeLvl2(item) {
+  Scope(item);
+  item.name = "ScopeLvl3";
+  item.plural = "ScopeLvl3s";
+  item.id = 233;
+  item.price = 50;
+  item.visibility = 1500;
+}
+
+function ScopeLvl3(item) {
+  Scope(item);
+  item.name = "ScopeLvl3";
+  item.plural = "ScopeLvl3s";
+  item.id = 234;
+  item.price = 100;
+  item.visibility = 2000;
+}
+
+function ScopeLvl4(item) {
+  Scope(item);
+  item.name = "ScopeLvl4";
+  item.plural = "ScopeLvl4s";
+  item.id = 235;
+  item.price = 200;
+  item.visibility = 3000;
+}
+
+function ScopeLvl5(item) {
+  Scope(item);
+  item.name = "ScopeLvl5";
+  item.plural = "ScopeLvl5s";
+  item.id = 236;
+  item.price = 300;
+  item.visibility = 4000;
+}
+
 function Jetpack(item) {
   Item(item);
   item.type = "jetpack";
@@ -268,6 +326,21 @@ module.exports = function(id) {
     case 225:
     case "shell":
       Shell(item);
+      break;
+    case 232:
+      ScopeLvl1(item);
+      break;
+    case 233:
+      ScopeLvl2(item);
+      break;
+    case 234:
+      ScopeLvl3(item);
+      break;
+    case 235:
+      ScopeLvl4(item);
+      break;
+    case 236:
+      ScopeLvl5(item);
       break;
     case 240:
       StandardJetpack(item);

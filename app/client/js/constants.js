@@ -5,7 +5,7 @@ const INVENTORY_ANIMATION_SPEED = 80; // px / sec
 
 // Stats
 const STATS_WIDTH = 200;
-const STATS_HEIGHT = 280;
+const STATS_HEIGHT = 320;
 
 // Leaderboard
 const LEADERBOARD_WIDTH = 300;
@@ -44,4 +44,4 @@ const BIOME_SUNSET = 0;
 const BIOME_SNOWY = 0.4;
 const BIOME_STARRY = 0.75;
 
-const FRAME_WIDTH = 2000; // The furthest distance a player can see
+var FRAME_WIDTH = 2200; // The furthest distance a player can see

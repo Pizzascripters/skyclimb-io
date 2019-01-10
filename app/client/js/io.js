@@ -150,8 +150,7 @@ function setPlayers(data, Game){
       bullets = Game.bullets,
       throwables = Game.throwables,
       loot = Game.loot,
-      leaderboard = Game.leaderboard,
-      flames = Game.flames,
+      leaderboard = Game.leaderboard
       cam = Game.cam;
 
   // Clear the arrays
@@ -230,6 +229,8 @@ function setPlayers(data, Game){
       player.score = readInt(data, ref);
       player.bullets = readInt(data, ref);
       player.shells = readInt(data, ref);
+      player.scope = readInt(data, ref);
+      visibility = readInt(data, ref);
 
       player.healing = readBool(data, ref);
     }

@@ -63,6 +63,12 @@ module.exports = function(id, ws, world, loot){
   this.inventory.amt = [1, 1, 1, 3, 3, 0];
 
   this.jetpack = Item(240);
+  this.scope = Item(232);
+
+  // Returns the distance the player can see with their current scope
+  this.getVisibility = () => {
+    return this.scope.visibility;
+  }
 
   // Converts hand to radians
   this.handRadians = () => {
@@ -166,6 +172,10 @@ module.exports = function(id, ws, world, loot){
 
   this.dropJetpack = () => {
     loot.push(new Loot(world, this.jetpack, this.body.position, this.handRadians()));
+  }
+
+  this.dropScope = () => {
+    loot.push(new Loot(world, this.scope, this.body.position, this.handRadians()));
   }
 
   // Programmed cell suicide

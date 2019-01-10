@@ -276,6 +276,8 @@ const io = module.exports = {
         packet.push( p.score );
         packet.push( p.bullets );
         packet.push( p.shells );
+        packet.push( p.scope.id );
+        packet.push( p.getVisibility() );
 
         packet.push( p.healing );
       }

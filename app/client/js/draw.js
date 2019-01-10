@@ -58,13 +58,12 @@ function draw(Game){
   drawWater(ctx, cam, map.waterHeight, images.textures.water);
 
   ctx.save();
-  ctx.scale((cvs.width / FRAME_WIDTH), (cvs.width / FRAME_WIDTH));
   if(players.length > 0 && !Game.spectating) {
     drawHealthbar(ctx, players[0].health, healthbar);
     drawEnergyBar(ctx, players[0].energy, energybar);
-    drawWeaponDisplay(ctx, players[0], items[inventory.items[inventory.select]], inventory.magazine[inventory.select]);
+    drawWeaponDisplay(ctx, players[0], items, inventory);
     drawInventory(ctx, inventory, items);
-    drawStats(ctx, images.stats, players[0].gold, players[0].kills, players[0].score, players[0].bullets, players[0].shells);
+    drawStats(ctx, images.stats, players[0], items[players[0].scope]);
     drawLeaderboard(ctx, Game.leaderboard, images.stats.score);
   }
   ctx.restore();
@@ -91,7 +90,7 @@ function getBackgroundGradient(ctx, cam) {
 function createHealthbar(ctx, image) {
   const healthbar = {};
   healthbar.image = image;
-  healthbar.x = FRAME_WIDTH / 2 - image.width / 2;
+  healthbar.x = cvs.width / 2 - image.width / 2;
   healthbar.y = 80;
   healthbar.glow = anim.healthbarglow;
   healthbar.gradient = ctx.createLinearGradient(
@@ -106,7 +105,7 @@ function createHealthbar(ctx, image) {
 function createEnergybar(ctx, image) {
   const energybar = {};
   energybar.image = image;
-  energybar.x = FRAME_WIDTH / 2 - image.width / 2;
+  energybar.x = cvs.width / 2 - image.width / 2;
   energybar.y = 130;
   energybar.gradient = ctx.createLinearGradient(
     energybar.x, 0,
@@ -156,10 +155,10 @@ function drawWeapon(ctx, p, item, radius) {
   }
   ctx.drawImage(
     item.image,
-    radius + item.radialShift * (cvs.width / FRAME_WIDTH),
-    -item.height * (cvs.width / FRAME_WIDTH) / 2,
-    item.width * (cvs.width / FRAME_WIDTH),
-    item.height * (cvs.width / FRAME_WIDTH)
+    radius + item.radialShift * (getScale()),
+    -item.height * (getScale()) / 2,
+    item.width * (getScale()),
+    item.height * (getScale())
   );
 
   ctx.restore();
@@ -168,7 +167,7 @@ function drawWeapon(ctx, p, item, radius) {
 function drawBullet(ctx, b, cam) {
   const bullet_angle = 2 * Math.PI * b.angle / 256;
   const v = getVertexPosition(b, cam);
-  const zoom = cvs.width / FRAME_WIDTH;
+  const zoom = getScale();
 
   ctx.save();
   ctx.translate(v.x, v.y);
@@ -184,14 +183,14 @@ function drawThrowable(ctx, t, image, cam) {
   ctx.save();
   ctx.translate(v.x, v.y);
   ctx.rotate(angle);
-  ctx.drawImage(image, -t.width/2, -t.height/2, t.width, t.height);
+  ctx.drawImage(image, -t.width * getScale() / 2, -t.height * getScale() / 2, t.width * getScale(), t.height * getScale());
   ctx.restore();
 }
 
 function drawJetpack(ctx, cam, p) {
   const v = getVertexPosition(p, cam)
-        width = p.jetpack.img.width * cvs.width / FRAME_WIDTH,
-        height = p.jetpack.img.height * cvs.width / FRAME_WIDTH;
+        width = p.jetpack.img.width * getScale(),
+        height = p.jetpack.img.height * getScale();
   ctx.drawImage(p.jetpack.img, v.x - width/2, v.y - height/2, width, height);
 }
 
@@ -199,17 +198,17 @@ function drawFlame(ctx, cam, p) {
   const v = getVertexPosition(p, cam);
   if(p.jetpack.flame) {
     p.jetpack.flame.update();
-    p.jetpack.flame.render(ctx, v.x, v.y + 60 * cvs.width / FRAME_WIDTH);
+    p.jetpack.flame.render(ctx, v.x, v.y + 60 * getScale());
   }
 }
 
 function drawPlayer(ctx, cam, p, outline, eyes, weapon) {
   const v = getVertexPosition(p, cam),
         handAngle = 2 * Math.PI * p.hand / 256,
-        radius = p.radius * cvs.width / FRAME_WIDTH;
+        radius = p.radius * getScale();
 
   ctx.strokeStyle = PLAYER_OUTLINE_COLOR;
-  ctx.lineWidth = PLAYER_OUTLINE_WIDTH * (cvs.width / FRAME_WIDTH);
+  ctx.lineWidth = PLAYER_OUTLINE_WIDTH * getScale();
   ctx.fillStyle = PLAYER_COLOR;
 
   ctx.beginPath();
@@ -236,7 +235,7 @@ function drawPlayer(ctx, cam, p, outline, eyes, weapon) {
 
   // Draw Shield
   ctx.strokeStyle = "#fff";
-  ctx.lineWidth = 5;
+  ctx.lineWidth = 5 * getScale();
   ctx.shadowBlur = 10;
   ctx.shadowColor = "#fff";
   ctx.beginPath();
@@ -246,7 +245,7 @@ function drawPlayer(ctx, cam, p, outline, eyes, weapon) {
 }
 
 function drawMountain(ctx, cam, p, textures) {
-  const zoom = cvs.width / FRAME_WIDTH;
+  const zoom = getScale();
   const size = 3 * zoom;
 
   // Stone Pattern
@@ -301,7 +300,7 @@ function drawMountain(ctx, cam, p, textures) {
     }
     ctx.lineTo(v0.x, v0.y);
     ctx.strokeStyle = "#000";
-    ctx.lineWidth = OBJECT_OUTLINE_WIDTH;
+    ctx.lineWidth = OBJECT_OUTLINE_WIDTH * getScale();
     ctx.stroke();
   }
 
@@ -315,7 +314,7 @@ function drawMountain(ctx, cam, p, textures) {
     if(p.vertices[i].surface) {
       ctx.save();
       ctx.translate(oldv.x, oldv.y);
-      ctx.scale(cvs.width / FRAME_WIDTH, cvs.width / FRAME_WIDTH);
+      ctx.scale(getScale(), getScale());
       ctx.rotate(angle);
       var surface = p.vertices[i].surface;
 
@@ -388,6 +387,7 @@ function drawDecoration(ctx, cam, d) {
   ctx.save();
   ctx.translate(v.x, v.y);
   ctx.rotate(d.angle);
+  ctx.scale(getScale() * 2, getScale() * 2);
   ctx.drawImage(d.img, 0, -d.img.height);
   ctx.restore();
 }
@@ -395,7 +395,7 @@ function drawDecoration(ctx, cam, d) {
 function drawLoot(ctx, loot, cam) {
   ctx.fillStyle = "rgba(100, 100, 100, 0.8)";
   ctx.strokeStyle = "#000";
-  ctx.lineWidth = 2;
+  ctx.lineWidth = 2 * getScale();
 
   for(var i in loot) {
     const l = loot[i];
@@ -405,16 +405,16 @@ function drawLoot(ctx, loot, cam) {
     ctx.translate(v.x, v.y);
     ctx.rotate(2 * Math.PI * l.angle / 255);
     ctx.beginPath();
-    ctx.arc(0, 0, (cvs.width / FRAME_WIDTH) * l.radius, 0, 2 * Math.PI);
+    ctx.arc(0, 0, (getScale()) * l.radius, 0, 2 * Math.PI);
     ctx.stroke();
     ctx.fill();
 
     if(l.item.image !== null) {
       if(l.item.image.width > l.item.image.height) {
-        width = (cvs.width / FRAME_WIDTH) * (l.radius * 2 - 10);
+        width = (getScale()) * (l.radius * 2 - 10);
         height = l.item.image.height * width / l.item.image.width;
       } else {
-        height = (cvs.width / FRAME_WIDTH) * (l.radius * 2 - 10);
+        height = (getScale()) * (l.radius * 2 - 10);
         width = l.item.image.width * height / l.item.image.height;
       }
       ctx.drawImage(l.item.image, -width/2, -height/2, width, height);
@@ -439,18 +439,19 @@ function drawWater(ctx, cam, waterLevel, image) {
   // Draw the bottomless ocean
   ctx.globalAlpha = 0.6;
   ctx.fillStyle = "#14f";
-  ctx.fillRect(0, y + image.height - 2, cvs.width, cvs.height + image.height + 2);
+  ctx.fillRect(0, y + image.height * getScale() - 2, cvs.width, cvs.height + image.height + 2);
   ctx.globalAlpha = 1;
 
   // Draw the texture on top
-  let offset = -(cam.x % image.width);
+  let offset = -(cam.x % image.width * getScale());
   if(cam.x < 0)
-    offset = -(cam.x % image.width) - image.width;
+    offset = -(cam.x % image.width * getScale()) - image.width * getScale();
   ctx.save();
   ctx.translate(offset, v.y);
+  ctx.scale(getScale(), getScale());
   ctx.fillStyle = ctx.createPattern(image, "repeat");
   ctx.beginPath();
-  ctx.rect(0, 0, cvs.width + image.width * 2, image.height);
+  ctx.rect(0, 0, cvs.width / getScale() + image.width * 2 / getScale(), image.height);
   ctx.fill();
   ctx.restore();
 }
@@ -458,7 +459,7 @@ function drawWater(ctx, cam, waterLevel, image) {
 function drawShop(ctx, shop, shopImages, cam) {
   const v = getVertexPosition({x: shop.x, y: shop.y}, cam);
 
-  ctx.drawImage(shopImages[shop.type].outside, v.x, v.y, shop.width * cvs.width / FRAME_WIDTH, shop.height * cvs.width / FRAME_WIDTH);
+  ctx.drawImage(shopImages[shop.type].outside, v.x, v.y, shop.width * getScale(), shop.height * getScale());
 }
 
 function drawHealthbar(ctx, health, healthbar){
@@ -478,27 +479,38 @@ function drawEnergyBar(ctx, energy, energybar){
   ctx.drawImage(energybar.image, energybar.x, energybar.y);
 }
 
-function drawWeaponDisplay(ctx, p, item, magazine) {
+function drawWeaponDisplay(ctx, p, items, inventory) {
+  var item = items[inventory.items[inventory.select]];
+  var magazine = inventory.magazine[inventory.select];
+  var amt = inventory.amt[inventory.select];
+
+  if(item.id >= 128 && item.id < 224 || item.id === 0) {
+    magazine = amt;
+  }
+
   ctx.beginPath();
-  ctx.arc(0, cvs.height * (FRAME_WIDTH / cvs.width), WEAPON_MENU_RADIUS, 0, 2*Math.PI);
+  ctx.arc(0, cvs.height, WEAPON_MENU_RADIUS, 0, 2*Math.PI);
   ctx.fillStyle = "#000";
   ctx.fill();
 
   var ammo = item.shotgun ? p.shells : p.bullets;
+  if(item.id >= 128 && item.id < 224 || item.id === 0) {
+    ammo = amt;
+  }
   ctx.fillStyle = "#fff";
   if(ammo === 0) ctx.fillStyle = "#f00";
   ctx.font = "50px Play";
-  ctx.fillText(ammo, WEAPON_MENU_RADIUS/3 - ctx.measureText(ammo).width/2, cvs.height * (FRAME_WIDTH / cvs.width) - WEAPON_MENU_RADIUS/2 + 50);
+  ctx.fillText(ammo, WEAPON_MENU_RADIUS/3 - ctx.measureText(ammo).width/2, cvs.height - WEAPON_MENU_RADIUS/2 + 50);
 
   ctx.fillStyle = "#fff";
   if(magazine === 0) ctx.fillStyle = "#f00";
   ctx.font = "50px Play";
-  ctx.fillText(magazine, WEAPON_MENU_RADIUS/3 - ctx.measureText(magazine).width/2, cvs.height * (FRAME_WIDTH / cvs.width) - WEAPON_MENU_RADIUS/2);
+  ctx.fillText(magazine, WEAPON_MENU_RADIUS/3 - ctx.measureText(magazine).width/2, cvs.height - WEAPON_MENU_RADIUS/2);
 
   ctx.strokeStyle = "#fff";
   ctx.lineWidth = 5;
   ctx.beginPath();
-  ctx.arc(0, cvs.height * (FRAME_WIDTH / cvs.width), WEAPON_MENU_RADIUS, 2*Math.PI - p.reloadProgress*Math.PI/2, 3*Math.PI/2);
+  ctx.arc(0, cvs.height, WEAPON_MENU_RADIUS, 2*Math.PI - p.reloadProgress*Math.PI/2, 3*Math.PI/2);
   ctx.stroke();
 }
 
@@ -506,12 +518,12 @@ function drawInventory(ctx, inventory, items){
   ctx.fillStyle = "#888";
   ctx.globalAlpha = 0.8;
 
-  roundRect(ctx, FRAME_WIDTH / 2 - 340, -10, 100, inventory.anim[0]);
-  roundRect(ctx, FRAME_WIDTH / 2 - 220, -10, 100, inventory.anim[1]);
-  roundRect(ctx, FRAME_WIDTH / 2 - 100, -10, 100, inventory.anim[2]);
-  roundRect(ctx, FRAME_WIDTH / 2 + 100, -10, 100, inventory.anim[3]);
-  roundRect(ctx, FRAME_WIDTH / 2 + 220, -10, 100, inventory.anim[4]);
-  roundRect(ctx, FRAME_WIDTH / 2 + 340, -10, 100, inventory.anim[5]);
+  roundRect(ctx, cvs.width / 2 - 340, -10, 100, inventory.anim[0]);
+  roundRect(ctx, cvs.width / 2 - 220, -10, 100, inventory.anim[1]);
+  roundRect(ctx, cvs.width / 2 - 100, -10, 100, inventory.anim[2]);
+  roundRect(ctx, cvs.width / 2 + 100, -10, 100, inventory.anim[3]);
+  roundRect(ctx, cvs.width / 2 + 220, -10, 100, inventory.anim[4]);
+  roundRect(ctx, cvs.width / 2 + 340, -10, 100, inventory.anim[5]);
 
   drawItem(ctx, 0, items[inventory.items[0]], inventory.anim[0]);
   drawItem(ctx, 1, items[inventory.items[1]], inventory.anim[1]);
@@ -545,22 +557,22 @@ function drawItem(ctx, slot, item, anim, amt) {
 
   switch(slot) {
     case 0:
-      x = FRAME_WIDTH / 2 - 290 - width / 2;
+      x = cvs.width / 2 - 290 - width / 2;
       break;
     case 1:
-      x = FRAME_WIDTH / 2 - 170 - width / 2;
+      x = cvs.width / 2 - 170 - width / 2;
       break;
     case 2:
-      x = FRAME_WIDTH / 2 - 50 - width / 2;
+      x = cvs.width / 2 - 50 - width / 2;
       break;
     case 3:
-      x = FRAME_WIDTH / 2 + 150 - width / 2;
+      x = cvs.width / 2 + 150 - width / 2;
       break;
     case 4:
-      x = FRAME_WIDTH / 2 + 270 - width / 2;
+      x = cvs.width / 2 + 270 - width / 2;
       break;
     case 5:
-      x = FRAME_WIDTH / 2 + 390 - width / 2;
+      x = cvs.width / 2 + 390 - width / 2;
       break;
   }
 
@@ -577,7 +589,7 @@ function drawItem(ctx, slot, item, anim, amt) {
   }
 }
 
-function drawStats(ctx, images, gold, kills, score, bullets, shells) {
+function drawStats(ctx, images, p, scope) {
   ctx.fillStyle = "#888";
   ctx.globalAlpha = 0.8;
   roundRect(ctx, 20, 20, STATS_WIDTH, STATS_HEIGHT, 10, true, false)
@@ -596,33 +608,35 @@ function drawStats(ctx, images, gold, kills, score, bullets, shells) {
   ctx.drawImage(images.score, 30, 180, 30, 30);
   ctx.drawImage(images.bullets, 30, 220, 30, 30);
   ctx.drawImage(images.shells, 30, 260, 30, 30);
+  ctx.drawImage(images.scope, 30, 300, 30, 30);
 
   ctx.font = "30px Play";
-  ctx.fillText(kills, 80, 130);
-  ctx.fillText(gold, 80, 170);
-  ctx.fillText(score, 80, 210);
-  ctx.fillText(bullets, 80, 250);
-  ctx.fillText(shells, 80, 290);
+  ctx.fillText(p.kills, 80, 130);
+  ctx.fillText(p.gold, 80, 170);
+  ctx.fillText(p.score, 80, 210);
+  ctx.fillText(p.bullets, 80, 250);
+  ctx.fillText(p.shells, 80, 290);
+  ctx.fillText("Lvl " + scope.level, 80, 330);
 }
 
 function drawLeaderboard(ctx, leaderboard, scoreImage) {
   ctx.fillStyle = "#888";
   ctx.globalAlpha = 0.8;
-  roundRect(ctx, FRAME_WIDTH - 20 - LEADERBOARD_WIDTH, 20, LEADERBOARD_WIDTH, LEADERBOARD_HEIGHT, 10, true, false)
+  roundRect(ctx, cvs.width - 20 - LEADERBOARD_WIDTH, 20, LEADERBOARD_WIDTH, LEADERBOARD_HEIGHT, 10, true, false)
   ctx.globalAlpha = 1;
 
   ctx.fillStyle = "#fff";
   ctx.font = "30px Play";
   ctx.fillText(
     "Leaderboard",
-    FRAME_WIDTH - 20 - LEADERBOARD_WIDTH/2 - ctx.measureText("Leaderboard").width/2,
+    cvs.width - 20 - LEADERBOARD_WIDTH/2 - ctx.measureText("Leaderboard").width/2,
     60
   );
 
   for(var i in leaderboard) {
     ctx.font = "24px Play";
     var text = (Number(i)+1) + ". ";
-    ctx.fillText(text, FRAME_WIDTH - LEADERBOARD_WIDTH, 90 + 30*i);
+    ctx.fillText(text, cvs.width - LEADERBOARD_WIDTH, 90 + 30*i);
 
     ctx.font = "1px Play"
     text = leaderboard[i].name
@@ -630,12 +644,12 @@ function drawLeaderboard(ctx, leaderboard, scoreImage) {
     fontsize = Math.floor(fontsize);
     if(fontsize > 30) fontsize = 30;
     ctx.font = fontsize + "px Play";
-    ctx.fillText(text, FRAME_WIDTH - LEADERBOARD_WIDTH + 30, 90 + 30*i);
+    ctx.fillText(text, cvs.width - LEADERBOARD_WIDTH + 30, 90 + 30*i);
 
     text = leaderboard[i].score;
-    ctx.drawImage(scoreImage, FRAME_WIDTH - 70, 66 + 30*i, 30, 30)
+    ctx.drawImage(scoreImage, cvs.width - 70, 66 + 30*i, 30, 30)
     ctx.font = "18px Play";
-    ctx.fillText(text, FRAME_WIDTH - 80 - ctx.measureText(text).width, 90 + 30*i);
+    ctx.fillText(text, cvs.width - 80 - ctx.measureText(text).width, 90 + 30*i);
   }
 }
 
@@ -654,7 +668,7 @@ function drawShopMenu(ctx, shopMenu, shopImages, keyboard, goldImage) {
     const size = width / 8;
     const margin = SHOP_MENU_MARGIN;
     const padding = SHOP_MENU_PADDING;
-    const textHeight = Math.floor(20 * (cvs.width / FRAME_WIDTH));
+    const textHeight = 20;
     const pos = {
       x: rect.x - margin,
       y: rect.y - margin
@@ -752,7 +766,7 @@ function roundRect(ctx, x, y, width, height, radius, fill, stroke) {
 }
 
 function getVertexPosition(v, cam) {
-  const zoom = cvs.width / FRAME_WIDTH;
+  const zoom = getScale();
 
   return {
     x: (v.x - cam.x) * zoom + cvs.width / 2,

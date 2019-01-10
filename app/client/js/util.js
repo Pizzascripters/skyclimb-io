@@ -199,7 +199,7 @@ function loadImages(images, callback) {
 
   // Textures
   images.stats = {};
-  imageNames = ["bullets", "gold", "kills", "score", "shells"];
+  imageNames = ["bullets", "gold", "kills", "score", "shells", "scope"];
   for(var i in imageNames) {
     images.stats[imageNames[i]] = loadImage("stats/" + imageNames[i], onload);
   }
@@ -234,6 +234,10 @@ scripts.map(x => loadScript(x));
 function fullscreen(cvs){
   cvs.width = window.innerWidth;
   cvs.height = window.innerHeight;
+}
+
+function getScale() {
+  return 0.5 * cvs.width / visibility;
 }
 
 // Finds the distance between two points
