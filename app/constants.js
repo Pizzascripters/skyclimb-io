@@ -9,5 +9,5 @@ module.exports = Game => {
   Game.TERMINAL_Y_VELOCITY = 30;
   Game.HORIZONTAL_ACCELERTION = 0.01;
   Game.GRAVITY = 0.003;
-  Game.WATER_DAMAGE = 0.01;
+  Game.WATER_DAMAGE = 0.0025;
 }
