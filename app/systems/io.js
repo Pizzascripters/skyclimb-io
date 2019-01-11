@@ -212,6 +212,7 @@ const io = module.exports = {
   setName: (ws, players, p, packet) => {
     var ref = {i:0};
     const name = readString(packet, ref);
+    if(name.length > 15) return;
     for(var i in players) {
       if(players[i].name.toLowerCase() === name.toLowerCase()) return 1; // Check if anyone else has this name
     }
