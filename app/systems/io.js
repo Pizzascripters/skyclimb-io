@@ -203,7 +203,7 @@ const io = module.exports = {
       if(insideRect(p.body.position, rect)) {
         const shop = shops[i];
         if(shop.items[slot]) {
-          shop.items[slot].buy(p, amount);
+          shop.buy(p, slot, amount);
         }
       }
     }

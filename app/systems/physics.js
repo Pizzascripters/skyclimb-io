@@ -329,10 +329,13 @@ function handleLooting(p, world, loot) {
 function handleReloading(p, delta) {
   // Make sure that any items that aren't selected aren't reloading
   for(var i in p.inventory.items) {
-    if(Number(i) === p.inventory.select) continue;
-    p.inventory.items[i].reloading = false;
+    if(Number(i) !== p.inventory.select) {
+      p.inventory.items[i].reloading = false;
+    }
   }
-  if(!p.getItem().reloading) p.reloadProgress = 0;
+  if(!p.getItem().reloading) {
+    p.reloadProgress = 0;
+  }
 
   // Check if player should begin reloading
   var ammo = p.getItem().shotgun ? p.shells : p.bullets;

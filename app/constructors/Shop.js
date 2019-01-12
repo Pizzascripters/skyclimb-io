@@ -1,48 +1,57 @@
 const Item = require('./Item');
 
-class Shop {
-  constructor(x, y) {
-    this.x = x;
-    this.y = y;
-    this.width = 400;
-    this.height = 400;
-    this.items = [];
-  }
+function Shop(x, y) {
+  var shop = {};
+  shop.x = x;
+  shop.y = y;
+  shop.width = 400;
+  shop.height = 400;
+  shop.itemIds = [];
+  shop.items = [];
+  return shop;
 }
 
-class Generic extends Shop {
-  constructor(x, y) {
-    super(x, y);
-    this.type = 1;
-    this.items.push(Item(1));
-    this.items.push(Item(32));
-    this.items.push(Item(64));
-    this.items.push(Item(128));
-    this.items.push(Item(192));
-    this.items.push(Item(224));
-    this.items.push(Item(225));
-    this.items.push(Item(232));
-    this.items.push(Item(233));
-    this.items.push(Item(234));
-    this.items.push(Item(235));
-    this.items.push(Item(236));
-    this.items.push(Item(240));
-    this.items.push(Item(241));
-    this.items.push(Item(242));
+function Generic(x, y) {
+  var shop = Shop(x, y);
+
+  shop.type = 1;
+  shop.itemIds.push(1);
+  shop.itemIds.push(32);
+  shop.itemIds.push(64);
+  shop.itemIds.push(128);
+  shop.itemIds.push(192);
+  shop.itemIds.push(224);
+  shop.itemIds.push(225);
+  shop.itemIds.push(232);
+  shop.itemIds.push(233);
+  shop.itemIds.push(234);
+  shop.itemIds.push(235);
+  shop.itemIds.push(236);
+  shop.itemIds.push(240);
+  shop.itemIds.push(241);
+  shop.itemIds.push(242);
+
+  shop.buy = (p, slot, amt) => {
+    Item(shop.itemIds[slot]).buy(p, amt);
   }
+
+  for(var i in shop.itemIds) {
+    shop.items.push(Item(shop.itemIds[i]));
+  }
+
+  return shop;
 }
 
-module.exports = function(type, x, y) {
-  let shop;
+module.exports = (type, x, y) => {
+  var shop;
   switch(type) {
     case "generic":
-      shop = new Generic(x, y);
+      shop = Generic(x, y);
       break;
     default:
-      shop = new Shop(x, y);
+      shop = Shop(x, y);
       break;
   }
 
-  for(var i in shop)
-    this[i] = shop[i];
+  return shop;
 }

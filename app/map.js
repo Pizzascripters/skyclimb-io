@@ -102,7 +102,7 @@ for(var i in objects){
 }
 
 for(var i in shops)
-  shops[i] = new Shop(shops[i].type, shops[i].x, shops[i].y)
+  shops[i] = Shop(shops[i].type, shops[i].x, shops[i].y)
 
 module.exports = {
   bodies: map,
