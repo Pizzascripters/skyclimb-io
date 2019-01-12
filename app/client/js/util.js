@@ -228,12 +228,17 @@ function loadScript(name){
   script.src = "js/" + name + ".js";
   document.head.appendChild(script);
 }
-let scripts = ["anim", "constants", "Decoration", "draw", "Flame", "input", "io", "jetpack", "Item", "Particle", "Snow", "Stars", "Surface"];
+let scripts = ["anim", "buttons", "constants", "Decoration", "draw", "Flame", "input", "io", "jetpack", "Item", "Particle", "Snow", "Stars", "Surface"];
 scripts.map(x => loadScript(x));
 
-function fullscreen(cvs){
+function resize(Game){
   cvs.width = window.innerWidth;
   cvs.height = window.innerHeight;
+
+  Game.snow = createSnow(Game.images.particles.snow);
+  Game.stars = createStars();
+  Game.buttons = createButtons(Game);
+  Game.inventory.buttons = Game.buttons.inventory;
 }
 
 function getScale() {

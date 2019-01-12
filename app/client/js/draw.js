@@ -519,19 +519,13 @@ function drawInventory(ctx, inventory, items){
   ctx.fillStyle = "#888";
   ctx.globalAlpha = 0.8;
 
-  roundRect(ctx, cvs.width / 2 - 340, -10, 100, inventory.anim[0]);
-  roundRect(ctx, cvs.width / 2 - 220, -10, 100, inventory.anim[1]);
-  roundRect(ctx, cvs.width / 2 - 100, -10, 100, inventory.anim[2]);
-  roundRect(ctx, cvs.width / 2 + 100, -10, 100, inventory.anim[3]);
-  roundRect(ctx, cvs.width / 2 + 220, -10, 100, inventory.anim[4]);
-  roundRect(ctx, cvs.width / 2 + 340, -10, 100, inventory.anim[5]);
-
-  drawItem(ctx, 0, items[inventory.items[0]], inventory.anim[0]);
-  drawItem(ctx, 1, items[inventory.items[1]], inventory.anim[1]);
-  drawItem(ctx, 2, items[inventory.items[2]], inventory.anim[2]);
-  drawItem(ctx, 3, items[inventory.items[3]], inventory.anim[3], inventory.amt[3]);
-  drawItem(ctx, 4, items[inventory.items[4]], inventory.anim[4], inventory.amt[4]);
-  drawItem(ctx, 5, items[inventory.items[5]], inventory.anim[5], inventory.amt[5]);
+  for(var i = 0; i < inventory.buttons.length; i++) {
+    var button = inventory.buttons[i];
+    button.height = inventory.anim[i];
+    button.update();
+    roundRect(ctx, button.x, button.y, button.width, button.height);
+    drawItem(ctx, i, items[inventory.items[i]], inventory.anim[i], inventory.amt[i]);
+  }
 
   ctx.globalAlpha = 1;
 }

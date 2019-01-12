@@ -74,10 +74,22 @@ function mousemove(e) {
   return hand;
 }
 
-function mousedown (e, keyboard) {
+function mousedown (e, keyboard, buttons) {
+  for(var i1 in buttons) {
+    for(var i2 in buttons[i1]) {
+      var button = buttons[i1][i2];
+      if(!button.enabled) continue;
+      if(insideRect(mouse, button.rect())) {
+        button.click();
+        return false;
+      }
+    }
+  }
+
   if(e.button === 0) {
     keyboard.shoot = true;
   }
+  return true;
 }
 
 function mouseup (e, keyboard) {

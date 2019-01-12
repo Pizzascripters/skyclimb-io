@@ -47,11 +47,9 @@ function init(e){
   initItems(Game.items, Game.images);
 
   Game.cvs = document.getElementById("cvs");
-  fullscreen(Game.cvs);
+  resize(Game);
   window.addEventListener("resize", () => {
-    fullscreen(Game.cvs);
-    Game.snow = createSnow(Game.images.particles.snow);
-    Game.stars = createStars();
+    resize(Game);
   });
   Game.ctx = Game.cvs.getContext("2d");
   Game.cam = {x:0, y:0}; // Position of the camera
@@ -72,7 +70,7 @@ function init(e){
   window.addEventListener("mousedown", e => {
     mouse.down = true;
     if(Game.shopMenu.length === 0) {
-        mousedown(e, Game.keyboard);
+        mousedown(e, Game.keyboard, Game.buttons);
     } else {
       shopMenuApply(Game.shopMenu, (item, rect, slot) => {
         if(insideRect(mouse, rect)) {
