@@ -189,6 +189,7 @@ function loadImages(images, callback) {
       images.shops[shopNames[i1]][imageNames[i2]] = loadImage("shops/" + shopNames[i1] + "/" + imageNames[i2], onload);
     }
   }
+  images.shops.close = loadImage("shops/close", onload);
 
   // Textures
   images.textures = {};

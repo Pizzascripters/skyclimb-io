@@ -69,7 +69,7 @@ function draw(Game){
   ctx.restore();
 
   if(shopMenu.length > 0) {
-    drawShopMenu(ctx, shopMenu, images.shops[shopMenu[0]], keyboard, images.stats.gold);
+    drawShopMenu(ctx, shopMenu, images.shops[shopMenu[0]], Game.buttons.shopMenu.close, keyboard, images.stats.gold);
   }
 }
 
@@ -648,13 +648,17 @@ function drawLeaderboard(ctx, leaderboard, scoreImage) {
   }
 }
 
-function drawShopMenu(ctx, shopMenu, shopImages, keyboard, goldImage) {
+function drawShopMenu(ctx, shopMenu, shopImages, closeButton, keyboard, goldImage) {
   const width = cvs.width / 2;
   const height = 9 * width / 16;
 
   // Draw shop backgrounds
   ctx.drawImage(shopImages.inside, (cvs.width - width) / 2, (cvs.height - height) / 2, width / 2, height);
   ctx.drawImage(shopImages.shelf, cvs.width / 2, (cvs.height - height) / 2, width / 2, height);
+
+  // Close Button
+  ctx.drawImage(closeButton.image, closeButton.x, closeButton.y, closeButton.width, closeButton.height);
+  closeButton.update();
 
   // Draw Shelf
   shopMenuApply(shopMenu, (item, rect) => {

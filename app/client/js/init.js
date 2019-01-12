@@ -69,8 +69,21 @@ function init(e){
   });
   window.addEventListener("mousedown", e => {
     mouse.down = true;
+
+    // Handle buttons
+    for(var i1 in Game.buttons) {
+      for(var i2 in Game.buttons[i1]) {
+        var button = Game.buttons[i1][i2];
+        if(!button.enabled) continue;
+        if(insideRect(mouse, button.rect())) {
+          button.click();
+          return false;
+        }
+      }
+    }
+
     if(Game.shopMenu.length === 0) {
-        mousedown(e, Game.keyboard, Game.buttons);
+        mousedown(e, Game.keyboard);
     } else {
       shopMenuApply(Game.shopMenu, (item, rect, slot) => {
         if(insideRect(mouse, rect)) {

@@ -11,6 +11,13 @@ function createButtons(Game) {
     buttons.inventory.push(button);
   }
 
+  // Close button
+  buttons.shopMenu = {};
+  const width = cvs.width / 2;
+  const height = 9 * width / 16;
+  buttons.shopMenu.close = new Button(Game, (cvs.width - width) / 2, (cvs.height - height) / 2, 50, 50, {"type": "closeShop"});
+  buttons.shopMenu.close.image = Game.images.shops.close;
+
   return buttons;
 }
 
@@ -46,6 +53,8 @@ function Button(Game, x, y, width, height, args) {
   this.click = () => {
     if(args.type === "inventory") {
       Game.inventory.select = args.id;
+    } else if(args.type === "closeShop") {
+      Game.shopMenu = [];
     }
   }
 }
