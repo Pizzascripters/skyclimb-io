@@ -148,7 +148,7 @@ function update(Game, time){
   Game.shopMenu = ["generic", Game.items[1], Game.items[32], Game.items[64], Game.items[128], Game.items[192]];*/
 
   cvs.style.cursor = "default";
-  if(Game.players.length > 0) draw(Game);
+  draw(Game);
   anim.main(delta, Game);
 
   if(restarting) {

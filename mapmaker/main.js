@@ -488,6 +488,8 @@ function loadJSON(json) {
 }
 
 function adjustToLine(v) {
+  if(correctAngle > Math.PI / 2) correctAngle -= Math.PI;
+
   var a = Math.tan(correctAngle);
   var b = -1;
   var c = vertexSelected.y - vertexSelected.x * Math.tan(correctAngle);
@@ -497,8 +499,8 @@ function adjustToLine(v) {
   } else {
     var perpAngle = correctAngle + Math.PI / 2;
   }
-  v.x = v.x + d * Math.cos(perpAngle)
-  v.y = v.y + d * Math.sin(perpAngle)
+  v.x = v.x + d * Math.cos(perpAngle);
+  v.y = v.y + d * Math.sin(perpAngle);
 }
 
 function uniqueId() {

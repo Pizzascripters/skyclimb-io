@@ -1,5 +1,5 @@
 module.exports = Game => {
-  Game.WATER_HEIGHT = 8500;   // The y level of the surface of water
+  Game.WATER_HEIGHT = 11200;   // The y level of the surface of water
   Game.MOUNTAIN_THICKNESS = 100;
 
   Game.RECOIL = 0.0005;

@@ -97,8 +97,9 @@ const io = module.exports = {
     // Send all players the player data
     for(var i in Game.players){
       const p = Game.players[i];
-      if(p.connected && !p.choosingName)
+      if(p.connected && !p.choosingName) {
         io.sendGameData(Game, p);
+      }
     }
   },
 

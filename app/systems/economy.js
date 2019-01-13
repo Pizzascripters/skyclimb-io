@@ -6,7 +6,7 @@ const economy = module.exports = {
 
   update: function(players, map) {
     for(var i in players) {
-      if(players[i].inGame() && !players[i].inSafezone(map))
+      if(players[i].inGame() && players[i].shield === 0)
         economy.addGold(players[i], 1);
     }
   }

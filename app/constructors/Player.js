@@ -3,7 +3,7 @@ const Item = require('./Item');
 const Loot = require('./Loot');
 const economy = require('../systems/economy');
 
-const PLAYER_START_POS = [
+/*const PLAYER_START_POS = [
   {x: -4127, y: 4750},
   {x: -3855, y: 3710},
   {x: -3298, y: 5630},
@@ -11,8 +11,8 @@ const PLAYER_START_POS = [
   {x: -1266, y: 2070},
   {x: 1990, y: 5230},
   {x: 567, y: 3700}
-];
-//const PLAYER_START_POS = [{x: 0, y: 0}];
+];*/
+const PLAYER_START_POS = [{x: 0, y: 0}];
 const PLAYER_RADIUS = 50;
 
 module.exports = function(id, ws, world, loot){

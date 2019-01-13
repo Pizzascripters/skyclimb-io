@@ -44,12 +44,16 @@ function draw(Game){
   for(var i in players)
     drawName(ctx, cam, players[i]);
 
-  // Draw the map
+  // Draw the safezones
+  for(var i in map.objects) {
+    if(map.objects[i].type === "safezone") {
+      drawSafezone(ctx, cam, map.objects[i]);
+    }
+  }
+  // Draw the mountain
   for(var i in map.objects) {
     if(map.objects[i].type === "solid") {
       drawMountain(ctx, cam, map.objects[i], images.textures);
-    } else if(map.objects[i].type === "safezone") {
-      drawSafezone(ctx, cam, map.objects[i]);
     }
   }
   for(var i in map.decoration) {
