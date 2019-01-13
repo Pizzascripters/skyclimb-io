@@ -52,11 +52,11 @@ function initItems(items, images) {
   items[225] = new Item(225, "Shell", images.stats.shells, 30, 30);
   items[225].canBuy10 = items[225].canBuy100 = true;
 
-  items[232] = new Item(232, "Lvl 1 Scope", images.stats.scope, 30, 30);
-  items[233] = new Item(233, "Lvl 2 Scope", images.stats.scope, 30, 30);
-  items[234] = new Item(234, "Lvl 3 Scope", images.stats.scope, 30, 30);
-  items[235] = new Item(235, "Lvl 4 Scope", images.stats.scope, 30, 30);
-  items[236] = new Item(236, "Lvl 5 Scope", images.stats.scope, 30, 30);
+  items[232] = new Item(232, "Lvl 1 Scope", images.scopes[1], 30, 30);
+  items[233] = new Item(233, "Lvl 2 Scope", images.scopes[2], 30, 30);
+  items[234] = new Item(234, "Lvl 3 Scope", images.scopes[3], 30, 30);
+  items[235] = new Item(235, "Lvl 4 Scope", images.scopes[4], 30, 30);
+  items[236] = new Item(236, "Lvl 5 Scope", images.scopes[5], 30, 30);
   items[240] = new Item(240, "Standard Jetpack", images.jetpacks.standard);
   items[241] = new Item(241, "Lightning Jetpack", images.jetpacks.lightning);
   items[242] = new Item(242, "Bull Jetpack", images.jetpacks.bull);

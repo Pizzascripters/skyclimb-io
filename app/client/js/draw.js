@@ -607,7 +607,7 @@ function drawStats(ctx, images, p, scope) {
   ctx.drawImage(images.score, 30, 180, 30, 30);
   ctx.drawImage(images.bullets, 30, 220, 30, 30);
   ctx.drawImage(images.shells, 30, 260, 30, 30);
-  ctx.drawImage(images.scope, 30, 300, 30, 30);
+  ctx.drawImage(scope.image, 30, 300, 30, 30);
 
   ctx.font = "30px Play";
   ctx.fillText(p.kills, 80, 130);

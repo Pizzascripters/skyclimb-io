@@ -198,11 +198,18 @@ function loadImages(images, callback) {
     images.textures[imageNames[i]] = loadImage("textures/" + imageNames[i], onload);
   }
 
-  // Textures
+  // Stats
   images.stats = {};
-  imageNames = ["bullets", "gold", "kills", "score", "shells", "scope"];
+  imageNames = ["bullets", "gold", "kills", "score", "shells"];
   for(var i in imageNames) {
     images.stats[imageNames[i]] = loadImage("stats/" + imageNames[i], onload);
+  }
+
+  // Scopes
+  images.scopes = {};
+  imageNames = ["1", "2", "3", "4", "5"];
+  for(var i in imageNames) {
+    images.scopes[Number(imageNames[i])] = loadImage("scopes/" + imageNames[i], onload);
   }
 }
 
