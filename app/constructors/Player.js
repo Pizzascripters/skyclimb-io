@@ -4,13 +4,9 @@ const Loot = require('./Loot');
 const economy = require('../systems/economy');
 
 /*const PLAYER_START_POS = [
-  {x: -4127, y: 4750},
-  {x: -3855, y: 3710},
-  {x: -3298, y: 5630},
-  {x: -3142, y: 2130},
-  {x: -1266, y: 2070},
-  {x: 1990, y: 5230},
-  {x: 567, y: 3700}
+  {x: -14963, y: 10600},
+  {x: -13400, y: 10900},
+  {x: -11984, y: 11000}
 ];*/
 const PLAYER_START_POS = [{x: 0, y: 0}];
 const PLAYER_RADIUS = 50;

@@ -137,7 +137,7 @@ function findAngle(vertices, i) {
 // Determines if a triplet of points is clockwise
 function clockwise(a, b, c) {
   return (a.y - b.y) * (c.x - b.x) -
-         (b.x - a.x) * (b.y - c.y) > 0;
+         (b.x - a.x) * (b.y - c.y) >= 0;
 }
 
 // Finds the bisector angle between two angles

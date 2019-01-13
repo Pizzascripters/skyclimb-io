@@ -35,7 +35,7 @@ const OBJECT_OUTLINE_COLOR = "#000";
 const OBJECT_OUTLINE_WIDTH = 4;
 
 // Backgrounds
-const GREATEST_Y_VALUE = 8000;
+const GREATEST_Y_VALUE = 12000;
 const LEAST_Y_VALUE = -1000;
 const SNOW_PARTICLES = 100;
 const STARS = 100;
