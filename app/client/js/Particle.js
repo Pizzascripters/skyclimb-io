@@ -5,9 +5,9 @@ function Particle(){
   };
 
   this.reset = () => {
-    this.startRadius = this.rand(1, 10);
+    this.startRadius = this.rand(1, 10) * getScale();
     this.radius = this.startRadius;
-    this.x = (this.rand(0, 6) - 3);
+    this.x = (this.rand(0, 6) - 3) * getScale();
     this.y = 0;
     this.vx = 0;
     this.vy = 0;

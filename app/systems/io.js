@@ -4,6 +4,7 @@ const Player = require('../constructors/Player');
 const distance = require('../util/distance');
 const insideRect = require('../util/insideRect');
 const isAlphaNumeric = require('../util/isAlphaNumeric');
+const ReLU = require('../util/ReLU');
 
 const io = module.exports = {
   httpHandle: (req, res, dirname) => {
@@ -25,7 +26,7 @@ const io = module.exports = {
   // Called when a client establishes a new connection
   wsConnection: (ws, Game) => {
     const playerId = Game.players.length; // The player's id is its index
-    let player = new Player(playerId, ws, Game.world);
+    let player = new Player(playerId, ws, Game.world, Game.loot);
     Game.players.push(player);
     console.log("New client, id: %d", playerId);
 
@@ -96,8 +97,9 @@ const io = module.exports = {
     // Send all players the player data
     for(var i in Game.players){
       const p = Game.players[i];
-      if(p.connected && !p.choosingName)
+      if(p.connected && !p.choosingName) {
         io.sendGameData(Game, p);
+      }
     }
   },
 
@@ -116,7 +118,7 @@ const io = module.exports = {
 
   setKeyboard: (ws, player, packet) => { // 1 - Update keyboard
     // Sticky buttons only reset on physics update, not in io
-    let stickyButtons = ["throw", "consume", "select", "drop", "loot"]
+    let stickyButtons = ["throw", "consume", "select", "drop", "loot", "reload"]
     for(var i in player.keyboard) {
       if(stickyButtons.indexOf(i) === -1) {
         player.keyboard[i] = false;
@@ -133,6 +135,7 @@ const io = module.exports = {
     if(readByte(packet, ref)) player.keyboard.select = true;
     if(readByte(packet, ref)) player.keyboard.drop = true;
     if(readByte(packet, ref)) player.keyboard.loot = true;
+    if(readByte(packet, ref)) player.keyboard.reload = true;
     player.inventory.select = readByte(packet, ref);
   },
 
@@ -201,7 +204,7 @@ const io = module.exports = {
       if(insideRect(p.body.position, rect)) {
         const shop = shops[i];
         if(shop.items[slot]) {
-          shop.items[slot].buy(p, amount);
+          shop.buy(p, slot, amount);
         }
       }
     }
@@ -210,6 +213,7 @@ const io = module.exports = {
   setName: (ws, players, p, packet) => {
     var ref = {i:0};
     const name = readString(packet, ref);
+    if(name.length > 15) return;
     for(var i in players) {
       if(players[i].name.toLowerCase() === name.toLowerCase()) return 1; // Check if anyone else has this name
     }
@@ -218,7 +222,7 @@ const io = module.exports = {
     return 0;
   },
 
-  sendGameData: (Game, p) => { // Send player and bullet data
+  sendGameData: (Game, p) => { // Send player, bullets, throwable, loot, and leaderboard data
     if(p.ws.readyState === p.ws.CLOSED || p.ws.readyState === p.ws.CLOSING)
       return 1;
 
@@ -254,16 +258,19 @@ const io = module.exports = {
       packet.push( radius );
       packet.push( p.hand );
       packet.push( Math.floor(p.health * 255) );
-      packet.push( Math.floor(p.energy * 255) );
+      packet.push( Math.floor(ReLU(p.energy) * 255) );
+      packet.push( Math.floor(p.reloadProgress * 255) );
       packet.push( p.shield );
       packet.push( p.getItem().id ); // The weapon player is holding
+      packet.push( p.jetpack.jetpackId ); // Jetpack
+      packet.push(p.keyboard.jump); // The flame below the jetpack
 
       if(p.id === id) {
         // Inventory
         for(var i = 0; i < p.inventory.items.length; i++) {
-          if( i === 0 || i === 1 )
-            packet.push( p.inventory.amt[i] );
+          packet.push( p.inventory.amt[i] );
           packet.push( p.inventory.items[i].id );
+          packet.push( p.inventory.items[i].magazine );
         }
 
         packet.push( p.kills );
@@ -271,11 +278,11 @@ const io = module.exports = {
         packet.push( p.score );
         packet.push( p.bullets );
         packet.push( p.shells );
+        packet.push( p.scope.id );
+        packet.push( p.getVisibility() );
 
         packet.push( p.healing );
       }
-
-      packet.push(p.keyboard.jump); // The flame below the jetpack
     }
 
     function addBullet(b) {
@@ -285,19 +292,19 @@ const io = module.exports = {
       packet.push( b.angle );
     }
 
-    function addThrowable(b) {
-      packet.push( b.body.position.x );
-      packet.push( b.body.position.y );
-      packet.push( Math.floor(255*(b.body.angle % (Math.PI*2)) / (Math.PI*2)) );
+    function addThrowable(t) {
+      packet.push( t.body.position.x );
+      packet.push( t.body.position.y );
+      packet.push( Math.floor(255*(t.body.angle % (Math.PI*2)) / (Math.PI*2)) );
     }
 
     // Adds a loot object to the packet
-    function gimmeTheLoot(b) {
-      packet.push( b.item.id );
-      packet.push( b.body.position.x );
-      packet.push( b.body.position.y );
-      packet.push( b.radius );
-      packet.push( Math.floor(255*(b.body.angle % (Math.PI*2)) / (Math.PI*2)) );
+    function gimmeTheLoot(l) {
+      packet.push( l.item.id );
+      packet.push( l.body.position.x );
+      packet.push( l.body.position.y );
+      packet.push( l.radius );
+      packet.push( Math.floor(255*(l.body.angle % (Math.PI*2)) / (Math.PI*2)) );
     }
 
     let numPlayers = 0;
@@ -315,7 +322,7 @@ const io = module.exports = {
       if(
         players[i].inGame() &&
         i !== String(id) &&
-        distance(p.body.position, players[i].body.position) < Game.VISIBILITY
+        distance(p.body.position, players[i].body.position) < p.getVisibility()
       ) {
         addPlayer(players[i]);
         numPlayers++;
@@ -325,7 +332,7 @@ const io = module.exports = {
     for(var i in bullets){
       if(
         !bullets[i].deleted &&
-        distance(p.body.position, bullets[i].body.position) < Game.VISIBILITY
+        distance(p.body.position, bullets[i].body.position) < p.getVisibility()
       ) {
         addBullet(bullets[i]); // Add the bullets
         numBullets++; // Count the bullets
@@ -335,7 +342,7 @@ const io = module.exports = {
     for(var i in throwables){
       if(
         !throwables[i].deleted &&
-        distance(p.body.position, throwables[i].body.position) < Game.VISIBILITY
+        distance(p.body.position, throwables[i].body.position) < p.getVisibility()
       ) {
         addThrowable(throwables[i]); // Add the throwables
         numThrowables++; // Count the throwables
@@ -345,7 +352,7 @@ const io = module.exports = {
     for(var i in loot){
       if(
         !loot[i].deleted &&
-        distance(p.body.position, loot[i].body.position) < Game.VISIBILITY
+        distance(p.body.position, loot[i].body.position) < p.getVisibility()
       ) {
         gimmeTheLoot(loot[i]); // Gimme the loot!
         numLoot++; // Count the loot

@@ -5,7 +5,7 @@ const INVENTORY_ANIMATION_SPEED = 80; // px / sec
 
 // Stats
 const STATS_WIDTH = 200;
-const STATS_HEIGHT = 280;
+const STATS_HEIGHT = 320;
 
 // Leaderboard
 const LEADERBOARD_WIDTH = 300;
@@ -17,6 +17,9 @@ const SHOP_MENU_PADDING = 5;
 const SHOP_MENU_TEXT_HEIGHT = 18;
 const SHOP_GOLD_IMAGE_WIDTH = 30;
 const SHOP_GOLD_IMAGE_HEIGHT = 30;
+
+// Weapon Menu
+const WEAPON_MENU_RADIUS = 150;
 
 // Player drawing
 const PLAYER_COLOR = "#fc7";
@@ -35,10 +38,11 @@ const OBJECT_OUTLINE_WIDTH = 4;
 const GREATEST_Y_VALUE = 8000;
 const LEAST_Y_VALUE = -1000;
 const SNOW_PARTICLES = 100;
+const STARS = 100;
 
 // Biomes
 const BIOME_SUNSET = 0;
 const BIOME_SNOWY = 0.4;
 const BIOME_STARRY = 0.75;
 
-const FRAME_WIDTH = 2000; // The furthest distance a player can see
+var FRAME_WIDTH = 2200; // The furthest distance a player can see

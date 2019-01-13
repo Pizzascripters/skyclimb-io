@@ -48,7 +48,7 @@ wss.on('connection', (ws, req) => {
 
 var prevTime = 0;
 setInterval(io.update, 1000 / 60, Game);
-setInterval(economy.update, 1000, Game.players, Game.map);
+setInterval(economy.update, 250, Game.players, Game.map);
 Matter.Events.on(engine, 'afterUpdate', (e) => {
   var delta = e.timestamp - prevTime;
   prevTime = e.timestamp;

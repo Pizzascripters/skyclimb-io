@@ -148,7 +148,11 @@ function loadImages(images, callback) {
   }
 
   // Jetpack
-  images.jetpack = loadImage("jetpack", onload);
+  images.jetpacks = {};
+  jetpackNames = ["standard", "lightning", "bull"];
+  for(var i in jetpackNames) {
+    images.jetpacks[jetpackNames[i]] = loadImage("jetpacks/" + jetpackNames[i], onload)
+  }
 
   // Eyes
   images.eyes = {};
@@ -185,6 +189,7 @@ function loadImages(images, callback) {
       images.shops[shopNames[i1]][imageNames[i2]] = loadImage("shops/" + shopNames[i1] + "/" + imageNames[i2], onload);
     }
   }
+  images.shops.close = loadImage("shops/close", onload);
 
   // Textures
   images.textures = {};
@@ -195,7 +200,7 @@ function loadImages(images, callback) {
 
   // Textures
   images.stats = {};
-  imageNames = ["bullets", "gold", "kills", "score", "shells"];
+  imageNames = ["bullets", "gold", "kills", "score", "shells", "scope"];
   for(var i in imageNames) {
     images.stats[imageNames[i]] = loadImage("stats/" + imageNames[i], onload);
   }
@@ -224,12 +229,21 @@ function loadScript(name){
   script.src = "js/" + name + ".js";
   document.head.appendChild(script);
 }
-let scripts = ["anim", "constants", "Decoration", "draw", "Flame", "input", "io", "Item", "Particle", "Snow", "Surface"];
+let scripts = ["anim", "buttons", "constants", "Decoration", "draw", "Flame", "input", "io", "jetpack", "Item", "Particle", "Snow", "Stars", "Surface"];
 scripts.map(x => loadScript(x));
 
-function fullscreen(cvs){
+function resize(Game){
   cvs.width = window.innerWidth;
   cvs.height = window.innerHeight;
+
+  Game.snow = createSnow(Game.images.particles.snow);
+  Game.stars = createStars();
+  Game.buttons = createButtons(Game);
+  Game.inventory.buttons = Game.buttons.inventory;
+}
+
+function getScale() {
+  return 0.5 * cvs.width / visibility;
 }
 
 // Finds the distance between two points

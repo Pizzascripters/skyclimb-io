@@ -33,6 +33,9 @@ function keydown(e, keyboard, inventory){
     case 81:  // Q
       keyboard.drop = true;
       break;
+    case 82:
+      keyboard.reload = true;
+      break;
     case 87:  // W
       keyboard.jump = true;
       break;
@@ -75,6 +78,7 @@ function mousedown (e, keyboard) {
   if(e.button === 0) {
     keyboard.shoot = true;
   }
+  return true;
 }
 
 function mouseup (e, keyboard) {

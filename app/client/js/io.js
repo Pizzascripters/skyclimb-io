@@ -53,6 +53,7 @@ function sendKeyboard(ws, keyboard, select, hand){
   packet.push(keyboard.select);
   packet.push(keyboard.drop);
   packet.push(keyboard.loot);
+  packet.push(keyboard.reload);
   packet.push(select);
   ws.send( new Uint8Array(packet) );
 
@@ -61,6 +62,7 @@ function sendKeyboard(ws, keyboard, select, hand){
   keyboard.select = false;
   keyboard.loot = false;
   keyboard.drop = false;
+  keyboard.reload = false;
 }
 
 function buyItem(ws, slot, amount) {
@@ -148,12 +150,10 @@ function setPlayers(data, Game){
       bullets = Game.bullets,
       throwables = Game.throwables,
       loot = Game.loot,
-      leaderboard = Game.leaderboard,
-      flames = Game.flames,
+      leaderboard = Game.leaderboard
       cam = Game.cam;
 
   // Clear the arrays
-  players.splice(0, players.length);
   bullets.splice(0, bullets.length);
   throwables.splice(0, throwables.length);
   loot.splice(0, loot.length);
@@ -177,9 +177,22 @@ function setPlayers(data, Game){
     Game.deathscreen.show();
   }
 
-  while(players.length < numPlayers){
+  for(var i in players) {
+    players[i].inGame = false; // Will be set to true if server tells us that the player is in the game
+  }
+  for(var i = 0; i < numPlayers; i++){
     var player = {};
+    var exists = false; // Exists is true if client already knows about the player
     player.name = readString(data, ref);
+    players.forEach(p => {
+      if(p.name === player.name) {
+        player = p;
+        exists = true;
+      }
+    });
+    if(!exists) players.push(player);
+    player.inGame = true;
+
     player.x = readInt(data, ref);
     player.y = readInt(data, ref);
     player.radius = readInt(data, ref);
@@ -187,15 +200,28 @@ function setPlayers(data, Game){
     player.hand = readInt(data, ref);
     player.health = readInt(data, ref) / 255;
     player.energy = readInt(data, ref) / 255;
+    player.reloadProgress = readInt(data, ref) / 255;
     player.shield = readInt(data, ref);
     player.weapon = readInt(data, ref);
 
-    if(players.length === 0 && !spectating) {
+    var jetpackId = readInt(data, ref);
+    if(player.jetpack === undefined || player.jetpack.id !== jetpackId) {
+      player.jetpack = createJetpack(Game.images.jetpacks, jetpackId);
+    }
+    if(readBool(data, ref)) {
+      if(!player.jetpack.flame) {
+        player.jetpack.on();
+      }
+    } else {
+      player.jetpack.off();
+    }
+
+    if(i === 0 && !spectating) {
       // Inventory
-      for(var i = 0; i < inventory.items.length; i++) {
-        if(i === 0 || i === 1)
-          inventory.amt[i] = readInt(data, ref);
-        inventory.items[i] = readInt(data, ref);
+      for(var i1 = 0; i1 < inventory.items.length; i1++) {
+        inventory.amt[i1] = readInt(data, ref);
+        inventory.items[i1] = readInt(data, ref);
+        inventory.magazine[i1] = readInt(data, ref);
       }
 
       player.kills = readInt(data, ref);
@@ -203,24 +229,22 @@ function setPlayers(data, Game){
       player.score = readInt(data, ref);
       player.bullets = readInt(data, ref);
       player.shells = readInt(data, ref);
+      player.scope = readInt(data, ref);
+      visibility = readInt(data, ref);
 
       player.healing = readBool(data, ref);
     }
 
-    player.flame = readBool(data, ref);
-    if(player.flame) {
-      if(!flames[player.name]) {
-        flames[player.name] = new Flame();
-      }
-    } else {
-      delete flames[player.name];
-    }
-
-    players.push(player);
-
-    if(players.length === 1 && !spectating) { // If we're loading yourself
+    if(i === 0 && !spectating) { // If we're loading yourself
       cam.x = player.x;
       cam.y = player.y;
+    }
+  }
+
+  // Delete the players that aren't in the game
+  for(var i in players) {
+    if(!players[i].inGame) {
+      players.splice(i, 1);
     }
   }
 

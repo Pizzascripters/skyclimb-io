@@ -26,7 +26,6 @@ let objectTypes = json.objectTypes;
 for(var i in objects){
   if(objectTypes[i] === "solid") {
     let vertices = objects[i];
-    vertices[vertices.length] = vertices[0];
 
     /* Following is an algorithm for generating a layer of trapezoids based on the set of vertices loaded in JSON
      * The trapezoids are invisible to the player, but they serve as the physical collision boundaries for the map
@@ -102,7 +101,7 @@ for(var i in objects){
 }
 
 for(var i in shops)
-  shops[i] = new Shop(shops[i].type, shops[i].x, shops[i].y)
+  shops[i] = Shop(shops[i].type, shops[i].x, shops[i].y)
 
 module.exports = {
   bodies: map,

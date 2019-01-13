@@ -1,6 +1,7 @@
 var restarting = false; // If the game is restarting
 var prevTime = 0;       // Time of last frame
 var pingStart;          // The time we sent out the ping
+var visibility;
 var Game = {};          // The entire game, only used fro debugging
 
 function init(e){
@@ -16,6 +17,7 @@ function init(e){
   loadImages(Game.images, () => {
     requestAnimationFrame(time => {
       Game.snow = createSnow(Game.images.particles.snow);
+      Game.stars = createStars();
       update(Game, time);
     });
   });
@@ -37,17 +39,17 @@ function init(e){
   Game.inventory = {
     select: 0,
     anim: [90, 80, 80, 80, 80, 80],
-    items: [0, 0, 0, 0, 0, 0, 0],
-    amt: [0, 0]
+    items: [0, 0, 0, 0, 0, 0],
+    magazine: [0, 0, 0],
+    amt: [0, 0, 0, 0, 0, 0]
   }
   Game.items = {};
   initItems(Game.items, Game.images);
 
   Game.cvs = document.getElementById("cvs");
-  fullscreen(Game.cvs);
+  resize(Game);
   window.addEventListener("resize", () => {
-    fullscreen(Game.cvs);
-    Game.snow = createSnow(Game.images.particles.snow)
+    resize(Game);
   });
   Game.ctx = Game.cvs.getContext("2d");
   Game.cam = {x:0, y:0}; // Position of the camera
@@ -67,15 +69,28 @@ function init(e){
   });
   window.addEventListener("mousedown", e => {
     mouse.down = true;
+
+    // Handle buttons
+    for(var i1 in Game.buttons) {
+      for(var i2 in Game.buttons[i1]) {
+        var button = Game.buttons[i1][i2];
+        if(!button.enabled) continue;
+        if(insideRect(mouse, button.rect())) {
+          button.click();
+          return false;
+        }
+      }
+    }
+
     if(Game.shopMenu.length === 0) {
         mousedown(e, Game.keyboard);
     } else {
       shopMenuApply(Game.shopMenu, (item, rect, slot) => {
         if(insideRect(mouse, rect)) {
           if(Game.keyboard.buy100) {
-            if(item.id >= 128) buyItem(Game.ws, slot, 100);
+            if(item.canBuy100) buyItem(Game.ws, slot, 100);
           } else if(Game.keyboard.buy10) {
-            if(item.id >= 128) buyItem(Game.ws, slot, 10);
+            if(item.canBuy10) buyItem(Game.ws, slot, 10);
           } else {
             buyItem(Game.ws, slot, 1);
           }

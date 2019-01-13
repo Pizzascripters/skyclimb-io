@@ -18,22 +18,25 @@ module.exports = function(Game, delta){
       continue;
 
     doGravity(p.body, Game.WATER_HEIGHT, Game.GRAVITY);
-    waterDamage(Game.world, Game.loot, p, Game.WATER_HEIGHT, Game.WATER_DAMAGE);
     handleShooting(p, p.body, Game.bullets, Game.RECOIL);
-    bulletCollisions(Game.players, Game.bullets, Game.map.bodies, Game.loot, Game.KNOCKBACK);
-    handleMovement(p, p.body, Game.HORIZONTAL_ACCELERTION, Game.JETPACK_ACCELERATION, Game.JETPACK_DRAIN_SPEED);
+    handleMovement(p, p.body, Game.HORIZONTAL_ACCELERTION);
     handleThrowing(p, p.body, Game.bullets, Game.throwables);
     handleConsuming(p);
     handleHealing(p);
     handleShield(p, Game.map, delta);
     handleLooting(p, Game.world, Game.loot);
+    handleReloading(p, delta);
     terminalVelocity(p.body, Game.TERMINAL_X_VELOCITY, Game.TERMINAL_Y_VELOCITY);
-    chargeJetpack(p, Game.JETPACK_CHARGE_SPEED);
+    chargeJetpack(p);
     sendShopData(p, Game.map.shops);
     if(p.keyboard.drop) dropWeapon(p, Game.world, Game.loot);
 
+    // Dying should be at the end because we shouldn't be updating physics on dead players
+    bulletCollisions(Game.players, Game.bullets, Game.map.bodies, Game.loot, Game.KNOCKBACK);
+    waterDamage(Game.world, Game.loot, p, Game.WATER_HEIGHT, Game.WATER_DAMAGE);
+
     // Sticky buttons only reset on physics update, not in io
-    let stickyButtons = ["throw", "consume", "select", "drop", "loot"]
+    let stickyButtons = ["throw", "consume", "select", "drop", "loot", "reload"]
     for(var i in p.keyboard) {
       if(stickyButtons.indexOf(i) !== -1) {
         p.keyboard[i] = false;
@@ -74,12 +77,12 @@ function waterDamage(world, loot, p, WATER_HEIGHT, WATER_DAMAGE) {
   if(p.body.position.y >= WATER_HEIGHT) {
     p.health -= WATER_DAMAGE;
     if(p.health <= 0) {
-      p.kill(world, p, loot);
+      p.kill(p);
     }
   }
 }
 
-function handleMovement(p, body, HORIZONTAL_ACCELERATION, JETPACK_ACCELERATION, JETPACK_DRAIN_SPEED) {
+function handleMovement(p, body, HORIZONTAL_ACCELERATION) {
   if(p.keyboard.left){
     Matter.Body.applyForce(
       body,
@@ -100,9 +103,9 @@ function handleMovement(p, body, HORIZONTAL_ACCELERATION, JETPACK_ACCELERATION, 
     Matter.Body.applyForce(
       body,
       {x: body.position.x, y: body.position.y},
-      {x: 0, y: -JETPACK_ACCELERATION}
+      {x: 0, y: -p.jetpack.power}
     );
-    p.energy -= JETPACK_DRAIN_SPEED;
+    p.energy -= p.jetpack.power / p.jetpack.battery;
   }
 }
 
@@ -113,7 +116,7 @@ function handleShooting(p, body, bullets, RECOIL) {
     const spawnBullet = (accuracy) => {
       const bullet = new Bullet(world, p, accuracy);
       bullets.push(bullet);
-      p.bullets--;
+      p.getItem().magazine--;
 
       // Recoil
       Matter.Body.applyForce(
@@ -137,15 +140,19 @@ function handleShooting(p, body, bullets, RECOIL) {
 
     if(item.canShoot) {
       if(item.shotgun) {
-        if(p.shells > 0) {
+        if(item.magazine > 0) {
           for(var i = 0; i < item.numBullets; i++) {
             spawnPellet(item.accuracy);
           }
-          p.shells--;
+          item.magazine--;
+          item.reloading = false;
+          p.reloadProgress = 0;
         }
       } else {
-        if(p.bullets > 0) {
+        if(item.magazine > 0) {
           spawnBullet(item.accuracy);
+          item.reloading = false;
+          p.reloadProgress = 0;
         }
       }
       p.shield = 0;
@@ -164,14 +171,14 @@ function handleShooting(p, body, bullets, RECOIL) {
 function handleThrowing(p, body, bullets, throwables){
   if(p.getItem().type !== "throwable") return 1;
   if(
-    p.inventory.amt[p.inventory.select - 3] > 0 &&
+    p.inventory.amt[p.inventory.select] > 0 &&
     p.keyboard.shoot &&
     p.getItem().shootingCooldown === 0
   ) {
     const throwable = new Throwable(world, bullets, p, p.getItem());
     throwables.push(throwable);
-    if(--p.inventory.amt[p.inventory.select - 3] === 0)
-      p.inventory.items[p.inventory.select] = new Item(0);
+    if(--p.inventory.amt[p.inventory.select] === 0)
+      p.inventory.items[p.inventory.select] = Item(0);
     p.getItem().shootingCooldown = p.getItem().cooldownTime;
   }
 }
@@ -180,13 +187,13 @@ function handleConsuming(p) {
   if(p.getItem().type !== "consumable") return 1;
   if(
     p.getItem().canConsume(p) &&
-    p.inventory.amt[p.inventory.select - 3] > 0 &&
+    p.inventory.amt[p.inventory.select] > 0 &&
     p.keyboard.shoot &&
     p.getItem().shootingCooldown === 0
   ) {
     p.getItem().consume(p);
-    if(--p.inventory.amt[p.inventory.select - 3] === 0)
-      p.inventory.items[p.inventory.select] = new Item(0);
+    if(--p.inventory.amt[p.inventory.select] === 0)
+      p.inventory.items[p.inventory.select] = Item(0);
     p.getItem().shootingCooldown = p.getItem().cooldownTime;
   }
 }
@@ -223,14 +230,12 @@ function terminalVelocity(body, TERMINAL_X_VELOCITY, TERMINAL_Y_VELOCITY){
     Matter.Body.setVelocity(body, {x: body.velocity.x, y: TERMINAL_Y_VELOCITY});
 }
 
-function chargeJetpack(p, JETPACK_CHARGE_SPEED){
+function chargeJetpack(p){
   if(p.energy < 1)
-    p.energy += JETPACK_CHARGE_SPEED; // Charge the jetpack
+    p.energy += p.jetpack.recharge / p.jetpack.battery;
 
   if(p.energy > 1)
     p.energy = 1;
-  else if(p.energy < 0)
-    p.energy = 0;
 }
 
 function bulletCollisions(players, bullets, map, loot, KNOCKBACK){
@@ -290,14 +295,11 @@ function sendShopData(p, shops) {
 function dropWeapon(p, world, loot){
   // Spawn a new item
   if(p.getItem().id !== 0) {
-    loot.push(new Loot(world, p.getItem().id, p.body.position, 2 * Math.PI * p.hand / 256, p.getAmt()));
+    loot.push(new Loot(world, p.getItem(), p.body.position, 2 * Math.PI * p.hand / 256, p.getAmt()));
   }
 
   // Copy an empty item into the player's selected slot
-  let dest = p.getItem();
-  const src = new Item(0);
-  for(var i in src)
-    dest[i] = src[i];
+  p.inventory.items[p.inventory.select] = Item(0);
 }
 
 // Called when player tries to loot
@@ -321,5 +323,39 @@ function handleLooting(p, world, loot) {
     if(p.acquire(closest.item, closest.amount)) {
       closest.apoptosis();
     }
+  }
+}
+
+function handleReloading(p, delta) {
+  // Make sure that any items that aren't selected aren't reloading
+  for(var i in p.inventory.items) {
+    if(Number(i) !== p.inventory.select) {
+      p.inventory.items[i].reloading = false;
+    }
+  }
+  if(!p.getItem().reloading) {
+    p.reloadProgress = 0;
+  }
+
+  // Check if player should begin reloading
+  var ammo = p.getItem().shotgun ? p.shells : p.bullets;
+  if(
+    (p.keyboard.reload || p.getItem().magazine === 0) &&
+    p.getItem().magazine !== p.getItem().magazineSize &&
+    ammo > 0
+  ) {
+    p.getItem().reloading = true;
+  }
+
+  // Update reloading progress if reloading
+  if(p.getItem().reloading) {
+    p.reloadProgress += delta / p.getItem().reloadTime;
+  }
+
+  // Reload and stop progress if progress has finished
+  if(p.reloadProgress >= 1) {
+    p.getItem().reloading = false;
+    p.getItem().reload(p);
+    p.reloadProgress = 0;
   }
 }

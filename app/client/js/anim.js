@@ -4,6 +4,7 @@ var anim = {
       anim.inventory(delta, Game.inventory);
       anim.healthbar(delta, Game.players[0].healing);
       anim.snow(delta, Game.snow);
+      Game.stars.update(delta);
     }
   },
 

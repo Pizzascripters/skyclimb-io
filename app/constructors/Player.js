@@ -3,7 +3,7 @@ const Item = require('./Item');
 const Loot = require('./Loot');
 const economy = require('../systems/economy');
 
-const PLAYER_START_POS = [
+/*const PLAYER_START_POS = [
   {x: -4127, y: 4750},
   {x: -3855, y: 3710},
   {x: -3298, y: 5630},
@@ -11,19 +11,22 @@ const PLAYER_START_POS = [
   {x: -1266, y: 2070},
   {x: 1990, y: 5230},
   {x: 567, y: 3700}
-];
+];*/
+const PLAYER_START_POS = [{x: 0, y: 0}];
 const PLAYER_RADIUS = 50;
 
-module.exports = function(id, ws, world){
+module.exports = function(id, ws, world, loot){
   this.id = id;
   this.name = "guest" + id;
   this.ws = ws;
   this.ws.player = this;
 
+  // Player states
   this.choosingName = true;
   this.connected = true;
   this.alive = true;
 
+  // Virtual Keyboard
   this.keyboard = {
     left: false,
     right: false,
@@ -32,9 +35,11 @@ module.exports = function(id, ws, world){
     throw: false,
     consume: false,
     select: false,
-    loot: false
+    loot: false,
+    reload: false
   }
-  this.hand = 0;
+
+  this.hand = 0; // The angle (number 0-255) that the player is holding their weapon
   this.health = 1;
   this.shield = 0;
   this.energy = 1;
@@ -47,25 +52,35 @@ module.exports = function(id, ws, world){
   this.healing = false;
   this.amountToHeal = 0;
   this.healPerTick = 0;
+  this.reloadProgress = 0;
 
   this.inventory = {};
   this.inventory.select = 4;
   this.inventory.items = [];
   const itemIds = [64, 32, 1, 128, 192, 0];
-  for(var i = 0; i < 7; i++)
-    this.inventory.items[i] = new Item( itemIds[i] );
-  this.inventory.amt = [3, 3, 0];
+  for(var i = 0; i < 6; i++)
+    this.inventory.items[i] = Item(itemIds[i]);
+  this.inventory.amt = [1, 1, 1, 3, 3, 0];
+
+  this.jetpack = Item(240);
+  this.scope = Item(232);
+
+  // Returns the distance the player can see with their current scope
+  this.getVisibility = () => {
+    return this.scope.visibility;
+  }
+
+  // Converts hand to radians
+  this.handRadians = () => {
+    return 2 * Math.PI * this.hand / 256;
+  }
 
   this.getItem = () => {
     return this.inventory.items[this.inventory.select];
   }
 
   this.getAmt = () => {
-    if(this.inventory.select >= 3) {
-      return this.inventory.amt[this.inventory.select - 3];
-    } else {
-      return 1;
-    }
+    return this.inventory.amt[this.inventory.select];
   }
 
   this.inGame = () => {
@@ -116,37 +131,38 @@ module.exports = function(id, ws, world){
   this.acquire = (item, number) => {
     if(!number) number = 1;
 
-    if(item.id < 128) {
+    if(item.id < 128) { // Weapon
       if(number !== 1) return false;
       for(var i = 0; i < 3; i++) {
         if(this.inventory.items[i].id === 0) {
-          this.inventory.items[i] = new Item(item.id);
+          this.inventory.items[i] = item;
           return true;
         }
       }
-    } else if(item.id < 224) {
+    } else if(item.id < 224) { // Medkits, Nades, etc.
       for(var i = 3; i < 6; i++) {
         if(this.inventory.items[i].id === item.id) {
-          this.inventory.amt[i-3] += number;
+          this.inventory.amt[i] += number;
           return true;
         }
       }
       for(var i = 3; i < 6; i++) {
         if(this.inventory.items[i].id === 0) {
-          this.inventory.items[i] = new Item(item.id);
-          this.inventory.amt[i-3] = number;
+          this.inventory.items[i] = item;
+          this.inventory.amt[i] = number;
           return true;
         }
       }
-    } else {
+    } else { // Jetpacks
       item.onAcquire(this, number);
       return true;
     }
     return false;
   }
 
-  this.kill = (world, p, loot) => {
-    if(!p.apoptosis(world, loot)) {
+  // Called when we kill a player
+  this.kill = (p) => {
+    if(p.apoptosis()) {
       if(p.id !== this.id) {
         this.kills++;
         economy.addGold(this, Math.round(p.gold / 2));
@@ -154,27 +170,46 @@ module.exports = function(id, ws, world){
     }
   }
 
+  this.drop = (item, randomAngle=false, amt=1) => {
+    if(randomAngle) {
+      loot.push(new Loot(world, item, this.body.position, Math.random() * 2 * Math.PI, amt));
+    } else {
+      loot.push(new Loot(world, item, this.body.position, this.handRadians(), amt));
+    }
+  }
+
+  this.dropJetpack = () => {
+    this.drop(this.jetpack);
+  }
+
+  this.dropScope = () => {
+    this.drop(this.scope);
+  }
+
   // Programmed cell suicide
-  this.apoptosis = (world, loot) => {
-    if(!this.alive) return 1;
+  this.apoptosis = () => {
+    if(!this.alive) return false;
 
     Matter.Composite.remove(world, this.body);
 
+    // Drop all items
     for(var i in this.inventory.items) {
       const item = this.inventory.items[i];
-      const amount = i>2 ? this.inventory.amt[i-3] : 1;
+      const amount = i>2 ? this.inventory.amt[i] : 1;
       if(item.id !== 0 && amount > 0)
-        loot.push(new Loot(world, item.id, this.body.position, Math.random() * 2 * Math.PI, amount));
+        this.drop(item, true, amount);
     }
 
     if(this.bullets > 0) {
-      loot.push(new Loot(world, 224, this.body.position, Math.random() * 2 * Math.PI, this.bullets));
+      this.drop(Item(224), true, this.bullets);
     }
     if(this.shells > 0) {
-      loot.push(new Loot(world, 225, this.body.position, Math.random() * 2 * Math.PI, this.shells));
+      this.drop(Item(225), true, this.shells);
     }
+    this.drop(this.jetpack, true);
+    this.drop(this.scope, true);
 
     this.alive = false;
-    return 0;
+    return true;
   }
 }
