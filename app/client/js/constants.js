@@ -22,6 +22,7 @@ const SHOP_GOLD_IMAGE_HEIGHT = 30;
 const WEAPON_MENU_RADIUS = 150;
 
 // Player drawing
+const PLAYER_RADIUS = 50;
 const PLAYER_COLOR = "#fc7";
 const PLAYER_OUTLINE = true;
 const PLAYER_OUTLINE_COLOR = "#000";
@@ -44,5 +45,8 @@ const STARS = 100;
 const BIOME_SUNSET = 0;
 const BIOME_SNOWY = 0.4;
 const BIOME_STARRY = 0.75;
+
+// Loot
+const LOOT_RADIUS = 30;
 
 var FRAME_WIDTH = 2200; // The furthest distance a player can see

@@ -26,7 +26,7 @@ const io = module.exports = {
   // Called when a client establishes a new connection
   wsConnection: (ws, Game) => {
     const playerId = Game.players.length; // The player's id is its index
-    let player = new Player(playerId, ws, Game.world, Game.loot);
+    let player = new Player(playerId, ws, Game.world, Game.loot, Game.SHIELD_MILLIS);
     Game.players.push(player);
     console.log("New client, id: %d", playerId);
 
@@ -245,21 +245,23 @@ const io = module.exports = {
     const header = Buffer.from( new Uint8Array([]) );
     let packet = [];
 
-    io.sendPlayerData(packet, p, players);
+    io.sendPlayerData(packet, p, players, Game.SHIELD_MILLIS);
     io.sendBulletData(packet, p, bullets);
     io.sendThrowableData(packet, p, throwables);
     io.sendLootData(packet, p, loot);
     io.sendLeaderboardData(packet, p, players);
-    io.sendStatsData(packet, p);
-    io.sendHealthEnergy(packet, p);
-    io.sendInventory(packet, p);
+    if(!p.isSpectating()) {
+      io.sendStatsData(packet, p);
+      io.sendHealthEnergy(packet, p);
+      io.sendInventory(packet, p);
+    }
     sendArray(ws, header, packet, Game.DEBUG.PING);
   },
 
-  sendPlayerData: (packet, p, players) => {
+  sendPlayerData: (packet, p, players, SHIELD_MILLIS) => {
     packet.push(new Byte(2));
-    packet.push(0); // For counting players
-    packet.push(p.isSpectating() ? 1 : 0);
+    packet.push(null); // For counting players
+    packet.push(p.isSpectating());
     var numPlayers = 0;
     var numPlayersIndex = packet.length - 2;
 
@@ -277,12 +279,11 @@ const io = module.exports = {
       packet.push( p.name );
       packet.push( p.body.position.x );
       packet.push( p.body.position.y );
-      packet.push( radius );
 
-      packet.push( p.hand );
-      packet.push( p.shield );
-      packet.push( p.getItem().id ); // The weapon player is holding
-      packet.push( p.jetpack.jetpackId ); // Jetpack
+      packet.push( new Byte(p.hand) );
+      packet.push( new Byte(255 * p.shield / SHIELD_MILLIS) );
+      packet.push( new Byte(p.getItem().id) ); // The weapon player is holding
+      packet.push( new Byte(p.jetpack.jetpackId) ); // Jetpack
       packet.push( p.keyboard.jump ); // The flame below the jetpack
     }
 
@@ -303,7 +304,7 @@ const io = module.exports = {
       }
     }
 
-    packet[numPlayersIndex] = numPlayers;
+    packet[numPlayersIndex] = new Byte(numPlayers);
   },
 
   sendStatsData: (packet, p) => {
@@ -313,15 +314,15 @@ const io = module.exports = {
     packet.push( p.score );
     packet.push( p.bullets );
     packet.push( p.shells );
-    packet.push( p.scope.id );
+    packet.push( new Byte(p.scope.id) );
     packet.push( p.getVisibility() );
   },
 
   sendHealthEnergy: (packet, p) => {
     packet.push(new Byte(6));
-    packet.push( Math.floor(p.health * 255) );
-    packet.push( Math.floor(ReLU(p.energy) * 255) );
-    packet.push( Math.floor(p.reloadProgress * 255) );
+    packet.push( new Byte(Math.floor(p.health * 255)) );
+    packet.push( new Byte(Math.floor(ReLU(p.energy) * 255)) );
+    packet.push( new Byte(Math.floor(p.reloadProgress * 255)) );
     packet.push( p.healing );
   },
 
@@ -329,7 +330,7 @@ const io = module.exports = {
     packet.push(new Byte(7));
     for(var i = 0; i < p.inventory.items.length; i++) {
       packet.push( p.inventory.amt[i] );
-      packet.push( p.inventory.items[i].id );
+      packet.push( new Byte(p.inventory.items[i].id) );
       packet.push( p.inventory.items[i].magazine );
     }
   },
@@ -341,10 +342,10 @@ const io = module.exports = {
     var numBulletsIndex = packet.length - 1;
 
     function addBullet(b) {
-      packet.push( b.type );
+      packet.push( new Byte(b.type) );
       packet.push( b.body.position.x );
       packet.push( b.body.position.y );
-      packet.push( b.angle );
+      packet.push( new Byte(b.angle) );
     }
 
     for(var i in bullets){
@@ -369,7 +370,7 @@ const io = module.exports = {
     function addThrowable(t) {
       packet.push( t.body.position.x );
       packet.push( t.body.position.y );
-      packet.push( Math.floor(255*(t.body.angle % (Math.PI*2)) / (Math.PI*2)) );
+      packet.push( new Byte(Math.floor(255*(t.body.angle % (Math.PI*2)) / (Math.PI*2))) );
     }
 
     for(var i in throwables){
@@ -393,11 +394,10 @@ const io = module.exports = {
 
     // Adds a loot object to the packet
     function gimmeTheLoot(l) {
-      packet.push( l.item.id );
+      packet.push( new Byte(l.item.id) );
       packet.push( l.body.position.x );
       packet.push( l.body.position.y );
-      packet.push( l.radius );
-      packet.push( Math.floor(255*(l.body.angle % (Math.PI*2)) / (Math.PI*2)) );
+      packet.push( new Byte(Math.floor(255*(l.body.angle % (Math.PI*2)) / (Math.PI*2))) );
     }
 
     for(var i in loot){
@@ -435,9 +435,9 @@ const io = module.exports = {
   },
 
   sendShopMenu: (p, shop) => {
-    let packet = [shop.type];
+    let packet = [new Byte(shop.type)];
     for(var i in shop.items) {
-      packet.push(shop.items[i].id);
+      packet.push(new Byte(shop.items[i].id));
       packet.push(shop.items[i].price);
     }
 

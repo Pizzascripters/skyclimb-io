@@ -79,6 +79,7 @@ function buyItem(ws, slot, amount) {
 // Given a packet, reads the first byte, sends it to a more specific function
 function handleMessage(packet, Game){
   var data = new Uint8Array(packet.data);
+  console.log(data.length);
 
   var ref = {i: 0}; // We want to pass i by reference to readInt can increment it
   while(ref.i < data.length) {
@@ -110,7 +111,7 @@ function handleMessage(packet, Game){
         setHealthEnergy(data, ref, Game.players[0]);
         break;
       case 7: // Inventory data
-        setInventory(data, ref, Game.inventory, Game.items);
+        setInventory(data, ref, Game.inventory);
         break;
       case 8: // Bullet data
         setBullets(data, ref, Game.bullets, Game.images);
@@ -176,8 +177,8 @@ function setPlayers(data, ref, Game){
       leaderboard = Game.leaderboard,
       cam = Game.cam;
 
-  let numPlayers = readInt(data, ref);
-  Game.spectating = readInt(data, ref);
+  let numPlayers = readByte(data, ref);
+  Game.spectating = readBool(data, ref);
 
   if(Game.spectating) {
     cam.x = readInt(data, ref);
@@ -205,13 +206,13 @@ function setPlayers(data, ref, Game){
 
     player.x = readInt(data, ref);
     player.y = readInt(data, ref);
-    player.radius = readInt(data, ref);
+    player.radius = PLAYER_RADIUS;
 
-    player.hand = readInt(data, ref);
-    player.shield = readInt(data, ref);
-    player.weapon = readInt(data, ref);
+    player.hand = readByte(data, ref);
+    player.shield = readByte(data, ref);
+    player.weapon = readByte(data, ref);
 
-    var jetpackId = readInt(data, ref);
+    var jetpackId = readByte(data, ref);
     if(player.jetpack === undefined || player.jetpack.id !== jetpackId) {
       player.jetpack = createJetpack(Game.images.jetpacks, jetpackId);
     }
@@ -243,21 +244,21 @@ function setStats(data, ref, player) {
   player.score = readInt(data, ref);
   player.bullets = readInt(data, ref);
   player.shells = readInt(data, ref);
-  player.scope = readInt(data, ref);
+  player.scope = readByte(data, ref);
   visibility = readInt(data, ref);
 }
 
 function setHealthEnergy(data, ref, player) {
-  player.health = readInt(data, ref) / 255;
-  player.energy = readInt(data, ref) / 255;
-  player.reloadProgress = readInt(data, ref) / 255;
+  player.health = readByte(data, ref) / 255;
+  player.energy = readByte(data, ref) / 255;
+  player.reloadProgress = readByte(data, ref) / 255;
   player.healing = readBool(data, ref);
 }
 
 function setInventory(data, ref, inventory) {
   for(var i = 0; i < inventory.items.length; i++) {
     inventory.amt[i] = readInt(data, ref);
-    inventory.items[i] = readInt(data, ref);
+    inventory.items[i] = readByte(data, ref);
     inventory.magazine[i] = readInt(data, ref);
   }
 }
@@ -269,10 +270,10 @@ function setBullets(data, ref, bullets, images) {
   // Load the bullets
   while(bullets.length < numBullets){
     let bullet = {};
-    bullet.type = readInt(data, ref);
+    bullet.type = readByte(data, ref);
     bullet.x = readInt(data, ref);
     bullet.y = readInt(data, ref);
-    bullet.angle = readInt(data, ref);
+    bullet.angle = readByte(data, ref);
     bullets.push(bullet);
 
     if(bullet.type === 0){
@@ -294,7 +295,7 @@ function setThrowables(data, ref, throwables) {
     let throwable = {};
     throwable.x = readInt(data, ref);
     throwable.y = readInt(data, ref);
-    throwable.angle = readInt(data, ref);
+    throwable.angle = readByte(data, ref);
     throwable.width = 40;
     throwable.height = 40;
     throwables.push(throwable);
@@ -308,11 +309,11 @@ function setLoot(data, ref, loot, items) {
   // Gimme the loot!
   while(loot.length < numLoot){
     let l = {};
-    l.item = items[readInt(data, ref)];
+    l.item = items[readByte(data, ref)];
     l.x = readInt(data, ref);
     l.y = readInt(data, ref);
-    l.radius = readInt(data, ref);
-    l.angle = readInt(data, ref);
+    l.radius = LOOT_RADIUS;
+    l.angle = readByte(data, ref);
     loot.push(l);
   }
 }
@@ -334,9 +335,9 @@ function shopMenu(data, ref, menu, items){
   menu.splice(0, menu.length);
   while(data[ref.i]) {
     if(ref.i === 1) {
-      menu.push(shopIdToName(readInt(data, ref)));
+      menu.push(shopIdToName(readByte(data, ref)));
     } else {
-      let item = items[readInt(data, ref)];
+      let item = items[readByte(data, ref)];
       item.price = readInt(data, ref);
       menu.push(item);
     }

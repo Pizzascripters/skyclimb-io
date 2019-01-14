@@ -244,7 +244,7 @@ function drawPlayer(ctx, cam, p, outline, eyes, weapon) {
   ctx.shadowBlur = 10;
   ctx.shadowColor = "#fff";
   ctx.beginPath();
-  ctx.arc(v.x, v.y, radius * 1.5, 0, 2*Math.PI*p.shield/5000);
+  ctx.arc(v.x, v.y, radius * 1.5, 0, 2*Math.PI*p.shield/255);
   ctx.stroke();
   ctx.shadowBlur = 0;
 }

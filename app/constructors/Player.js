@@ -30,7 +30,7 @@ const PLAYER_START_POS = [
 //const PLAYER_START_POS = [{x: 0, y: 0}];
 const PLAYER_RADIUS = 50;
 
-module.exports = function(id, ws, world, loot){
+module.exports = function(id, ws, world, loot, SHIELD_MILLIS){
   this.id = id;
   this.name = "guest" + id;
   this.ws = ws;
@@ -126,7 +126,7 @@ module.exports = function(id, ws, world, loot){
   }
 
   this.replenishShield = () => {
-    this.shield = 5000;
+    this.shield = SHIELD_MILLIS;
   }
 
   this.shieldOn = () => {
