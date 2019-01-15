@@ -10,4 +10,11 @@ module.exports = Game => {
   Game.HORIZONTAL_ACCELERTION = 0.01;
   Game.GRAVITY = 0.003;
   Game.WATER_DAMAGE = 0.0025;
+
+  Game.SHIELD_MILLIS = 5000;
+
+  Game.packetsPerSecond = 60;
+  Game.DEBUG = {
+    PING: 0 // A fake ping time for testing on local servers
+  }
 }

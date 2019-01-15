@@ -79,37 +79,61 @@ function buyItem(ws, slot, amount) {
 // Given a packet, reads the first byte, sends it to a more specific function
 function handleMessage(packet, Game){
   var data = new Uint8Array(packet.data);
+  console.log(data.length);
 
-  switch(data[0]){
-    case 0: // Ping
-      pong(packet.origin);
-      break;
-    case 1: // Map data
-      setMap(data, Game.map);
-      Game.map.objects.forEach(obj => {
-        createSurfaces(obj.vertices);
-      });
-      genDecoration(Game.images, Game.map);
-      break;
-    case 2: // Player data
-      setPlayers(data, Game);
-      break;
-    case 3: // Shop data
-      shopMenu(data, Game.shopMenu, Game.items);
-      break;
-    case 4:
-      error(data);
-      break;
+  var ref = {i: 0}; // We want to pass i by reference to readInt can increment it
+  while(ref.i < data.length) {
+    var instruction = readByte(data, ref);
+    switch(instruction) {
+      case 0: // Ping
+        pong(packet.origin);
+        break;
+      case 1: // Map data
+        setMap(data, ref, Game.map);
+        Game.map.objects.forEach(obj => {
+          createSurfaces(obj.vertices);
+        });
+        genDecoration(Game.images, Game.map);
+        break;
+      case 2: // Player data
+        setPlayers(data, ref, Game);
+        break;
+      case 3: // Shop data
+        shopMenu(data, ref, Game.shopMenu, Game.items);
+        break;
+      case 4:
+        error(data, ref);
+        break;
+      case 5: // Stats data
+        setStats(data, ref, Game.players[0]);
+        break;
+      case 6: // Health & Energy data
+        setHealthEnergy(data, ref, Game.players[0]);
+        break;
+      case 7: // Inventory data
+        setInventory(data, ref, Game.inventory);
+        break;
+      case 8: // Bullet data
+        setBullets(data, ref, Game.bullets, Game.images);
+        break;
+      case 9: // Throwable data
+        setThrowables(data, ref, Game.throwables, Game.images.nade);
+        break;
+      case 10: // Loot data
+        setLoot(data, ref, Game.loot, Game.items);
+        break;
+      case 11: // Leaderboard data
+        setLeaderboard(data, ref, Game.leaderboard);
+        break;
+    }
   }
 }
 
 // Called when client recieves map data
-function setMap(data, map){
+function setMap(data, ref, map){
   // Clear out the map to load in a new one
   for(var i in map)
     delete map[i];
-
-  let ref = {i:1}; // We want to pass i by reference to readInt can increment it
 
   map.waterHeight = readInt(data, ref);
 
@@ -142,7 +166,7 @@ function setMap(data, map){
 }
 
 // Called when client recieves player information
-function setPlayers(data, Game){
+function setPlayers(data, ref, Game){
   let players = Game.players,
       images = Game.images,
       inventory = Game.inventory,
@@ -150,26 +174,13 @@ function setPlayers(data, Game){
       bullets = Game.bullets,
       throwables = Game.throwables,
       loot = Game.loot,
-      leaderboard = Game.leaderboard
+      leaderboard = Game.leaderboard,
       cam = Game.cam;
 
-  // Clear the arrays
-  bullets.splice(0, bullets.length);
-  throwables.splice(0, throwables.length);
-  loot.splice(0, loot.length);
-  leaderboard.splice(0, leaderboard.length);
+  let numPlayers = readByte(data, ref);
+  Game.spectating = readBool(data, ref);
 
-  let ref = {i:1}; // We want to pass i by reference to readInt can increment it
-
-  let numPlayers = readInt(data, ref);
-  let numBullets = readInt(data, ref);
-  let numThrowables = readInt(data, ref);
-  let numLoot = readInt(data, ref);
-  let leaderboardSize = readInt(data, ref);
-  let spectating = readInt(data, ref);
-  Game.spectating = spectating;
-
-  if(spectating) {
+  if(Game.spectating) {
     cam.x = readInt(data, ref);
     cam.y = readInt(data, ref);
     Game.deathscreen.kills = readInt(data, ref);
@@ -178,7 +189,7 @@ function setPlayers(data, Game){
   }
 
   for(var i in players) {
-    players[i].inGame = false; // Will be set to true if server tells us that the player is in the game
+    players[i].inGame = false; // Set to false until server tells us that the player is in the game
   }
   for(var i = 0; i < numPlayers; i++){
     var player = {};
@@ -195,16 +206,13 @@ function setPlayers(data, Game){
 
     player.x = readInt(data, ref);
     player.y = readInt(data, ref);
-    player.radius = readInt(data, ref);
+    player.radius = PLAYER_RADIUS;
 
-    player.hand = readInt(data, ref);
-    player.health = readInt(data, ref) / 255;
-    player.energy = readInt(data, ref) / 255;
-    player.reloadProgress = readInt(data, ref) / 255;
-    player.shield = readInt(data, ref);
-    player.weapon = readInt(data, ref);
+    player.hand = readByte(data, ref);
+    player.shield = readByte(data, ref);
+    player.weapon = readByte(data, ref);
 
-    var jetpackId = readInt(data, ref);
+    var jetpackId = readByte(data, ref);
     if(player.jetpack === undefined || player.jetpack.id !== jetpackId) {
       player.jetpack = createJetpack(Game.images.jetpacks, jetpackId);
     }
@@ -216,26 +224,7 @@ function setPlayers(data, Game){
       player.jetpack.off();
     }
 
-    if(i === 0 && !spectating) {
-      // Inventory
-      for(var i1 = 0; i1 < inventory.items.length; i1++) {
-        inventory.amt[i1] = readInt(data, ref);
-        inventory.items[i1] = readInt(data, ref);
-        inventory.magazine[i1] = readInt(data, ref);
-      }
-
-      player.kills = readInt(data, ref);
-      player.gold = readInt(data, ref);
-      player.score = readInt(data, ref);
-      player.bullets = readInt(data, ref);
-      player.shells = readInt(data, ref);
-      player.scope = readInt(data, ref);
-      visibility = readInt(data, ref);
-
-      player.healing = readBool(data, ref);
-    }
-
-    if(i === 0 && !spectating) { // If we're loading yourself
+    if(i === 0 && !Game.spectating) {
       cam.x = player.x;
       cam.y = player.y;
     }
@@ -247,14 +236,44 @@ function setPlayers(data, Game){
       players.splice(i, 1);
     }
   }
+}
+
+function setStats(data, ref, player) {
+  player.kills = readInt(data, ref);
+  player.gold = readInt(data, ref);
+  player.score = readInt(data, ref);
+  player.bullets = readInt(data, ref);
+  player.shells = readInt(data, ref);
+  player.scope = readByte(data, ref);
+  visibility = readInt(data, ref);
+}
+
+function setHealthEnergy(data, ref, player) {
+  player.health = readByte(data, ref) / 255;
+  player.energy = readByte(data, ref) / 255;
+  player.reloadProgress = readByte(data, ref) / 255;
+  player.healing = readBool(data, ref);
+}
+
+function setInventory(data, ref, inventory) {
+  for(var i = 0; i < inventory.items.length; i++) {
+    inventory.amt[i] = readInt(data, ref);
+    inventory.items[i] = readByte(data, ref);
+    inventory.magazine[i] = readInt(data, ref);
+  }
+}
+
+function setBullets(data, ref, bullets, images) {
+  bullets.splice(0, bullets.length);
+  let numBullets = readInt(data, ref);
 
   // Load the bullets
   while(bullets.length < numBullets){
     let bullet = {};
-    bullet.type = readInt(data, ref);
+    bullet.type = readByte(data, ref);
     bullet.x = readInt(data, ref);
     bullet.y = readInt(data, ref);
-    bullet.angle = readInt(data, ref);
+    bullet.angle = readByte(data, ref);
     bullets.push(bullet);
 
     if(bullet.type === 0){
@@ -265,28 +284,43 @@ function setPlayers(data, Game){
       bullet.image = images.bullets.pellet;
     }
   }
+}
+
+function setThrowables(data, ref, throwables) {
+  throwables.splice(0, throwables.length);
+  let numThrowables = readInt(data, ref);
 
   // Load the throwables
   while(throwables.length < numThrowables){
     let throwable = {};
     throwable.x = readInt(data, ref);
     throwable.y = readInt(data, ref);
-    throwable.angle = readInt(data, ref);
+    throwable.angle = readByte(data, ref);
     throwable.width = 40;
     throwable.height = 40;
     throwables.push(throwable);
   }
+}
+
+function setLoot(data, ref, loot, items) {
+  loot.splice(0, loot.length);
+  let numLoot = readInt(data, ref);
 
   // Gimme the loot!
   while(loot.length < numLoot){
     let l = {};
-    l.item = items[readInt(data, ref)];
+    l.item = items[readByte(data, ref)];
     l.x = readInt(data, ref);
     l.y = readInt(data, ref);
-    l.radius = readInt(data, ref);
-    l.angle = readInt(data, ref);
+    l.radius = LOOT_RADIUS;
+    l.angle = readByte(data, ref);
     loot.push(l);
   }
+}
+
+function setLeaderboard(data, ref, leaderboard) {
+  leaderboard.splice(0, leaderboard.length);
+  let leaderboardSize = readInt(data, ref);
 
   // Leaderboard
   while(leaderboard.length < leaderboardSize){
@@ -297,22 +331,20 @@ function setPlayers(data, Game){
   }
 }
 
-function shopMenu(data, menu, items){
+function shopMenu(data, ref, menu, items){
   menu.splice(0, menu.length);
-  var ref = {i: 1}; // We want to pass i by reference to readInt can increment it
   while(data[ref.i]) {
     if(ref.i === 1) {
-      menu.push(shopIdToName(readInt(data, ref)));
+      menu.push(shopIdToName(readByte(data, ref)));
     } else {
-      let item = items[readInt(data, ref)];
+      let item = items[readByte(data, ref)];
       item.price = readInt(data, ref);
       menu.push(item);
     }
   }
 }
 
-function error(data){
-  var ref = {i:1};
+function error(data, ref){
   const err = readString(data, ref);
   document.getElementById("error").innerText = err;
 }
@@ -366,6 +398,11 @@ function readInt(a, ref) {
   let b4 = a[ref.i+3];
   ref.i += 4;
   return bytesToInt([b1, b2, b3, b4]);
+}
+
+// Reads a one byte integer from an index in a byte array
+function readByte(a, ref) {
+  return a[ref.i++];
 }
 
 // Reads a one byte boolean from an index in a byte array
