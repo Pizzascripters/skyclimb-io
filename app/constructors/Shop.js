@@ -16,6 +16,7 @@ function Generic(x, y) {
 
   shop.type = 1;
   shop.itemIds.push(1);
+  shop.itemIds.push(16);
   shop.itemIds.push(32);
   shop.itemIds.push(64);
   shop.itemIds.push(128);

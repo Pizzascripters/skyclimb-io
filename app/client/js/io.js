@@ -79,7 +79,6 @@ function buyItem(ws, slot, amount) {
 // Given a packet, reads the first byte, sends it to a more specific function
 function handleMessage(packet, Game){
   var data = new Uint8Array(packet.data);
-  console.log("Packet size: " + data.length);
 
   var ref = {i: 0}; // We want to pass i by reference to readInt can increment it
   var mask = readByte(data, ref);

@@ -114,7 +114,7 @@ function handleShooting(p, body, bullets, RECOIL) {
 
   if(p.keyboard.shoot && item.shootingCooldown === 0 && item.type === "weapon") {
     const spawnBullet = (accuracy) => {
-      const bullet = new Bullet(world, p, accuracy);
+      const bullet = new Bullet(world, p, accuracy, 0, p.getItem().damage, p.getItem().speed);
       bullets.push(bullet);
       p.getItem().magazine--;
 
@@ -127,7 +127,7 @@ function handleShooting(p, body, bullets, RECOIL) {
     }
 
     const spawnPellet = (accuracy) => {
-      const bullet = new Bullet(world, p, accuracy, 2, 0.1);
+      const bullet = new Bullet(world, p, accuracy, 2, p.getItem().damage, p.getItem().speed);
       bullets.push(bullet);
 
       // Recoil

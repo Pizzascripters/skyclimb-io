@@ -37,6 +37,7 @@ function Item(id, name, imageObj, w, h, radialShift, shotgun) {
 function initItems(items, images) {
   items[0] = new Item(0, "Empty");
   items[1] = new Item(1, "Glock", images.weapons.glock);
+  items[16] = new Item(16, "Sniper", images.weapons.sniper, 100, 50, -50);
   items[32] = new Item(32, "Ak47", images.weapons.ak47, 100, 50, -50);
   items[64] = new Item(64, "Pump", images.weapons.pump, 100, 50, -50, true);
 

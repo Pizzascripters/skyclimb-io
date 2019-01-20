@@ -13,6 +13,8 @@ function Item(item) {
   item.magazine = 0;             // The current number of bullets in the magazine
   item.reloadTime = 2000;        // The millis is takes the weapon to reload
   item.accuracy = 0;             // The error in the angle the bullets can spawn
+  item.damage = 0.15;            // The damage of the bullet
+  this.speed = 40;               // The speed at which the bullet shoots
   item.cooldownTime = 0;         // The # of frames it takes before the player can fire again
   item.shootingCooldown = item.cooldownTime;
 
@@ -69,6 +71,25 @@ function Pistol(item){
   item.cooldownTime = 12;
   item.shootingCooldown = item.cooldownTime;
 }
+function Sniper(item) {
+  Item(item);
+  item.type = "weapon";
+  item.name = "Sniper";
+  item.plural = "Snipers";
+  item.id = 16;
+  item.price = 250;
+  item.canShoot = true;
+  item.spawnDistance = 50;
+  item.numBullets = 1;
+  item.magazineSize = 5;
+  item.magazineSize = 4;
+  item.reloadTime = 2000;
+  item.accuracy = 0;
+  item.damage = 0.6;
+  item.speed = 80;
+  item.cooldownTime = 100;
+  item.shootingCooldown = item.cooldownTime;
+}
 
 function Ak47(item) {
   Item(item);
@@ -83,6 +104,8 @@ function Ak47(item) {
   item.magazineSize = 30;
   item.reloadTime = 3000;
   item.accuracy = Math.PI / 20;
+  item.damage = 0.25;
+  item.speed = 50;
   item.cooldownTime = 6;
   item.shootingCooldown = item.cooldownTime;
 }
@@ -101,6 +124,8 @@ function Shotgun(item) {
   item.magazineSize = 4;
   item.reloadTime = 500;
   item.accuracy = Math.PI / 6;
+  item.damage = 0.1;
+  item.speed = 35;
   item.cooldownTime = 20;
   item.shootingCooldown = item.cooldownTime;
 
@@ -302,6 +327,10 @@ module.exports = function(id) {
     case 1:
     case "glock":
       Pistol(item);
+      break;
+    case 16:
+    case "sniper":
+      Sniper(item);
       break;
     case 32:
     case "ak47":
