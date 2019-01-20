@@ -1,9 +1,15 @@
-function Flame() {
+function Flame(id) {
   this.particles = [];
-  this.particleCount = 200;
+  if(id === 1) {
+    this.particleCount = 200;
+  } else if(id === 2) {
+    this.particleCount = 400;
+  } else if(id === 3) {
+    this.particleCount = 100;
+  }
 
   while(this.particles.length < this.particleCount) {
-    this.particles.push(new Particle());
+    this.particles.push(new Particle(id));
   }
 
   this.update = () => {

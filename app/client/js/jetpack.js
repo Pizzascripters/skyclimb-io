@@ -19,7 +19,7 @@ function createJetpack(images, id) {
   }
 
   jetpack.on = () => {
-    jetpack.flame = new Flame();
+    jetpack.flame = new Flame(id);
   }
 
   jetpack.off = () => {

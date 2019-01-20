@@ -1,11 +1,17 @@
-function Particle(){
+function Particle(id){
   this.hueRange = 20;
   this.rand = (min, max) => {
       return Math.floor( (Math.random() * (max - min + 1) ) + min);
   };
 
   this.reset = () => {
-    this.startRadius = this.rand(1, 10) * getScale();
+    if(id === 1) {
+      this.startRadius = this.rand(1, 10) * getScale();
+    } else if(id === 2) {
+      this.startRadius = this.rand(1, 7) * getScale();
+    } else if(id === 3) {
+      this.startRadius = this.rand(1, 15) * getScale();
+    }
     this.radius = this.startRadius;
     this.x = (this.rand(0, 6) - 3) * getScale();
     this.y = 0;
@@ -17,7 +23,13 @@ function Particle(){
     this.startAlpha = this.rand(10, 10) / 100;
     this.alpha = this.startAlpha;
     this.decayRate = .15;
-    this.startLife = 6;
+    if(id === 1) {
+      this.startLife = 6;
+    } else if(id === 2) {
+      this.startLife = 8;
+    } else if(id === 3) {
+      this.startLife = 5;
+    }
     this.life = this.startLife;
     this.lineWidth = this.rand(2, 2);
   }

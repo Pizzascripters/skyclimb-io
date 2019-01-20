@@ -288,8 +288,8 @@ function StandardJetpack(item) {
   item.price = 100;
 
   item.power = 0.03;
-  item.battery = 3.5;
-  item.recharge = 0.01;
+  item.battery = 4;
+  item.recharge = 0.012;
 }
 
 function LightningJetpack(item) {
@@ -301,9 +301,9 @@ function LightningJetpack(item) {
   item.jetpackId = 2;
   item.price = 250;
 
-  item.power = 0.04;
-  item.battery = 2.5;
-  item.recharge = 0.015;
+  item.power = 0.045;
+  item.battery = 4.5;
+  item.recharge = 0.016;
 }
 
 function BullJetpack(item) {
@@ -316,8 +316,8 @@ function BullJetpack(item) {
   item.price = 300;
 
   item.power = 0.028;
-  item.battery = 6;
-  item.recharge = 0.02;
+  item.battery = 4.75;
+  item.recharge = 0.019;
 }
 
 // Exports is a function that inputs an id and returns an item
