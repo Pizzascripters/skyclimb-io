@@ -35,6 +35,7 @@ function init(e){
   }
   Game.hand = 0;         // Angle of the hand
 
+  Game.lookup = [];      // A list of all player ids and their corresponding names
   Game.shopMenu = [];    // When the player opens a shop, this becomes an array of item ids
   Game.inventory = {
     select: 0,

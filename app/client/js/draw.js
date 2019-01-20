@@ -68,7 +68,7 @@ function draw(Game){
     drawWeaponDisplay(ctx, players[0], items, inventory);
     drawInventory(ctx, inventory, items);
     drawStats(ctx, images.stats, players[0], items[players[0].scope]);
-    drawLeaderboard(ctx, Game.leaderboard, images.stats.score);
+    drawLeaderboard(ctx, Game.leaderboard, Game.lookup, images.stats.score);
   }
   ctx.restore();
 
@@ -618,7 +618,7 @@ function drawStats(ctx, images, p, scope) {
   ctx.fillText("Lvl " + scope.level, 80, 330);
 }
 
-function drawLeaderboard(ctx, leaderboard, scoreImage) {
+function drawLeaderboard(ctx, leaderboard, lookup, scoreImage) {
   ctx.fillStyle = "#888";
   ctx.globalAlpha = 0.8;
   roundRect(ctx, cvs.width - 20 - LEADERBOARD_WIDTH, 20, LEADERBOARD_WIDTH, LEADERBOARD_HEIGHT, 10, true, false)
@@ -638,7 +638,7 @@ function drawLeaderboard(ctx, leaderboard, scoreImage) {
     ctx.fillText(text, cvs.width - LEADERBOARD_WIDTH, 90 + 30*i);
 
     ctx.font = "1px Play"
-    text = leaderboard[i].name
+    text = lookup[leaderboard[i].id]
     var fontsize = 120 / ctx.measureText(text).width;
     fontsize = Math.floor(fontsize);
     if(fontsize > 30) fontsize = 30;

@@ -79,51 +79,52 @@ function buyItem(ws, slot, amount) {
 // Given a packet, reads the first byte, sends it to a more specific function
 function handleMessage(packet, Game){
   var data = new Uint8Array(packet.data);
-  console.log(data.length);
+  console.log("Packet size: " + data.length);
 
   var ref = {i: 0}; // We want to pass i by reference to readInt can increment it
-  while(ref.i < data.length) {
-    var instruction = readByte(data, ref);
-    switch(instruction) {
-      case 0: // Ping
-        pong(packet.origin);
-        break;
-      case 1: // Map data
-        setMap(data, ref, Game.map);
-        Game.map.objects.forEach(obj => {
-          createSurfaces(obj.vertices);
-        });
-        genDecoration(Game.images, Game.map);
-        break;
-      case 2: // Player data
-        setPlayers(data, ref, Game);
-        break;
-      case 3: // Shop data
+  var mask = readByte(data, ref);
+  if(mask & 128) { // Map
+    setMap(data, ref, Game.map);
+    Game.map.objects.forEach(obj => {
+      createSurfaces(obj.vertices);
+    });
+    genDecoration(Game.images, Game.map);
+  }
+  if(mask & 64) { // Players
+    setPlayers(data, ref, Game);
+  }
+  if(mask & 32) { // Linear Objects (bullets)
+    setBullets(data, ref, Game.bullets, Game.images);
+  }
+  if(mask & 16) { // Parabolic Objects (objects affected by gravity)
+    setThrowables(data, ref, Game.throwables, Game.images.nade);
+    setLoot(data, ref, Game.loot, Game.items);
+  }
+  if(mask & 8) { // Leaderboard
+    setLeaderboard(data, ref, Game.leaderboard);
+  }
+  if(mask & 4) { // Stats
+    setStats(data, ref, Game.players[0]);
+  }
+  if(mask & 2) { // Inventory
+    setInventory(data, ref, Game.players[0], Game.inventory);
+  }
+  if(mask & 1) { // Shop Menu or Error
+    switch(readByte(data, ref)) {
+      case 0:
         shopMenu(data, ref, Game.shopMenu, Game.items);
         break;
-      case 4:
+      case 1:
         error(data, ref);
         break;
-      case 5: // Stats data
-        setStats(data, ref, Game.players[0]);
+      case 2:
+        initLookup(data, ref, Game.lookup);
         break;
-      case 6: // Health & Energy data
-        setHealthEnergy(data, ref, Game.players[0]);
+      case 3:
+        addLookup(data, ref, Game.lookup);
         break;
-      case 7: // Inventory data
-        setInventory(data, ref, Game.inventory);
-        break;
-      case 8: // Bullet data
-        setBullets(data, ref, Game.bullets, Game.images);
-        break;
-      case 9: // Throwable data
-        setThrowables(data, ref, Game.throwables, Game.images.nade);
-        break;
-      case 10: // Loot data
-        setLoot(data, ref, Game.loot, Game.items);
-        break;
-      case 11: // Leaderboard data
-        setLeaderboard(data, ref, Game.leaderboard);
+      case 4:
+        removeLookup(data, ref, Game.lookup);
         break;
     }
   }
@@ -181,8 +182,8 @@ function setPlayers(data, ref, Game){
   Game.spectating = readBool(data, ref);
 
   if(Game.spectating) {
-    cam.x = readInt(data, ref);
-    cam.y = readInt(data, ref);
+    cam.x = readShort(data, ref);
+    cam.y = readShort(data, ref);
     Game.deathscreen.kills = readInt(data, ref);
     Game.deathscreen.score = readInt(data, ref);
     Game.deathscreen.show();
@@ -194,34 +195,38 @@ function setPlayers(data, ref, Game){
   for(var i = 0; i < numPlayers; i++){
     var player = {};
     var exists = false; // Exists is true if client already knows about the player
-    player.name = readString(data, ref);
+    var mask = readByte(data, ref);
+    player.id = readShort(data, ref);
     players.forEach(p => {
-      if(p.name === player.name) {
+      if(p.id === player.id) {
         player = p;
         exists = true;
       }
     });
     if(!exists) players.push(player);
     player.inGame = true;
+    if(mask & 128) player.name = readString(data, ref);
 
-    player.x = readInt(data, ref);
-    player.y = readInt(data, ref);
+    if(mask & 64) player.x = readShort(data, ref);
+    if(mask & 32) player.y = readShort(data, ref);
     player.radius = PLAYER_RADIUS;
 
-    player.hand = readByte(data, ref);
-    player.shield = readByte(data, ref);
-    player.weapon = readByte(data, ref);
+    if(mask & 16) player.hand = readByte(data, ref);
+    if(mask & 8) player.shield = readByte(data, ref);
+    if(mask & 4) player.weapon = readByte(data, ref);
 
-    var jetpackId = readByte(data, ref);
-    if(player.jetpack === undefined || player.jetpack.id !== jetpackId) {
-      player.jetpack = createJetpack(Game.images.jetpacks, jetpackId);
-    }
-    if(readBool(data, ref)) {
-      if(!player.jetpack.flame) {
-        player.jetpack.on();
+    if(mask & 2) {
+      var jetpackId = readByte(data, ref);
+      if(player.jetpack === undefined || player.jetpack.id !== jetpackId) {
+        player.jetpack = createJetpack(Game.images.jetpacks, jetpackId);
       }
-    } else {
-      player.jetpack.off();
+      if(readBool(data, ref)) {
+        if(!player.jetpack.flame) {
+          player.jetpack.on();
+        }
+      } else {
+        player.jetpack.off();
+      }
     }
 
     if(i === 0 && !Game.spectating) {
@@ -239,27 +244,35 @@ function setPlayers(data, ref, Game){
 }
 
 function setStats(data, ref, player) {
-  player.kills = readInt(data, ref);
-  player.gold = readInt(data, ref);
-  player.score = readInt(data, ref);
-  player.bullets = readInt(data, ref);
-  player.shells = readInt(data, ref);
-  player.scope = readByte(data, ref);
-  visibility = readInt(data, ref);
+  var mask = readByte(data, ref);
+
+  if(mask & 128) player.kills = readShort(data, ref);
+  if(mask & 64) player.gold = readShort(data, ref);
+  if(mask & 32) player.score = readShort(data, ref);
+  if(mask & 16) player.bullets = readShort(data, ref);
+  if(mask & 8) player.shells = readShort(data, ref);
+  if(mask & 4) player.scope = readByte(data, ref);
+  if(mask & 2) visibility = readShort(data, ref);
 }
 
-function setHealthEnergy(data, ref, player) {
-  player.health = readByte(data, ref) / 255;
-  player.energy = readByte(data, ref) / 255;
-  player.reloadProgress = readByte(data, ref) / 255;
-  player.healing = readBool(data, ref);
-}
+function setInventory(data, ref, player, inventory) {
+  var mask = readByte(data, ref);
 
-function setInventory(data, ref, inventory) {
   for(var i = 0; i < inventory.items.length; i++) {
-    inventory.amt[i] = readInt(data, ref);
-    inventory.items[i] = readByte(data, ref);
-    inventory.magazine[i] = readInt(data, ref);
+    if(mask & Math.pow(2, i+2)) {
+      inventory.amt[i] = readByte(data, ref);
+      inventory.items[i] = readByte(data, ref);
+      inventory.magazine[i] = readByte(data, ref);
+    }
+  }
+
+  if(mask & 2) {
+    player.health = readByte(data, ref) / 255;
+    player.healing = readBool(data, ref);
+  }
+  if(mask & 1) {
+    player.energy = readByte(data, ref) / 255;
+    player.reloadProgress = readByte(data, ref) / 255;
   }
 }
 
@@ -271,8 +284,8 @@ function setBullets(data, ref, bullets, images) {
   while(bullets.length < numBullets){
     let bullet = {};
     bullet.type = readByte(data, ref);
-    bullet.x = readInt(data, ref);
-    bullet.y = readInt(data, ref);
+    bullet.x = readShort(data, ref);
+    bullet.y = readShort(data, ref);
     bullet.angle = readByte(data, ref);
     bullets.push(bullet);
 
@@ -293,8 +306,8 @@ function setThrowables(data, ref, throwables) {
   // Load the throwables
   while(throwables.length < numThrowables){
     let throwable = {};
-    throwable.x = readInt(data, ref);
-    throwable.y = readInt(data, ref);
+    throwable.x = readShort(data, ref);
+    throwable.y = readShort(data, ref);
     throwable.angle = readByte(data, ref);
     throwable.width = 40;
     throwable.height = 40;
@@ -310,8 +323,8 @@ function setLoot(data, ref, loot, items) {
   while(loot.length < numLoot){
     let l = {};
     l.item = items[readByte(data, ref)];
-    l.x = readInt(data, ref);
-    l.y = readInt(data, ref);
+    l.x = readShort(data, ref);
+    l.y = readShort(data, ref);
     l.radius = LOOT_RADIUS;
     l.angle = readByte(data, ref);
     loot.push(l);
@@ -325,8 +338,8 @@ function setLeaderboard(data, ref, leaderboard) {
   // Leaderboard
   while(leaderboard.length < leaderboardSize){
     let l = {};
-    l.name = readString(data, ref);
-    l.score = readInt(data, ref);
+    l.id = readShort(data, ref);
+    l.score = readShort(data, ref);
     leaderboard.push(l);
   }
 }
@@ -334,7 +347,7 @@ function setLeaderboard(data, ref, leaderboard) {
 function shopMenu(data, ref, menu, items){
   menu.splice(0, menu.length);
   while(data[ref.i]) {
-    if(ref.i === 1) {
+    if(ref.i === 2) {
       menu.push(shopIdToName(readByte(data, ref)));
     } else {
       let item = items[readByte(data, ref)];
@@ -349,18 +362,22 @@ function error(data, ref){
   document.getElementById("error").innerText = err;
 }
 
-// Sends a 1 byte packet to the server
-function ping(ws){
-  if(ws.readyState != ws.OPEN)
-    return 1;
-
-  pingStart = window.performance.now();
-  ws.send(new Uint8Array(1));
+function initLookup(data, ref, lookup) {
+  const numPlayers = readShort(data, ref);
+  for(var i = 0; i < numPlayers; i++) {
+    addLookup(data, ref, lookup);
+  }
 }
 
-// Called when client recieves pong packet
-function pong(origin){
-  console.log("Ping to %s took " + Math.round(window.performance.now() - pingStart) + " ms", origin);
+function addLookup(data, ref, lookup) {
+  const id = readShort(data, ref);
+  const name = readString(data, ref);
+  lookup[id] = name;
+}
+
+function removeLookup(data, ref, lookup) {
+  const id = readShort(data, ref);
+  delete lookup[id];
 }
 
 // Requests the map data in case we didn't get it
@@ -398,6 +415,14 @@ function readInt(a, ref) {
   let b4 = a[ref.i+3];
   ref.i += 4;
   return bytesToInt([b1, b2, b3, b4]);
+}
+
+// Reads a two byte unsigned integer from an index in a byte array
+function readShort(a, ref) {
+  let b1 = a[ref.i];
+  let b2 = a[ref.i+1];
+  ref.i += 2;
+  return bytesToInt([0, 0, b1, b2]) + 2147483648 - 32768;
 }
 
 // Reads a one byte integer from an index in a byte array

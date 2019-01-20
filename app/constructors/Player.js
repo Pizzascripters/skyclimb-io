@@ -2,6 +2,7 @@ var Matter = require('../lib/matter');
 const Item = require('./Item');
 const Loot = require('./Loot');
 const economy = require('../systems/economy');
+const io = require('../systems/io');
 
 const PLAYER_START_POS = [
   {x: -14963, y: 10600},
@@ -35,6 +36,7 @@ module.exports = function(id, ws, world, loot, SHIELD_MILLIS){
   this.name = "guest" + id;
   this.ws = ws;
   this.ws.player = this;
+  this.lastVisible = []; // The ids of the players that were visible last packet
 
   // Player states
   this.choosingName = true;
