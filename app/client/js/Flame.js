@@ -6,6 +6,8 @@ function Flame(id) {
     this.particleCount = 400;
   } else if(id === 3) {
     this.particleCount = 100;
+  } else if(id === 4) {
+    this.particleCount = 150;
   }
 
   while(this.particles.length < this.particleCount) {

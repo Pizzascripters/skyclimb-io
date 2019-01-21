@@ -11,6 +11,8 @@ function Particle(id){
       this.startRadius = this.rand(1, 7) * getScale();
     } else if(id === 3) {
       this.startRadius = this.rand(1, 15) * getScale();
+    } else if(id === 4) {
+      this.startRadius = this.rand(1, 10) * getScale();
     }
     this.radius = this.startRadius;
     this.x = (this.rand(0, 6) - 3) * getScale();
@@ -29,6 +31,8 @@ function Particle(id){
       this.startLife = 8;
     } else if(id === 3) {
       this.startLife = 5;
+    } else if(id === 4) {
+      this.startLife = 7;
     }
     this.life = this.startLife;
     this.lineWidth = this.rand(2, 2);

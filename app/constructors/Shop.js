@@ -28,9 +28,9 @@ function Generic(x, y) {
   shop.itemIds.push(234);
   shop.itemIds.push(235);
   shop.itemIds.push(236);
-  shop.itemIds.push(240);
   shop.itemIds.push(241);
   shop.itemIds.push(242);
+  shop.itemIds.push(243);
 
   shop.buy = (p, slot, amt) => {
     Item(shop.itemIds[slot]).buy(p, amt);

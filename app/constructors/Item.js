@@ -331,6 +331,20 @@ function BullJetpack(item) {
   item.recharge = 0.019;
 }
 
+function LaserJetpack(item) {
+  Jetpack(item);
+  item.type = "jetpack";
+  item.name = "LaserJetpack";
+  item.plural = "LaserJetpacks";
+  item.id = 243;
+  item.jetpackId = 4;
+  item.price = 2000;
+
+  item.power = 0.05;
+  item.battery = 7;
+  item.recharge = 0.02;
+}
+
 // Exports is a function that inputs an id and returns an item
 module.exports = function(id) {
   let item = {};
@@ -390,6 +404,9 @@ module.exports = function(id) {
       break;
     case 242:
       BullJetpack(item);
+      break;
+    case 243:
+      LaserJetpack(item);
       break;
     case 0:
     case "empty":

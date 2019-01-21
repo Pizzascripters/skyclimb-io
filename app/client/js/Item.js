@@ -61,6 +61,7 @@ function initItems(items, images) {
   items[240] = new Item(240, "Standard Jetpack", images.jetpacks.standard);
   items[241] = new Item(241, "Lightning Jetpack", images.jetpacks.lightning);
   items[242] = new Item(242, "Bull Jetpack", images.jetpacks.bull);
+  items[243] = new Item(243, "Laser Jetpack", images.jetpacks.laser);
 
   items[232].level = 1;
   items[233].level = 2;

@@ -13,6 +13,10 @@ function createJetpack(images, id) {
     case "bull":
       jetpack.img = images.bull;
       break;
+    case 4:
+    case "laser":
+      jetpack.img = images.laser;
+      break;
     default:
       jetpack.img = null;
       break;

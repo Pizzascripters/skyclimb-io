@@ -149,7 +149,7 @@ function loadImages(images, callback) {
 
   // Jetpack
   images.jetpacks = {};
-  jetpackNames = ["standard", "lightning", "bull"];
+  jetpackNames = ["standard", "lightning", "bull", "laser"];
   for(var i in jetpackNames) {
     images.jetpacks[jetpackNames[i]] = loadImage("jetpacks/" + jetpackNames[i], onload)
   }
