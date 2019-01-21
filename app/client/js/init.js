@@ -65,70 +65,12 @@ function init(e){
     document.getElementById("score").innerText = Game.deathscreen.score;
   }
 
-  window.addEventListener("mousemove", e => {
-    Game.hand = mousemove(e);
-  });
-  window.addEventListener("mousedown", e => {
-    mouse.down = true;
-
-    // Handle buttons
-    for(var i1 in Game.buttons) {
-      for(var i2 in Game.buttons[i1]) {
-        var button = Game.buttons[i1][i2];
-        if(!button.enabled) continue;
-        if(insideRect(mouse, button.rect())) {
-          button.click();
-          return false;
-        }
-      }
-    }
-
-    if(Game.shopMenu.length === 0) {
-        mousedown(e, Game.keyboard);
-    } else {
-      shopMenuApply(Game.shopMenu, (item, rect, slot) => {
-        if(insideRect(mouse, rect)) {
-          if(Game.keyboard.buy100) {
-            if(item.canBuy100) buyItem(Game.ws, slot, 100);
-          } else if(Game.keyboard.buy10) {
-            if(item.canBuy10) buyItem(Game.ws, slot, 10);
-          } else {
-            buyItem(Game.ws, slot, 1);
-          }
-        }
-      })
-    }
-  });
-  window.addEventListener("mouseup", e => {
-    mouse.down = false;
-    mouseup(e, Game.keyboard)
-  });
-  window.addEventListener("keydown", e => {
-    if(Game.shopMenu.length > 0) {
-      if(e.keyCode === 27 || e.keyCode === 88) {
-        Game.shopMenu = [];
-      }
-      if(e.keyCode === 16)
-        Game.keyboard.buy10 = true;
-      if(e.keyCode === 17)
-        Game.keyboard.buy100 = true;
-    } else {
-      keydown(e, Game.keyboard, Game.inventory);
-    }
-  });
-  window.addEventListener("keyup", e => {
-    if(Game.shopMenu.length > 0) {
-      if(e.keyCode === 16)
-        Game.keyboard.buy10 = false;
-      if(e.keyCode === 17)
-        Game.keyboard.buy100 = false;
-    } else {
-      keyup(e, Game.keyboard);
-    }
-  });
-  window.addEventListener("contextmenu", e => {
-    e.preventDefault();
-  });
+  window.addEventListener("mousemove", mousemoveEvent);
+  window.addEventListener("mousedown", mousedownEvent);
+  window.addEventListener("mouseup", mouseupEvent);
+  window.addEventListener("keydown", keydownEvent);
+  window.addEventListener("keyup", keyupEvent);
+  window.addEventListener("contextmenu", contextmenuEvent);
 
   Game.ws = createWebsocket(Game);
 }
@@ -159,4 +101,74 @@ function update(Game, time){
       update(Game, time);
     });
   }
+}
+
+const mousemoveEvent = e => {
+  Game.hand = mousemove(e);
+}
+
+const mousedownEvent = e => {
+  mouse.down = true;
+
+  // Handle buttons
+  for(var i1 in Game.buttons) {
+    for(var i2 in Game.buttons[i1]) {
+      var button = Game.buttons[i1][i2];
+      if(!button.enabled) continue;
+      if(insideRect(mouse, button.rect())) {
+        button.click();
+        return false;
+      }
+    }
+  }
+
+  if(Game.shopMenu.length === 0) {
+      mousedown(e, Game.keyboard);
+  } else {
+    shopMenuApply(Game.shopMenu, (item, rect, slot) => {
+      if(insideRect(mouse, rect)) {
+        if(Game.keyboard.buy100) {
+          if(item.canBuy100) buyItem(Game.ws, slot, 100);
+        } else if(Game.keyboard.buy10) {
+          if(item.canBuy10) buyItem(Game.ws, slot, 10);
+        } else {
+          buyItem(Game.ws, slot, 1);
+        }
+      }
+    })
+  }
+}
+
+const mouseupEvent = e => {
+  mouse.down = false;
+  mouseup(e, Game.keyboard)
+}
+
+const keydownEvent = e => {
+  if(Game.shopMenu.length > 0) {
+    if(e.keyCode === 27 || e.keyCode === 88) {
+      Game.shopMenu = [];
+    }
+    if(e.keyCode === 16)
+      Game.keyboard.buy10 = true;
+    if(e.keyCode === 17)
+      Game.keyboard.buy100 = true;
+  } else {
+    keydown(e, Game.keyboard, Game.inventory);
+  }
+}
+
+const keyupEvent = e => {
+  if(Game.shopMenu.length > 0) {
+    if(e.keyCode === 16)
+      Game.keyboard.buy10 = false;
+    if(e.keyCode === 17)
+      Game.keyboard.buy100 = false;
+  } else {
+    keyup(e, Game.keyboard);
+  }
+}
+
+const contextmenuEvent = e => {
+  e.preventDefault();
 }
