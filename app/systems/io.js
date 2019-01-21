@@ -121,7 +121,7 @@ const io = module.exports = {
         p.lastFlame = p.keyboard.jump;
 
         p.lastKills = p.kills;
-        p.lastGold = p.gold;
+        p.lastGold = Math.floor(p.gold);
         p.lastScore = p.score;
         p.lastBullets = p.bullets;
         p.lastShells = p.shells;
@@ -358,7 +358,7 @@ const io = module.exports = {
     // Determine which variables changed and only send those
     var mask = [1, 1, 1, 1, 1, 1, 1, 0];
     if(p.kills === p.lastKills) mask[0] = 0;
-    if(p.gold === p.lastGold) mask[1] = 0;
+    if(Math.floor(p.gold) === p.lastGold) mask[1] = 0;
     if(p.score === p.lastScore) mask[2] = 0;
     if(p.bullets === p.lastBullets) mask[3] = 0;
     if(p.shells === p.lastShells) mask[4] = 0;
