@@ -112,6 +112,9 @@ function handleMessage(packet, Game){
     switch(readByte(data, ref)) {
       case 0:
         shopMenu(data, ref, Game.shopMenu, Game.items);
+        Game.keyboard.left = false;
+        Game.keyboard.right = false;
+        Game.keyboard.jump = false;
         break;
       case 1:
         error(data, ref);
