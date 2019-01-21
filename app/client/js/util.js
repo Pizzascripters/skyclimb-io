@@ -241,7 +241,9 @@ function loadScript(name){
 let scripts = ["anim", "buttons", "constants", "Decoration", "draw", "Flame", "input", "io", "jetpack", "Item", "Particle", "Snow", "Stars", "Surface"];
 scripts.map(x => loadScript(x));
 
-function resize(Game){
+function resize(e){
+  Game = e.target.Game;
+
   cvs.width = window.innerWidth;
   cvs.height = window.innerHeight;
 

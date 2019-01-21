@@ -2,9 +2,11 @@ var restarting = false; // If the game is restarting
 var prevTime = 0;       // Time of last frame
 var pingStart;          // The time we sent out the ping
 var visibility;
-var Game = {};          // The entire game, only used fro debugging
+//var Game = {};          // The entire game, only used for debugging
 
 function init(e){
+  var Game = document.body.Game = {};
+
   Game.players = [];
   Game.map = [];
   Game.bullets = [];
@@ -48,10 +50,9 @@ function init(e){
   initItems(Game.items, Game.images);
 
   Game.cvs = document.getElementById("cvs");
-  resize(Game);
-  window.addEventListener("resize", () => {
-    resize(Game);
-  });
+  Game.cvs.Game = Game;
+  resize({target:cvs});
+  window.addEventListener("resize", resize);
   Game.ctx = Game.cvs.getContext("2d");
   Game.cam = {x:0, y:0}; // Position of the camera
 
@@ -104,10 +105,12 @@ function update(Game, time){
 }
 
 const mousemoveEvent = e => {
+  Game = e.target.Game;
   Game.hand = mousemove(e);
 }
 
 const mousedownEvent = e => {
+  Game = e.target.Game;
   mouse.down = true;
 
   // Handle buttons
@@ -140,11 +143,13 @@ const mousedownEvent = e => {
 }
 
 const mouseupEvent = e => {
+  Game = e.target.Game;
   mouse.down = false;
   mouseup(e, Game.keyboard)
 }
 
 const keydownEvent = e => {
+  Game = e.target.Game;
   if(Game.shopMenu.length > 0) {
     if(e.keyCode === 27 || e.keyCode === 88) {
       Game.shopMenu = [];
@@ -159,6 +164,7 @@ const keydownEvent = e => {
 }
 
 const keyupEvent = e => {
+  Game = e.target.Game;
   if(Game.shopMenu.length > 0) {
     if(e.keyCode === 16)
       Game.keyboard.buy10 = false;
