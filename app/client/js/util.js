@@ -183,7 +183,7 @@ function loadImages(images, callback) {
 
   // Shops
   images.shops = {};
-  let shopNames = ["generic"];
+  let shopNames = ["generic", "golden"];
   imageNames = ["inside", "outside", "shelf"];
   for(var i1 in shopNames) {
     images.shops[shopNames[i1]] = {};

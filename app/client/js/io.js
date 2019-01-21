@@ -392,8 +392,11 @@ function requestMapData(ws){
 
 function shopIdToName(id) {
   switch(id) {
-    default:
+    case 1:
       return "generic";
+      break;
+    case 2:
+      return "golden";
       break;
   }
 }
