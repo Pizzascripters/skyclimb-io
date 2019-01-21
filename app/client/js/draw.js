@@ -310,8 +310,9 @@ function drawMountain(ctx, cam, p, textures) {
   }
 
   // Draw grass & snow
-  var newv = v0 = getVertexPosition(p.vertices[0], cam);
-  for(var i = 1; i < p.vertices.length; i++) {
+  var newv = getVertexPosition(p.vertices[p.vertices.length - 1], cam);
+  var v0 = getVertexPosition(p.vertices[0], cam);
+  for(var i = 0; i < p.vertices.length; i++) {
     oldv = newv;
     newv = getVertexPosition(p.vertices[i], cam);
     angle = Math.atan2(newv.y - oldv.y, newv.x - oldv.x);

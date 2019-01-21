@@ -103,7 +103,9 @@ function loadImages(images, callback) {
   images.decoration = {};
   let decorNames = {
     "flowers": ["1", "2", "3"],
-    "grass": ["1", "2"]
+    "grass": ["1", "2"],
+    "bush": ["1"],
+    "icicle": ["1", "2"]
   };
   for(var i1 in decorNames) {
     images.decoration[i1] = [];

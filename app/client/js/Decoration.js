@@ -14,6 +14,12 @@ function genDecoration(images, map) {
             map.decoration.push(new Decoration(images.decoration, Math.floor(Math.random() * 5), [v0, v1], px));
           }
         }
+      } else if(v1.surface.type === "ice") {
+        for(var px = 0; px < distance(v0, v1) - 50; px++) {
+          if(Math.random() < 0.02) {
+            map.decoration.push(new Decoration(images.decoration, Math.floor(Math.random() * 2) + 100, [v0, v1], px));
+          }
+        }
       }
     }
     obj.vertices.forEach(vertex => {
@@ -44,6 +50,18 @@ function Decoration(images, type, edge, px) {
     case 4:
     case "grass2":
       this.img = images.grass[1];
+      break;
+    case 5:
+    case "bush1":
+      this.img = images.bush[0];
+      break;
+    case 100:
+    case "icicle1":
+      this.img = images.icicle[0];
+      break;
+    case 101:
+    case "icicle2":
+      this.img = images.icicle[1];
       break;
     default:
       this.img = null;

@@ -20,6 +20,12 @@ function createSurfaces(vertices) {
           vertices[i].surface.type = "midnight";
           break;
       }
+    } else if(angle > 2*Math.PI/3 || angle < -2*Math.PI/3) {
+      switch(getBiome(v1)) {
+        case "snowy":
+          vertices[i].surface = createIceSurface(distance(v0, v1));
+          break;
+      }
     }
   }
 }
@@ -70,7 +76,7 @@ function createSnowSurface(distance) {
   radius = Math.random() * 30 + 20;
   dark.push({pos: distance - radius, radius})
 
-  // Light grass
+  // Light snow
   var light = [];
   dark.forEach(circle => {
     light.push({
@@ -80,4 +86,8 @@ function createSnowSurface(distance) {
   });
 
   return {type:"snow", dark, light};
+}
+
+function createIceSurface(distance) {
+  return {type:"ice"};
 }
