@@ -1,10 +1,12 @@
 const economy = module.exports = {
-  addGold: function(p, amt) {
+  addGold: function(p, amt, GOLD_CAP) {
     p.gold += amt;
     p.score += amt;
+    if(p.gold > GOLD_CAP) p.gold = GOLD_CAP;
+    if(p.score > GOLD_CAP) p.score = GOLD_CAP;
   },
 
-  update: function(players, map, delta, MAX_HEIGHT, MIN_HEIGHT) {
+  update: function(players, map, delta, MAX_HEIGHT, MIN_HEIGHT, GOLD_CAP) {
     for(var i in players) {
       var p = players[i];
       if(p.inGame() && p.shield === 0) {
@@ -16,7 +18,7 @@ const economy = module.exports = {
         } else if(p.body.position.y > MAX_HEIGHT) {
           goldRate = bgr;
         }
-        economy.addGold(players[i], delta * goldRate / 1000);
+        economy.addGold(players[i], delta * goldRate / 1000, GOLD_CAP);
       }
     }
   }

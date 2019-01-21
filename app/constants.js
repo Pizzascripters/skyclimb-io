@@ -13,6 +13,10 @@ module.exports = Game => {
   Game.GRAVITY = 0.003;
   Game.WATER_DAMAGE = 0.0025;
 
+  Game.BULLET_CAP = 5000;
+  Game.SHELL_CAP = 5000;
+  Game.GOLD_CAP = 30000;
+
   Game.SHIELD_MILLIS = 5000;
 
   Game.packetsPerSecond = 60;
