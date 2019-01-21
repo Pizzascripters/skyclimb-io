@@ -1,3 +1,6 @@
+const constants = {};
+require('../constants')(constants);
+
 function Item(item) {
   item.type = "empty";
   item.name = "Empty";
@@ -192,6 +195,10 @@ function Bullet(item) {
 
   item.onAcquire = (p, amount) => {
     p.bullets += amount;
+    if(p.bullets > constants.BULLET_CAP) { // Cap bullets
+      p.drop(module.exports(224), false, p.bullets - constants.BULLET_CAP)
+      p.bullets = constants.BULLET_CAP;
+    }
   }
 }
 
@@ -205,6 +212,10 @@ function Shell(item) {
 
   item.onAcquire = (p, amount) => {
     p.shells += amount;
+    if(p.shells > constants.SHELL_CAP) { // Cap bullets
+      p.drop(module.exports(225), false, p.shells - constants.SHELL_CAP)
+      p.shells = constants.SHELL_CAP;
+    }
   }
   return item;
 }

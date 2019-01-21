@@ -24,7 +24,7 @@ module.exports = function(Game, delta){
     handleConsuming(p);
     handleHealing(p);
     handleShield(p, Game.map, delta);
-    handleLooting(p, Game.world, Game.loot);
+    handleLooting(p, Game.world, Game.loot, Game.BULLET_CAP, Game.SHELL_CAP);
     handleReloading(p, delta);
     terminalVelocity(p.body, Game.TERMINAL_X_VELOCITY, Game.TERMINAL_Y_VELOCITY);
     chargeJetpack(p);
@@ -106,6 +106,27 @@ function handleMovement(p, body, HORIZONTAL_ACCELERATION) {
       {x: 0, y: -p.jetpack.power}
     );
     p.energy -= p.jetpack.power / p.jetpack.battery;
+  }
+
+  // Loop map
+  if(p.body.position.x < -30000) {
+    Matter.Body.setPosition(
+      body,
+      {x: body.position.x + 60000, y: body.position.y}
+    );
+  }
+  if(p.body.position.x > 30000) {
+    Matter.Body.setPosition(
+      body,
+      {x: body.position.x - 60000, y: body.position.y}
+    );
+  }
+  // Set height bound
+  if(p.body.position.y > 30000) {
+    Matter.Body.setPosition(
+      body,
+      {x: body.position.x, y: 30000}
+    );
   }
 }
 
@@ -303,7 +324,7 @@ function dropWeapon(p, world, loot){
 }
 
 // Called when player tries to loot
-function handleLooting(p, world, loot) {
+function handleLooting(p, world, loot, BULLET_CAP, SHELL_CAP) {
   // Find the closest loot
   let minDistance = Infinity;
   let closest = null; // The index of the nearest loot
@@ -311,7 +332,11 @@ function handleLooting(p, world, loot) {
     const dist = distance(p.body.position, loot[i].body.position);
     if(dist < minDistance &&
       dist < p.radius + loot[i].radius &&
-      (p.keyboard.loot || loot[i].item.id === 224 || loot[i].item.id === 225)
+      (
+        p.keyboard.loot ||
+        loot[i].item.id === 224 && p.bullets < BULLET_CAP ||
+        loot[i].item.id === 225 && p.shells < SHELL_CAP
+      )
     ) {
       minDistance = dist;
       closest = loot[i];

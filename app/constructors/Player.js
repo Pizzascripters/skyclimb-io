@@ -160,6 +160,10 @@ module.exports = function(id, ws, world, loot, SHIELD_MILLIS){
       for(var i = 3; i < 6; i++) {
         if(this.inventory.items[i].id === item.id) {
           this.inventory.amt[i] += number;
+          if(this.inventory.amt[i] > 255) { // Cap items
+            this.drop(Item(this.inventory.items[i].id), false, this.inventory.amt[i] - 255);
+            this.inventory.amt[i] = 255;
+          }
           return true;
         }
       }
