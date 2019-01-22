@@ -7,8 +7,11 @@ const distance = require('../util/distance');
 const insideRect = require('../util/insideRect');
 const io = require('./io');
 
+var constants = {};
+require('../constants')(constants);
+
 // Everything that needs to happen on engine tick goes here
-module.exports = function(Game, delta){
+function update(Game, delta){
 
   world.gravity.y = 0; // I need to make my own gravity so bullets aren't affected
 
@@ -32,8 +35,23 @@ module.exports = function(Game, delta){
     if(p.keyboard.drop) dropWeapon(p, Game.world, Game.loot);
 
     // Dying should be at the end because we shouldn't be updating physics on dead players
-    bulletCollisions(Game.players, Game.bullets, Game.map.bodies, Game.loot, Game.KNOCKBACK);
     waterDamage(Game.world, Game.loot, p, Game.WATER_HEIGHT, Game.WATER_DAMAGE);
+
+    // Perserve the bullet velocity and angle
+    for(var i in Game.bullets) {
+      let b = Game.bullets[i];
+      if(b.deleted) continue;
+
+      Matter.Body.setVelocity(
+        b.body,
+        {x: b.xv, y: b.yv}
+      );
+
+      Matter.Body.setAngle(
+        b.body,
+        2 * Math.PI * b.angle / 256
+      )
+    }
 
     // Sticky buttons only reset on physics update, not in io
     let stickyButtons = ["throw", "consume", "select", "drop", "loot", "reload"]
@@ -259,44 +277,6 @@ function chargeJetpack(p){
     p.energy = 1;
 }
 
-function bulletCollisions(players, bullets, map, loot, KNOCKBACK){
-  for(var i1 in bullets) {
-    let b = bullets[i1];
-    if(b.deleted) continue;
-
-    Matter.Body.setVelocity(
-      b.body,
-      {x: b.xv, y: b.yv}
-    );
-
-    for(var i2 in map) {
-      const obj = map[i2];
-      if(Matter.SAT.collides(b.body, obj).collided) {
-        b.apoptosis();
-      }
-    }
-    if(b.deleted) continue;
-
-    for(var i2 in players) {
-      let p = players[i2];
-      if(!p.inGame()) continue;
-
-      if(Matter.SAT.collides(b.body, p.body).collided){
-        // Knockback
-        if(!p.shieldOn()) {
-          Matter.Body.applyForce(
-            p.body,
-            {x: b.body.position.x, y: b.body.position.y},
-            {x: KNOCKBACK * b.body.velocity.x, y: KNOCKBACK * b.body.velocity.y}
-          );
-        }
-
-        b.hit(p, loot);
-      }
-    }
-  }
-}
-
 // Send shop data if p is trying to open a shop
 function sendShopData(p, shops) {
   for(var i in shops) {
@@ -383,4 +363,37 @@ function handleReloading(p, delta) {
     p.getItem().reload(p);
     p.reloadProgress = 0;
   }
+}
+
+function collision(pairs) {
+   pairs.forEach(({ bodyA, bodyB }) => {
+     var bodyTypes = ["bullet", "mountain", "player"];
+     if(bodyTypes.indexOf(bodyA.type) > bodyTypes.indexOf(bodyB.type)) {
+       // Swap the bodies
+       var tempBody = bodyA;
+       bodyA = bodyB;
+       bodyB = tempBody;
+     }
+     if (bodyA.type === "bullet" && !bodyA.bullet.deleted) {
+       if(bodyB.type === "mountain") {
+         bodyA.bullet.apoptosis();
+       }else if(bodyB.type === "player" && !bodyB.player.deleted) {
+         if(!bodyB.player.shieldOn()) {
+           // Knockback
+           Matter.Body.applyForce(
+             bodyB,
+             {x: bodyA.position.x, y: bodyA.position.y},
+             {x: constants.KNOCKBACK * bodyA.velocity.x, y: constants.KNOCKBACK * bodyA.velocity.y}
+           );
+           bodyA.bullet.hit(bodyB.player);
+         }
+         bodyA.bullet.apoptosis();
+       }
+     }
+  });
+}
+
+module.exports = {
+  update,
+  collision
 }

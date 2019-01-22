@@ -138,6 +138,8 @@ module.exports = function(id, ws, world, loot, SHIELD_MILLIS){
   this.spawn = () => {
     const rand = Math.floor(Math.random() * PLAYER_START_POS.length)
     this.body = Matter.Bodies.circle(PLAYER_START_POS[rand].x, PLAYER_START_POS[rand].y, PLAYER_RADIUS);
+    this.body.type = "player";
+    this.body.player = this;
     this.body.restitution = 0.3;
     this.body.radius = this.radius = PLAYER_RADIUS;
     Matter.World.addBody(world, this.body);
@@ -211,7 +213,12 @@ module.exports = function(id, ws, world, loot, SHIELD_MILLIS){
   this.apoptosis = () => {
     if(!this.alive) return false;
 
-    Matter.Composite.remove(world, this.body);
+    // Deleting the object like this because Matter.Composite.remove wasn't working...
+    for(var i in world.bodies){
+      if(world.bodies[i].id === this.body.id) {
+        world.bodies.splice(i, 1);
+      }
+    }
 
     // Drop all items
     for(var i in this.inventory.items) {

@@ -128,7 +128,7 @@ function Shotgun(item) {
   item.reloadTime = 500;
   item.accuracy = Math.PI / 6;
   item.damage = 0.1;
-  item.speed = 35;
+  item.speed = 40;
   item.cooldownTime = 20;
   item.shootingCooldown = item.cooldownTime;
 

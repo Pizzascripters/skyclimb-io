@@ -37,6 +37,8 @@ module.exports = function (world, p, accuracy = 0, type = 0, damage = BULLET_DAM
     body = this.body = Matter.Bodies.rectangle(bulletX, bulletY, 10, 10);
   }
   body.angle = angle;
+  body.type = "bullet";
+  body.bullet = this;
   Matter.Body.setVelocity(
     this.body,
     {x: xVelocity, y: yVelocity}
@@ -53,12 +55,10 @@ module.exports = function (world, p, accuracy = 0, type = 0, damage = BULLET_DAM
 
   Matter.World.addBody(world, body); // Add yourself to the world
 
-  this.hit = (p, loot) => {
-    if(!p.shieldOn()) {
-      p.health -= damage;
-      if(p.health <= 0) {
-        this.player.kill(p);
-      }
+  this.hit = (p) => {
+    p.health -= damage;
+    if(p.health <= 0) {
+      this.player.kill(p);
     }
     this.apoptosis();
   }

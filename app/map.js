@@ -78,6 +78,7 @@ for(var i in objects){
         position: Vertices.centre(v),
         isStatic: true
       });
+      body.type = "mountain";
       body.collisionFilter.group = 1;
       Body.setVertices(body, v);
       map.push(body);
@@ -92,6 +93,7 @@ for(var i in objects){
       position: Vertices.centre(v),
       isStatic: true
     });
+    body.type = "safezone";
     body.collisionFilter.group = 2;
     body.collisionFilter.mask = 0;
     Body.setVertices(body, v);
