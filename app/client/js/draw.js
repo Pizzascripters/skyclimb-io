@@ -428,7 +428,7 @@ function drawLoot(ctx, p, loot, cam) {
     }
 
     l.distance = Math.sqrt(
-      Math.pow(p.x - l.x, 2), +
+      Math.pow(p.x - l.x, 2) +
       Math.pow(p.y - l.y, 2)
     )
 
