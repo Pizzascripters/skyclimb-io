@@ -40,7 +40,7 @@ function draw(Game){
     drawPlayer(ctx, cam, players[i], PLAYER_OUTLINE, images.eyes.generic, items[players[i].weapon]);
   }
 
-  drawLoot(ctx, loot, cam);
+  drawLoot(ctx, players[0], loot, cam);
   for(var i in players)
     drawName(ctx, cam, players[i]);
 
@@ -69,6 +69,7 @@ function draw(Game){
     drawInventory(ctx, inventory, items);
     drawStats(ctx, images.stats, players[0], items[players[0].scope]);
     drawLeaderboard(ctx, Game.leaderboard, Game.lookup, images.stats.score);
+    drawPrompt(ctx, Game.players[0], Game.loot, Game.map.shops, Game.shopMenu.length !== 0);
   }
   ctx.restore();
 
@@ -398,7 +399,7 @@ function drawDecoration(ctx, cam, d) {
   ctx.restore();
 }
 
-function drawLoot(ctx, loot, cam) {
+function drawLoot(ctx, p, loot, cam) {
   ctx.fillStyle = "rgba(100, 100, 100, 0.8)";
   ctx.strokeStyle = "#000";
   ctx.lineWidth = 2 * getScale();
@@ -425,6 +426,11 @@ function drawLoot(ctx, loot, cam) {
       }
       ctx.drawImage(l.item.image, -width/2, -height/2, width, height);
     }
+
+    l.distance = Math.sqrt(
+      Math.pow(p.x - l.x, 2), +
+      Math.pow(p.y - l.y, 2)
+    )
 
     ctx.restore();
   }
@@ -521,18 +527,40 @@ function drawWeaponDisplay(ctx, p, items, inventory) {
 }
 
 function drawInventory(ctx, inventory, items){
-  ctx.fillStyle = "#888";
-  ctx.globalAlpha = 0.8;
-
   for(var i = 0; i < inventory.buttons.length; i++) {
+    ctx.fillStyle = "#888";
+    ctx.globalAlpha = 0.8;
     var button = inventory.buttons[i];
     button.height = inventory.anim[i];
     button.update();
     roundRect(ctx, button.x, button.y, button.width, button.height);
     drawItem(ctx, i, items[inventory.items[i]], inventory.anim[i], inventory.amt[i]);
+    var shortcut = "";
+    switch(i) {
+      case 0:
+        shortcut = "1";
+        break;
+      case 1:
+        shortcut = "2";
+        break;
+      case 2:
+        shortcut = "3";
+        break;
+      case 3:
+        shortcut = "Z";
+        break;
+      case 4:
+        shortcut = "X";
+        break;
+      case 5:
+        shortcut = "C";
+        break;
+    }
+    ctx.font = "18px Play";
+    ctx.fillStyle = "#fff";
+    ctx.globalAlpha = 1;
+    ctx.fillText(shortcut, button.x + 10, button.y + 30);
   }
-
-  ctx.globalAlpha = 1;
 }
 
 function drawItem(ctx, slot, item, anim, amt) {
@@ -746,6 +774,86 @@ function drawShopMenu(ctx, shopMenu, shopImages, closeButton, keyboard, goldImag
   ctx.lineTo((cvs.width - width) / 2, (cvs.height + height) / 2);
   ctx.lineTo((cvs.width - width) / 2, (cvs.height - height) / 2);
   ctx.stroke();
+}
+
+function drawPrompt(ctx, p, loot, shops, inShopMenu) {
+  // Determine if there should be a shop prompt
+  touchingShop = null;
+  if(!inShopMenu) {
+    for(var i in shops) {
+      var s = shops[i];
+      if(
+        p.x > s.x - p.radius &&
+        p.x < s.x + s.width + p.radius &&
+        p.y > s.y - p.radius &&
+        p.y < s.y + s.height + p.radius
+      ) { // If player is touching shop
+        touchingShop = s;
+      }
+    }
+  }
+
+  // Determine if there should be a loot prompt
+  var closestLoot = null;
+  for(var i in loot) {
+    var l = loot[i];
+    if(
+      l.distance < p.radius + l.radius &&
+      (closestLoot === null || l.distance < closestLoot.distance)
+    ) { // If player is touching loot and it's closer than any previous loot
+      closestLoot = l;
+    }
+  }
+
+  // Draw the shop prompt
+  if(touchingShop !== null) {
+    var text = "Press E to enter shop";
+    ctx.font = "36px Play";
+
+    ctx.fillStyle = "#aaa";
+    ctx.globalAlpha = 0.8;
+    var width = ctx.measureText(text).width + 20;
+    roundRect(
+      ctx,
+      cvs.width/2 - width/2,
+      3*cvs.height/4 - SHOP_PROMPT_HEIGHT/2,
+      width,
+      SHOP_PROMPT_HEIGHT
+    );
+
+    ctx.globalAlpha = 1;
+    ctx.fillStyle = "#fff";
+    ctx.fillText(
+      text,
+      cvs.width/2 - ctx.measureText(text).width/2,
+      3*cvs.height/4 + SHOP_PROMPT_HEIGHT/2 - 15
+    )
+  }
+
+  // Draw the loot prompt
+  if(closestLoot !== null) {
+    var text = "Press F to loot " + closestLoot.item.name;
+    ctx.font = "36px Play";
+
+    ctx.fillStyle = "#aaa";
+    ctx.globalAlpha = 0.8;
+    var width = ctx.measureText(text).width + 20;
+    roundRect(
+      ctx,
+      cvs.width/2 - width/2,
+      3*cvs.height/4 - LOOT_PROMT_HEIGHT * (1/2 + (touchingShop !== null)),
+      width,
+      LOOT_PROMT_HEIGHT
+    );
+
+    ctx.globalAlpha = 1;
+    ctx.fillStyle = "#fff";
+    ctx.fillText(
+      text,
+      cvs.width/2 - ctx.measureText(text).width/2,
+      3*cvs.height/4 + LOOT_PROMT_HEIGHT * (1/2 - (touchingShop !== null)) - 15
+    )
+  }
 }
 
 function roundRect(ctx, x, y, width, height, radius, fill, stroke) {

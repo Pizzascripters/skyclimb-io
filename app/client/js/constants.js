@@ -11,6 +11,10 @@ const STATS_HEIGHT = 320;
 const LEADERBOARD_WIDTH = 300;
 const LEADERBOARD_HEIGHT = 400;
 
+// Prompt
+const LOOT_PROMT_HEIGHT = 50;
+const SHOP_PROMPT_HEIGHT = 50;
+
 // Shop Menu
 const SHOP_MENU_MARGIN = 10;
 const SHOP_MENU_PADDING = 5;
@@ -47,6 +51,6 @@ const BIOME_SNOWY = 0.4;
 const BIOME_STARRY = 0.75;
 
 // Loot
-const LOOT_RADIUS = 30;
+const LOOT_RADIUS = 50;
 
 var FRAME_WIDTH = 2200; // The furthest distance a player can see

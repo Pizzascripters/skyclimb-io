@@ -165,6 +165,7 @@ const keydownEvent = e => {
 
 const keyupEvent = e => {
   Game = e.target.Game;
+  if(Game === undefined) return;
   if(Game.shopMenu.length > 0) {
     if(e.keyCode === 16)
       Game.keyboard.buy10 = false;

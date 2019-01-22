@@ -1,7 +1,7 @@
 const Matter = require('../lib/matter');
 const Item = require('./Item');
 
-const LOOT_RADIUS = 30;
+const LOOT_RADIUS = 50;
 const LOOT_LIFESPAN = 30000;
 const LOOT_SPAWNSPEED = 10;
 
