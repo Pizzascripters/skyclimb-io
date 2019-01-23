@@ -14,8 +14,8 @@ module.exports = function(world, item, pos, angle=Math.random()*2*Math.PI, amoun
   const yVelocity = -LOOT_SPAWNSPEED * Math.sin(angle);
 
   let body = this.body = Matter.Bodies.circle(pos.x, pos.y, LOOT_RADIUS);
-  body.collisionFilter.group = 1;
-  body.collisionFilter.mask = 0;
+  body.collisionFilter.group = 2;
+  body.collisionFilter.mask = 2;
   Matter.World.addBody(world, body); // Add yourself to the world
   Matter.Body.setVelocity(
     this.body,

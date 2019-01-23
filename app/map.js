@@ -79,7 +79,8 @@ for(var i in objects){
         isStatic: true
       });
       body.type = "mountain";
-      body.collisionFilter.group = 1;
+      body.collisionFilter.category = 3;
+      body.collisionFilter.mask = 3;
       Body.setVertices(body, v);
       map.push(body);
     }
@@ -94,8 +95,8 @@ for(var i in objects){
       isStatic: true
     });
     body.type = "safezone";
-    body.collisionFilter.group = 2;
-    body.collisionFilter.mask = 0;
+    body.collisionFilter.category = 4;
+    body.collisionFilter.mask = 4;
     Body.setVertices(body, v);
     map.push(body);
     szBodies[i] = body;

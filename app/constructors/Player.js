@@ -142,6 +142,8 @@ module.exports = function(id, ws, world, loot, SHIELD_MILLIS){
     this.body.player = this;
     this.body.restitution = 0.3;
     this.body.radius = this.radius = PLAYER_RADIUS;
+    this.body.collisionFilter.category = 1;
+    this.body.collisionFilter.mask = 1;
     Matter.World.addBody(world, this.body);
     this.choosingName = false;
   }

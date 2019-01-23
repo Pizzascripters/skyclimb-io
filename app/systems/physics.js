@@ -178,23 +178,26 @@ function handleShooting(p, body, bullets, RECOIL) {
     }
 
     if(item.canShoot) {
-      if(item.shotgun) {
-        if(item.magazine > 0) {
-          for(var i = 0; i < item.numBullets; i++) {
-            spawnPellet(item.accuracy);
-          }
-          item.magazine--;
-          item.reloading = false;
-          p.reloadProgress = 0;
-        }
+      if(p.shieldOn()) {
+        p.shield = 0;
       } else {
-        if(item.magazine > 0) {
-          spawnBullet(item.accuracy);
-          item.reloading = false;
-          p.reloadProgress = 0;
+        if(item.shotgun) {
+          if(item.magazine > 0) {
+            for(var i = 0; i < item.numBullets; i++) {
+              spawnPellet(item.accuracy);
+            }
+            item.magazine--;
+            item.reloading = false;
+            p.reloadProgress = 0;
+          }
+        } else {
+          if(item.magazine > 0) {
+            spawnBullet(item.accuracy);
+            item.reloading = false;
+            p.reloadProgress = 0;
+          }
         }
       }
-      p.shield = 0;
     }
 
     item.shootingCooldown = item.cooldownTime;
@@ -214,10 +217,14 @@ function handleThrowing(p, body, bullets, throwables){
     p.keyboard.shoot &&
     p.getItem().shootingCooldown === 0
   ) {
-    const throwable = new Throwable(world, bullets, p, p.getItem());
-    throwables.push(throwable);
-    if(--p.inventory.amt[p.inventory.select] === 0)
-      p.inventory.items[p.inventory.select] = Item(0);
+    if(p.shieldOn()) {
+      p.shield = 0;
+    } else {
+      const throwable = new Throwable(world, bullets, p, p.getItem());
+      throwables.push(throwable);
+      if(--p.inventory.amt[p.inventory.select] === 0)
+        p.inventory.items[p.inventory.select] = Item(0);
+    }
     p.getItem().shootingCooldown = p.getItem().cooldownTime;
   }
 }
@@ -230,14 +237,19 @@ function handleConsuming(p) {
     p.keyboard.shoot &&
     p.getItem().shootingCooldown === 0
   ) {
-    p.getItem().consume(p);
-    if(--p.inventory.amt[p.inventory.select] === 0)
-      p.inventory.items[p.inventory.select] = Item(0);
+    if(p.shieldOn()) {
+      p.shield = 0;
+    } else {
+      p.getItem().consume(p);
+      if(--p.inventory.amt[p.inventory.select] === 0)
+        p.inventory.items[p.inventory.select] = Item(0);
+    }
     p.getItem().shootingCooldown = p.getItem().cooldownTime;
   }
 }
 
 function handleHealing(p) {
+  if(p.shieldOn()) return;
   p.health += p.healPerTick;
   p.amountToHeal -= p.healPerTick;
   if(p.health > 1) {
@@ -367,7 +379,7 @@ function handleReloading(p, delta) {
 
 function collision(pairs) {
    pairs.forEach(({ bodyA, bodyB }) => {
-     var bodyTypes = ["bullet", "mountain", "player"];
+     var bodyTypes = ["bullet", "mountain", "safezone", "player"];
      if(bodyTypes.indexOf(bodyA.type) > bodyTypes.indexOf(bodyB.type)) {
        // Swap the bodies
        var tempBody = bodyA;
@@ -375,7 +387,7 @@ function collision(pairs) {
        bodyB = tempBody;
      }
      if (bodyA.type === "bullet" && !bodyA.bullet.deleted) {
-       if(bodyB.type === "mountain") {
+       if(bodyB.type === "mountain" || bodyB.type === "safezone") {
          bodyA.bullet.apoptosis();
        }else if(bodyB.type === "player" && !bodyB.player.deleted) {
          if(!bodyB.player.shieldOn()) {

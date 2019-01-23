@@ -39,6 +39,8 @@ module.exports = function (world, p, accuracy = 0, type = 0, damage = BULLET_DAM
   body.angle = angle;
   body.type = "bullet";
   body.bullet = this;
+  body.collisionFilter.category = 5;
+  body.collisionFilter.mask = 5;
   Matter.Body.setVelocity(
     this.body,
     {x: xVelocity, y: yVelocity}

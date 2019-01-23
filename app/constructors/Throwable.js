@@ -15,6 +15,8 @@ module.exports = function (world, bullets, p, item) {
   const yVelocity = -item.throwSpeed * Math.sin(angle);
 
   let body = this.body = Matter.Bodies.circle(throwableX, throwableY, item.radius);
+  body.collisionFilter.category = 1;
+  body.collisionFilter.mask = 1;
   Matter.Body.setVelocity(
     this.body,
     {x: xVelocity, y: yVelocity}
