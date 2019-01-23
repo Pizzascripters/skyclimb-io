@@ -427,10 +427,12 @@ function drawLoot(ctx, p, loot, cam) {
       ctx.drawImage(l.item.image, -width/2, -height/2, width, height);
     }
 
-    l.distance = Math.sqrt(
-      Math.pow(p.x - l.x, 2) +
-      Math.pow(p.y - l.y, 2)
-    )
+    if(p) {
+      l.distance = Math.sqrt(
+        Math.pow(p.x - l.x, 2) +
+        Math.pow(p.y - l.y, 2)
+      );
+    }
 
     ctx.restore();
   }

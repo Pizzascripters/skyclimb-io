@@ -64,6 +64,15 @@ function init(e){
     document.getElementById("deathscreen").style.visibility = "visible";
     document.getElementById("kills").innerText = Game.deathscreen.kills;
     document.getElementById("score").innerText = Game.deathscreen.score;
+
+    // Clear event listeners
+    window.removeEventListener("resize", resize);
+    window.removeEventListener("mousemove", mousemoveEvent);
+    window.removeEventListener("mousedown", mousedownEvent);
+    window.removeEventListener("mouseup", mouseupEvent);
+    window.removeEventListener("keydown", keydownEvent);
+    window.removeEventListener("keyup", keyupEvent);
+    window.removeEventListener("contextmenu", contextmenuEvent);
   }
 
   window.addEventListener("mousemove", mousemoveEvent);

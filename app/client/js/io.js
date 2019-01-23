@@ -23,15 +23,6 @@ function createWebsocket(Game) {
     cvs.hidden = true;
     document.getElementById("startmenu").style.visibility = "visible";
     document.getElementById("deathscreen").style.visibility = "hidden";
-
-    // Clear event listeners
-    window.removeEventListener("resize", resize);
-    window.removeEventListener("mousemove", mousemoveEvent);
-    window.removeEventListener("mousedown", mousedownEvent);
-    window.removeEventListener("mouseup", mouseupEvent);
-    window.removeEventListener("keydown", keydownEvent);
-    window.removeEventListener("keyup", keyupEvent);
-    window.removeEventListener("contextmenu", contextmenuEvent);
   };
   return ws;
 }
