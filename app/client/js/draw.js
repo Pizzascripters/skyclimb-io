@@ -776,6 +776,27 @@ function drawShopMenu(ctx, shopMenu, shopImages, closeButton, keyboard, goldImag
   ctx.lineTo((cvs.width - width) / 2, (cvs.height + height) / 2);
   ctx.lineTo((cvs.width - width) / 2, (cvs.height - height) / 2);
   ctx.stroke();
+
+  // Draw shift+ctrl info bubble
+  var text = "Hold shift to buy 10. Hold ctrl to buy 100.";
+  ctx.font = "36px Play";
+  ctx.fillStyle = "#aaa";
+  ctx.globalAlpha = 0.8;
+  var w = ctx.measureText(text).width + 20;
+  roundRect(
+    ctx,
+    cvs.width/2 - w/2,
+    cvs.height/2 + height/2,
+    w,
+    SHOP_PROMPT_HEIGHT
+  );
+  ctx.globalAlpha = 1;
+  ctx.fillStyle = "#fff";
+  ctx.fillText(
+    text,
+    cvs.width/2 - ctx.measureText(text).width/2,
+    cvs.height/2 + height/2 + SHOP_PROMPT_HEIGHT - 15
+  );
 }
 
 function drawPrompt(ctx, p, loot, shops, inShopMenu) {
@@ -829,7 +850,7 @@ function drawPrompt(ctx, p, loot, shops, inShopMenu) {
       text,
       cvs.width/2 - ctx.measureText(text).width/2,
       3*cvs.height/4 + SHOP_PROMPT_HEIGHT/2 - 15
-    )
+    );
   }
 
   // Draw the loot prompt
@@ -854,7 +875,7 @@ function drawPrompt(ctx, p, loot, shops, inShopMenu) {
       text,
       cvs.width/2 - ctx.measureText(text).width/2,
       3*cvs.height/4 + LOOT_PROMT_HEIGHT * (1/2 - (touchingShop !== null)) - 15
-    )
+    );
   }
 }
 
