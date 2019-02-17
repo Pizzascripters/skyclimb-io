@@ -4,13 +4,17 @@
     <link rel="shortcut icon" href="favicon.ico"/>
     <link href="https://fonts.googleapis.com/css?family=Play" rel="stylesheet">
     <link rel="stylesheet" href="main.css" />
+    <script src="icon/animate.js"></script>
     <script src="js/util.js"></script>
     <script src="js/init.js"></script>
   </head>
   <body>
     <div class="bg"></div>
     <div id="startmenu">
-      <p id="header">Skyclimb</p>
+      <p id="header">
+        Skyclimb
+        <canvas id="icon"></canvas>
+      </p>
       <p id="error"></p>
       <input type="text" placeholder="name" maxlength="15" spellcheck="false" id="name"/>
       <button onclick="init()">Start</button>

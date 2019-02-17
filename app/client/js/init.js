@@ -7,7 +7,6 @@ var Game = {};          // The entire game
 // Add a random background image
 window.addEventListener("load", e => {
   var rand = Math.floor(15*Math.random());
-  console.log(rand);
   var url = "url('titlemenubg/"+rand+".png')";
   document.getElementsByClassName("bg")[0].style.backgroundImage = url;
 });
