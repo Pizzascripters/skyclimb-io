@@ -252,30 +252,21 @@ function drawPlayer(ctx, cam, p, outline, eyes, weapon) {
 
 function drawMountain(ctx, cam, p, textures) {
   const zoom = getScale();
-  const size = 3 * zoom;
-
-  // Stone Pattern
-  const offset = {
-    x: -(zoom * cam.x % (size * MOUNTAIN_TEXURE_WIDTH)),
-    y: -(zoom * cam.y % (size * MOUNTAIN_TEXURE_HEIGHT))
-  }
 
   /*ctx.save();
-  ctx.scale(zoom, zoom);
   ctx.translate(-cam.x + cvs.width/2, -cam.y + cvs.height / 2);
-  ctx.scale(size, size);
   ctx.fillStyle = ctx.createPattern(textures.rock, "repeat");
 
   ctx.beginPath();
-  ctx.moveTo(p.vertices[0].x / size, p.vertices[0].y / size);
+  ctx.moveTo(p.vertices[0].x, p.vertices[0].y);
   for(var i = 1; i < p.vertices.length; i++) {
-    ctx.lineTo(p.vertices[i].x / size, p.vertices[i].y / size);
+    ctx.lineTo(p.vertices[i].x, p.vertices[i].y);
   }
-  ctx.lineTo(p.vertices[0].x / size, p.vertices[0].y / size);
+  ctx.lineTo(p.vertices[0].x, p.vertices[0].y);
   ctx.fill();
   ctx.restore();*/
 
-  ctx.save();
+  /*ctx.save();
   ctx.translate(offset.x, offset.y);
   ctx.scale(size, size);
   ctx.fillStyle = ctx.createPattern(textures.rock, "repeat");
@@ -293,7 +284,13 @@ function drawMountain(ctx, cam, p, textures) {
   }
   ctx.lineTo(v0.x, v0.y);
   ctx.fill();
-  ctx.restore();
+  ctx.restore();*/
+
+  // Stone Pattern
+  const offset = {
+    x: -(cam.x % (MOUNTAIN_TEXTURE_SCALE*textures.rock.width))/MOUNTAIN_TEXTURE_SCALE,
+    y: -(cam.y % (MOUNTAIN_TEXTURE_SCALE*textures.rock.height))/MOUNTAIN_TEXTURE_SCALE
+  }
 
   // Outline
   if(OBJECT_OUTLINE) {
@@ -308,6 +305,14 @@ function drawMountain(ctx, cam, p, textures) {
     ctx.strokeStyle = "#000";
     ctx.lineWidth = OBJECT_OUTLINE_WIDTH * getScale();
     ctx.stroke();
+
+    ctx.save();
+    ctx.translate(cvs.width / 2, cvs.height / 2);
+    ctx.scale(zoom*MOUNTAIN_TEXTURE_SCALE, zoom*MOUNTAIN_TEXTURE_SCALE);
+    ctx.translate(offset.x, offset.y);
+    ctx.fillStyle = ctx.createPattern(textures.rock, "repeat");
+    ctx.fill();
+    ctx.restore();
   }
 
   // Draw grass & snow

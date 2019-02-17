@@ -254,7 +254,7 @@ function resize(e){
 }
 
 function getScale() {
-  return 0.5 * cvs.width / visibility;
+  return 0.5 * cvs.width / anim.visibility;
 }
 
 // Finds the distance between two points

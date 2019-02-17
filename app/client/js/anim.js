@@ -4,6 +4,7 @@ var anim = {
       anim.inventory(delta, Game.inventory);
       anim.healthbar(delta, Game.players[0].healing);
       anim.snow(delta, Game.snow);
+      anim.doVisibility(delta);
       Game.stars.update(delta);
     }
   },
@@ -42,6 +43,31 @@ var anim = {
       element.update(delta);
     });
   },
+
+  startVisiblityAnimation: (dest) => {
+    anim.visibilityStart = anim.visibility;
+    anim.visibilityDest = dest;
+    anim.visibilityTransitionTime = 0;
+  },
+
+  doVisibility: (delta) => {
+    // The function representing the transition
+    var f = x => {
+      var a = anim.visibilityStart;
+      var b = anim.visibilityDest;
+      var k = SCOPE_TRANSITION_TIME;
+      if(x >= k) anim.visibilityStart = anim.visibilityDest; // Finish the animation
+      return Math.pow(x-k,2)*(a-b)/(k*k)+b; // Parabolic transition
+    }
+
+    anim.visibilityTransitionTime += delta;
+    anim.visibility = f(anim.visibilityTransitionTime);
+  },
+
+  visibility: 1000,
+  visibilityStart: 1000,
+  visibilityDest: 1000,
+  visibilityTransitionTime: 0,
 
   healthbarglow: 0
 }

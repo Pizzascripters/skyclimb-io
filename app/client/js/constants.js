@@ -33,8 +33,7 @@ const PLAYER_OUTLINE_COLOR = "#000";
 const PLAYER_OUTLINE_WIDTH = 3;
 
 // Mountain Drawing
-const MOUNTAIN_TEXURE_WIDTH = 200;
-const MOUNTAIN_TEXURE_HEIGHT = 200;
+const MOUNTAIN_TEXTURE_SCALE = 3;
 const OBJECT_OUTLINE = true;
 const OBJECT_OUTLINE_COLOR = "#000";
 const OBJECT_OUTLINE_WIDTH = 4;
@@ -53,4 +52,4 @@ const BIOME_STARRY = 0.75;
 // Loot
 const LOOT_RADIUS = 50;
 
-var FRAME_WIDTH = 2200; // The furthest distance a player can see
+const SCOPE_TRANSITION_TIME = 600;

@@ -254,7 +254,7 @@ function setStats(data, ref, player) {
   if(mask & 16) player.bullets = readShort(data, ref);
   if(mask & 8) player.shells = readShort(data, ref);
   if(mask & 4) player.scope = readByte(data, ref);
-  if(mask & 2) visibility = readShort(data, ref);
+  if(mask & 2) anim.startVisiblityAnimation(readShort(data, ref));
 }
 
 function setInventory(data, ref, player, inventory) {

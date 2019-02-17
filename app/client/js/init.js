@@ -1,7 +1,6 @@
 var restarting = false; // If the game is restarting
 var prevTime = 0;       // Time of last frame
 var pingStart;          // The time we sent out the ping
-var visibility;
 var Game = {};          // The entire game
 
 // Add a random background image
