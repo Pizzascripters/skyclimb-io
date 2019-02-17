@@ -58,7 +58,7 @@ module.exports = function(id, ws, world, loot, SHIELD_MILLIS){
 
   this.hand = 0; // The angle (number 0-255) that the player is holding their weapon
   this.health = 1;
-  this.shield = 0;
+  this.shield = SHIELD_MILLIS;
   this.energy = 1;
   this.kills = 0;
   this.gold = 0;

@@ -8,11 +8,32 @@
     <script src="js/init.js"></script>
   </head>
   <body>
+    <div class="bg"></div>
     <div id="startmenu">
       <p id="header">Skyclimb</p>
       <p id="error"></p>
       <input type="text" placeholder="name" maxlength="15" spellcheck="false" id="name"/>
       <button onclick="init()">Start</button>
+      <p class="subtext">
+        How to Play:
+      </p>
+      <p>
+        Use your jetpack to scale the mountain while defending yourself from other players.
+        The greater your elevation, the faster you accumulate gold, which you can spend at the 5 shops located around the map.
+      </p>
+      <p class="subtext">
+        Controls:
+      </p>
+      <p>
+        W - Use Jetpack <br />
+        A - Move Left <br />
+        D - Move Right <br />
+        123ZXC - Switch Item <br />
+        Click - Use Item <br />
+        Q - Drop Item <br />
+        E - Enter Shop <br />
+        F - Pickup Loot <br />
+      </p>
     </div>
     <canvas id="cvs" hidden></canvas>
     <div id="deathscreen" style="visibility:hidden">

@@ -2,11 +2,17 @@ var restarting = false; // If the game is restarting
 var prevTime = 0;       // Time of last frame
 var pingStart;          // The time we sent out the ping
 var visibility;
-var Game = {};          // The entire game, only used for debugging
+var Game = {};          // The entire game
+
+// Add a random background image
+window.addEventListener("load", e => {
+  var rand = Math.floor(15*Math.random());
+  console.log(rand);
+  var url = "url('titlemenubg/"+rand+".png')";
+  document.getElementsByClassName("bg")[0].style.backgroundImage = url;
+});
 
 function init(e){
-  var Game = document.body.Game = {};
-
   Game.players = [];
   Game.map = [];
   Game.bullets = [];
@@ -114,12 +120,10 @@ function update(Game, time){
 }
 
 const mousemoveEvent = e => {
-  Game = e.target.Game;
   Game.hand = mousemove(e);
 }
 
 const mousedownEvent = e => {
-  Game = e.target.Game;
   mouse.down = true;
 
   // Handle buttons
@@ -152,13 +156,11 @@ const mousedownEvent = e => {
 }
 
 const mouseupEvent = e => {
-  Game = e.target.Game;
   mouse.down = false;
   mouseup(e, Game.keyboard)
 }
 
 const keydownEvent = e => {
-  Game = e.target.Game;
   if(Game.shopMenu.length > 0) {
     if(e.keyCode === 27 || e.keyCode === 88) {
       Game.shopMenu = [];
@@ -173,7 +175,6 @@ const keydownEvent = e => {
 }
 
 const keyupEvent = e => {
-  Game = e.target.Game;
   if(Game === undefined) return;
   if(Game.shopMenu.length > 0) {
     if(e.keyCode === 16)
